@@ -52,50 +52,55 @@
   nav {
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 0 20px;
+    padding: 0 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 60px;
+    height: 56px;
     position: sticky;
     top: 0;
     z-index: 100;
+    gap: 8px;
   }
   .logo {
     font-family: 'Nunito', sans-serif;
     font-weight: 900;
-    font-size: 22px;
+    font-size: 20px;
     color: var(--primary);
     letter-spacing: -0.5px;
+    white-space: nowrap;
   }
   .logo span { color: var(--accent); }
   .nav-score {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 6px;
     font-size: 14px;
+    flex-shrink: 0;
   }
   .score-pill {
     background: var(--primary-light);
     color: var(--primary);
-    padding: 6px 14px;
+    padding: 5px 10px;
     border-radius: 99px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    white-space: nowrap;
   }
   .streak-pill {
     background: var(--yellow-light);
     color: #d97706;
-    padding: 6px 14px;
+    padding: 5px 10px;
     border-radius: 99px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    white-space: nowrap;
   }
 
   /* ─── TABS ─── */
@@ -130,25 +135,25 @@
   }
 
   /* ─── SCREENS ─── */
-  .screen { display: none; padding: 24px 20px; max-width: 600px; margin: 0 auto; }
+  .screen { display: none; padding: 16px 16px 32px; max-width: 600px; margin: 0 auto; }
   .screen.active { display: block; }
 
   /* ─── HOME SCREEN ─── */
   .hero {
     text-align: center;
-    padding: 32px 0 24px;
+    padding: 20px 0 16px;
   }
   .hero h1 {
     font-family: 'Nunito', sans-serif;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 900;
     line-height: 1.2;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
-  .hero p { color: var(--text-muted); font-size: 16px; }
+  .hero p { color: var(--text-muted); font-size: 14px; }
   
   .level-selector {
-    margin: 24px 0;
+    margin: 16px 0;
   }
   .level-selector label {
     display: block;
@@ -157,21 +162,19 @@
     font-size: 15px;
   }
   .level-buttons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-    flex-wrap: wrap;
   }
   .level-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 12px 8px;
+    padding: 12px 4px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--card);
     cursor: pointer;
     font-family: 'Rubik', sans-serif;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
     transition: all 0.2s;
     color: var(--text-muted);
@@ -193,12 +196,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    margin: 20px 0;
+    margin: 12px 0;
   }
   .game-card {
     background: var(--card);
     border-radius: var(--radius);
-    padding: 20px 16px;
+    padding: 16px 12px;
     cursor: pointer;
     border: 2px solid var(--border);
     transition: all 0.2s;
@@ -620,8 +623,9 @@
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(26,26,46,0.6);
+    background: rgba(26,26,46,0.7);
     backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 200;
     display: flex;
     align-items: center;
@@ -632,28 +636,28 @@
   .modal-box {
     background: var(--card);
     border-radius: var(--radius);
-    padding: 36px 28px;
+    padding: 40px 28px 32px;
     width: 100%;
-    max-width: 360px;
+    max-width: 340px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(108,99,255,0.25);
+    box-shadow: 0 20px 60px rgba(108,99,255,0.3);
     animation: pop 0.3s ease;
   }
-  .modal-box .modal-icon { font-size: 56px; margin-bottom: 12px; }
+  .modal-box .modal-icon { font-size: 64px; margin-bottom: 16px; line-height: 1; }
   .modal-box h2 {
     font-family: 'Nunito', sans-serif;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
-  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+  .modal-box p { color: var(--text-muted); font-size: 15px; margin-bottom: 28px; }
   .nickname-input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 16px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     font-family: 'Nunito', sans-serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     text-align: center;
     outline: none;
@@ -661,6 +665,7 @@
     color: var(--text);
     margin-bottom: 16px;
     direction: rtl;
+    -webkit-appearance: none;
   }
   .nickname-input:focus { border-color: var(--primary); }
   .nickname-input::placeholder { color: var(--text-muted); font-weight: 400; }
