@@ -150,6 +150,7 @@
   /* ─── SCREENS ─── */
   .screen { display: none; padding: 16px 16px 32px; width: 100%; max-width: 600px; margin: 0 auto; }
   .screen.active { display: block; }
+  #screen-run.screen.active { display: flex; }
 
   /* ─── HOME SCREEN ─── */
   .hero {
@@ -950,21 +951,28 @@
   .nickname-input::placeholder { color: var(--text-muted); font-weight: 400; }
 
   /* ─── WORD RUN GAME ─── */
-  .run-screen {
+  #screen-run.run-screen {
+    display: none;
+    flex-direction: column;
+    height: calc(100vh - 110px);
+    min-height: 500px;
+    padding: 16px 16px 8px;
+    overflow: hidden;
+  }
+  #screen-run.run-screen.active {
+    display: flex;
+  }
+  #run-game {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 120px);
-    min-height: 480px;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-    user-select: none;
+    flex: 1;
+    min-height: 0;
   }
   .run-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0 12px;
+    padding-bottom: 12px;
     flex-shrink: 0;
   }
   .run-stats {
@@ -979,19 +987,11 @@
     font-size: 20px;
     color: var(--primary);
   }
-  .run-level-badge {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 3px 10px;
-  }
 
   /* falling arena */
   .run-arena {
     flex: 1;
+    min-height: 260px;
     position: relative;
     background: linear-gradient(180deg, var(--bg) 0%, var(--card) 100%);
     border: 2px solid var(--border);
@@ -1479,8 +1479,8 @@
 </div>
 
 <!-- ═══════════════ WORD RUN ═══════════════ -->
-<div id="screen-run" class="screen">
-  <div id="run-game">
+<div id="screen-run" class="screen run-screen">
+  <div id="run-game" style="display:flex;flex-direction:column;height:100%">
     <div class="run-header">
       <div style="display:flex;align-items:center;gap:8px">
         <button class="btn-back" onclick="confirmLeaveGame('run')">←</button>
