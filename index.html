@@ -1078,7 +1078,7 @@
 <div id="screen-mc" class="screen">
   <div id="mc-game">
     <div class="game-header">
-      <button class="btn-back" onclick="goHome()">←</button>
+      <button class="btn-back" onclick="confirmLeaveGame('mc')">←</button>
       <span class="game-title">🎯 מולטי-צ'ויס</span>
       <span class="game-progress" id="mc-progress">1 / 10</span>
     </div>
@@ -1090,13 +1090,16 @@
       <div class="progress-bar" id="mc-bar" style="width:10%"></div>
     </div>
     <div class="word-card">
-      <div class="word-label">מה האנגלית של:</div>
+      <div class="word-label" id="mc-word-label">מה התרגום של:</div>
       <div class="word-main" id="mc-word">—</div>
       <div class="word-example" id="mc-example"></div>
     </div>
     <div class="options-grid" id="mc-options"></div>
     <div class="feedback-banner" id="mc-feedback"></div>
-    <button class="next-btn" id="mc-next" onclick="mcNext()">הבא ←</button>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="next-btn" id="mc-next" onclick="mcNext()" style="flex:1;margin:0">הבא ←</button>
+      <button onclick="confirmRestart('mc')" style="background:none;border:2px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+    </div>
   </div>
 
   <div id="mc-results" class="results" style="display:none">
@@ -1126,9 +1129,12 @@
 <div id="screen-flash" class="screen">
   <div id="flash-game">
     <div class="game-header">
-      <button class="btn-back" onclick="goHome()">←</button>
+      <button class="btn-back" onclick="confirmLeaveGame('flash')">←</button>
       <span class="game-title">🃏 פלאשקארדס</span>
-      <span class="game-progress" id="flash-progress">1 / 10</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="game-progress" id="flash-progress">1 / 10</span>
+        <button onclick="confirmRestart('flash')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+      </div>
     </div>
     <div class="dir-toggle">
       <button class="dir-btn active" id="fl-dir-he" onclick="setFlDir(false)">🇮🇱 עברית ← אנגלית</button>
@@ -1182,9 +1188,12 @@
 <div id="screen-fill" class="screen">
   <div id="fill-game">
     <div class="game-header">
-      <button class="btn-back" onclick="goHome()">←</button>
+      <button class="btn-back" onclick="confirmLeaveGame('fill')">←</button>
       <span class="game-title">✏️ השלמת משפט</span>
-      <span class="game-progress" id="fill-progress">1 / 10</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="game-progress" id="fill-progress">1 / 10</span>
+        <button onclick="confirmRestart('fill')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+      </div>
     </div>
     <div class="progress-bar-wrap">
       <div class="progress-bar" id="fill-bar" style="width:10%"></div>
@@ -1226,9 +1235,12 @@
 <div id="screen-match" class="screen">
   <div id="match-game">
     <div class="game-header">
-      <button class="btn-back" onclick="goHome()">←</button>
+      <button class="btn-back" onclick="confirmLeaveGame('match')">←</button>
       <span class="game-title">🔗 התאמה</span>
-      <span class="match-pairs-left" id="match-pairs-left"></span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="match-pairs-left" id="match-pairs-left"></span>
+        <button onclick="confirmRestart('match')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+      </div>
     </div>
 
     <div class="match-config">
@@ -1348,6 +1360,9 @@
       <p>עדיין אין משחקים.<br>שחק את המשחק הראשון שלך!</p>
     </div>
   </div>
+  <button onclick="confirmResetHistory()" style="margin-top:16px;width:100%;padding:12px;background:none;border:2px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-family:'Rubik',sans-serif;font-weight:600;font-size:14px;cursor:pointer;">
+    🗑️ אפס היסטוריה
+  </button>
 </div>
 
 <script>
@@ -1767,6 +1782,74 @@ function getWrongOptions(allWords, correct, count, reversed) {
 // ═══════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════
+
+// Track active game and paused state
+let activeGame = null; // 'mc' | 'flash' | 'fill' | 'match'
+let gamePaused = { mc: false, flash: false, fill: false, match: false };
+
+function confirmLeaveGame(type) {
+  // if game is done (showing results) or not started yet — leave freely
+  const gameEl = document.getElementById(type + '-game');
+  const resultsEl = document.getElementById(type + '-results');
+  if (!gameEl || gameEl.style.display === 'none' || (resultsEl && resultsEl.style.display !== 'none')) {
+    goHome(); return;
+  }
+  if (confirm('לצאת מהמשחק?\nההתקדמות תישמר — תוכל להמשיך אחר כך.')) {
+    gamePaused[type] = true;
+    goHome();
+  }
+}
+
+function confirmRestart(type) {
+  if (confirm('להתחיל מחדש?\nהתקדמות המשחק הנוכחי תאבד.')) {
+    gamePaused[type] = false;
+    if (type === 'mc') initMC(mc.reversed);
+    if (type === 'flash') initFlash(fl.reversed);
+    if (type === 'fill') initFill();
+    if (type === 'match') initMatch();
+  }
+}
+
+function confirmResetHistory() {
+  if (confirm('לאפס את כל ההיסטוריה?\nניקוד, רצפים ומשחקים יימחקו לצמיתות.')) {
+    state.totalScore = 0;
+    state.currentStreak = 0;
+    state.bestStreak = 0;
+    state.gamesPlayed = 0;
+    state.bestScores = {};
+    state.history = [];
+    saveState();
+    updateUI();
+    updateStatsScreen();
+    showToast('✅ היסטוריה אופסה');
+  }
+}
+
+// Words helpers
+function getBuiltinWords(level) {
+  let words = [];
+  for (let l = 1; l <= level; l++) {
+    if (!WORDS[l]) continue;
+    const packs = WORDS[l].packs;
+    const unlocked = state.unlockedPacks[l] || 1;
+    for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
+      words = words.concat(packs[p]);
+    }
+  }
+  return words;
+}
+
+function hasOnlyCustomSources() {
+  const sources = state.activeSources || ['builtin'];
+  return !sources.includes('builtin') && sources.some(s => s !== 'builtin');
+}
+
+function getFillWords(level) {
+  // Always use only builtin words for fill game (they have sentences)
+  const builtinWords = getBuiltinWords(level);
+  return builtinWords.filter(w => w.ex && w.ex.includes(w.en));
+}
+
 function showTab(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1799,6 +1882,15 @@ function updateUI() {
   document.getElementById('home-flash-best').textContent = state.bestScores.flash || 0;
   document.getElementById('home-fill-best').textContent = state.bestScores.fill || 0;
   document.getElementById('home-match-best').textContent = state.bestScores.match || 0;
+
+  // Disable fill game card if no builtin words available
+  const fillDisabled = getFillWords(state.currentLevel).length < 4;
+  const fillCard = document.querySelector('[onclick="startGame(\'fill\')"]');
+  if (fillCard) {
+    fillCard.style.opacity = fillDisabled ? '0.4' : '1';
+    fillCard.style.pointerEvents = fillDisabled ? 'none' : '';
+    fillCard.querySelector('.game-desc').textContent = fillDisabled ? '(דורש מילים מובנות)' : 'השלם את המילה החסרה';
+  }
   updateAddWordsUI();
 }
 
@@ -1847,6 +1939,30 @@ function startGame(type) {
   const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4 };
   document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
   navigateTo(type);
+  activeGame = type;
+
+  // Fill game: disabled when only custom sources
+  if (type === 'fill') {
+    const fillWords = getFillWords(state.currentLevel);
+    if (fillWords.length < 4) {
+      alert('משחק השלמת משפט דורש מילים מובנות.\nהפעל "מילים מובנות" במקורות כדי לשחק.');
+      goHome(); return;
+    }
+  }
+
+  // Resume paused game if available
+  if (gamePaused[type]) {
+    gamePaused[type] = false;
+    // game state already in memory — just re-render
+    if (type === 'mc') renderMCQuestion();
+    if (type === 'flash') renderFlashCard();
+    if (type === 'fill') renderFillQuestion();
+    if (type === 'match') { /* match is stateless visually, just resume timer */ clearInterval(mt.timerInterval); mt.startTime = Date.now() - mt.elapsed * 1000; mt.done = false; mt.timerInterval = setInterval(updateMatchTimer, 500); }
+    document.getElementById(type + '-game').style.display = 'block';
+    document.getElementById(type + '-results').style.display = 'none';
+    return;
+  }
+
   if (type === 'mc') initMC();
   if (type === 'flash') initFlash();
   if (type === 'fill') initFill();
@@ -2113,12 +2229,10 @@ function updateStatsScreen() {
 let fi = {};
 
 function initFill() {
-  const allWords = getAvailableWords(state.currentLevel);
-  // filter only words that have a real example sentence
-  const valid = allWords.filter(w => w.ex && w.ex.includes(w.en));
-  if (valid.length < 4) { alert('אין מספיק מילים עם משפטים לרמה זו!'); return; }
+  const valid = getFillWords(state.currentLevel);
+  if (valid.length < 4) { alert('אין מספיק מילים מובנות עם משפטים!'); return; }
   fi.words = shuffle(valid).slice(0, 10);
-  fi.all = allWords;
+  fi.all = valid; // always use builtin pool for wrong options
   fi.idx = 0;
   fi.score = 0;
   fi.correct = 0;
@@ -2380,6 +2494,7 @@ function updateSourcesUI() {
   const hasCustom = sources.some(s => s !== 'builtin');
   btn.style.borderColor = hasCustom ? 'var(--accent)' : '';
   btn.style.color = hasCustom ? 'var(--accent)' : '';
+  updateUI(); // refresh fill card disabled state
 }
 
 // ── Level dropdown ──
@@ -2469,7 +2584,7 @@ function savePack() {
   const words = pendingWords
     .filter(w => w.en && w.he)
     .map(w => ({ en: w.en.trim(), he: w.he.trim(), ex: `${w.en.trim()}.` }));
-  if (words.length === 0) { alert('אין מילים תקינות לשמירה'); return; }
+  if (words.length < 4) { alert('חבילה צריכה לפחות 4 מילים תקינות'); return; }
 
   if (editingPackId) {
     // עדכון חבילה קיימת
@@ -2565,6 +2680,8 @@ document.addEventListener('click', e => {
 let mt = {};
 
 function setMatchCount(n, btn) {
+  const maxCount = Math.min(getAvailableWords(state.currentLevel).length, 10);
+  if (n > maxCount) return;
   mt.count = n;
   document.querySelectorAll('.match-count-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
@@ -2573,8 +2690,19 @@ function setMatchCount(n, btn) {
 
 function initMatch() {
   const allWords = getAvailableWords(state.currentLevel);
-  const count = mt.count || 6;
+  const maxCount = Math.min(allWords.length, 10);
+  if (allWords.length < 4) { alert('צריך לפחות 4 מילים להתאמה!'); return; }
+  const count = Math.min(mt.count || 6, maxCount);
   mt.count = count;
+
+  // Update count buttons to only show valid options
+  document.querySelectorAll('.match-count-btn').forEach(btn => {
+    const n = parseInt(btn.textContent);
+    btn.disabled = n > maxCount;
+    btn.style.opacity = n > maxCount ? '0.3' : '1';
+    if (n === count) btn.classList.add('selected');
+    else btn.classList.remove('selected');
+  });
   mt.words = shuffle(allWords).slice(0, count);
   mt.matched = 0;
   mt.errors = 0;
