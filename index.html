@@ -2,8 +2,21 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>WordUp – לימוד אנגלית</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6c63ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WordUp">
+
+<!-- Icon (SVG inline as data URI) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%236c63ff'/%3E%3Ctext x='50' y='62' font-size='54' text-anchor='middle' font-family='Arial' font-weight='bold' fill='white'%3EW%3C/text%3E%3Ccircle cx='72' cy='28' r='14' fill='%23ff6584'/%3E%3Ctext x='72' y='34' font-size='16' text-anchor='middle' font-family='Arial' font-weight='bold' fill='white'%3E🚀%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -602,13 +615,90 @@
     color: var(--text-muted);
     margin-top: 12px;
   }
+
+  /* ─── NICKNAME MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,46,0.6);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal-box {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(108,99,255,0.25);
+    animation: pop 0.3s ease;
+  }
+  .modal-box .modal-icon { font-size: 56px; margin-bottom: 12px; }
+  .modal-box h2 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+  .modal-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+  .nickname-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+    color: var(--text);
+    margin-bottom: 16px;
+    direction: rtl;
+  }
+  .nickname-input:focus { border-color: var(--primary); }
+  .nickname-input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+  /* ─── USERNAME IN NAV ─── */
+  .nav-username {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav-username:hover { background: var(--border); }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════ NICKNAME MODAL ═══════════════ -->
+<div class="modal-overlay hidden" id="nicknameModal">
+  <div class="modal-box">
+    <div class="modal-icon">👋</div>
+    <h2>היי! מה שמך?</h2>
+    <p>בחר כינוי שיופיע באפליקציה</p>
+    <input class="nickname-input" id="nicknameInput" type="text" placeholder="כינוי שלך..." maxlength="16">
+    <button class="btn-primary" onclick="saveNickname()" style="margin-bottom:0">בואו נתחיל! 🚀</button>
+  </div>
+</div>
+
 <nav>
   <div class="logo">Word<span>Up</span> 🚀</div>
   <div class="nav-score">
+    <span class="nav-username" id="navUsername" onclick="openNicknameModal()" title="שנה כינוי">👤</span>
     <button id="sfx-btn" onclick="toggleSfx()" title="כבה צלילים" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;">🔊</button>
     <button id="music-btn" onclick="toggleMusic()" title="כבה מוזיקה" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;">🎵</button>
     <div class="streak-pill" id="navStreak">🔥 <span id="streakVal">0</span></div>
@@ -627,7 +717,7 @@
 <!-- ═══════════════ HOME ═══════════════ -->
 <div id="screen-home" class="screen active">
   <div class="hero">
-    <h1>שלום! 👋<br>בוא נלמד אנגלית</h1>
+    <h1 id="heroGreeting">שלום! 👋<br>בוא נלמד אנגלית</h1>
     <p>בחר רמה ומשחק — וצבור נקודות!</p>
   </div>
 
@@ -1214,6 +1304,8 @@ function loadState() {
   const saved = localStorage.getItem('wordup_state');
   if (saved) state = { ...state, ...JSON.parse(saved) };
   updateUI();
+  updateNicknameUI();
+  if (!state.nickname) openNicknameModal();
 }
 function saveState() {
   localStorage.setItem('wordup_state', JSON.stringify(state));
@@ -1849,6 +1941,50 @@ document.addEventListener('click', e => {
 
 // Start music on first interaction
 document.addEventListener('click', () => { startMusic(); }, { once: true });
+
+// ═══════════════════════════════════════════
+//  NICKNAME
+// ═══════════════════════════════════════════
+function openNicknameModal() {
+  const modal = document.getElementById('nicknameModal');
+  modal.classList.remove('hidden');
+  const input = document.getElementById('nicknameInput');
+  input.value = state.nickname || '';
+  setTimeout(() => input.focus(), 100);
+}
+
+function saveNickname() {
+  const input = document.getElementById('nicknameInput');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  state.nickname = name;
+  saveState();
+  document.getElementById('nicknameModal').classList.add('hidden');
+  updateNicknameUI();
+}
+
+function updateNicknameUI() {
+  const name = state.nickname;
+  if (name) {
+    document.getElementById('navUsername').textContent = name;
+    document.getElementById('heroGreeting').innerHTML = `היי ${name}! 👋<br>בוא נלמד אנגלית`;
+  } else {
+    document.getElementById('navUsername').textContent = '👤';
+    document.getElementById('heroGreeting').innerHTML = `שלום! 👋<br>בוא נלמד אנגלית`;
+  }
+}
+
+// Enter key in nickname input
+document.getElementById('nicknameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveNickname();
+});
+
+// ═══════════════════════════════════════════
+//  SERVICE WORKER (PWA)
+// ═══════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 
 // ═══════════════════════════════════════════
 //  INIT
