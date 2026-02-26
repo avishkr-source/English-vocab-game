@@ -1123,7 +1123,7 @@
     animation: pop 0.4s ease;
   }
 
-  @keyframes word-shake {
+  .run-countdown.hidden { display: none; }
     0%,100% { transform: translateX(-50%); }
     25% { transform: translateX(calc(-50% - 6px)); }
     75% { transform: translateX(calc(-50% + 6px)); }
@@ -2674,7 +2674,11 @@ function startCountdown(cb) {
     count--;
     if (count === 0) {
       el.textContent = 'GO!';
-      setTimeout(() => { el.classList.add('hidden'); cb(); }, 500);
+      setTimeout(() => {
+        el.classList.add('hidden');
+        el.textContent = '';
+        cb();
+      }, 600);
       clearInterval(iv);
     } else {
       el.textContent = count;
