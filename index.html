@@ -1387,7 +1387,124 @@
     color: var(--text-muted);
     font-weight: 600;
     margin-top: 2px;
+  /* ─── EMOJI GAME ─── */
+  .emoji-cat-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
   }
+  .emoji-cat-btn {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    padding: 12px 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .emoji-cat-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .emoji-cat-btn .cat-emoji { font-size: 22px; display: block; margin-bottom: 3px; }
+
+  .emoji-speak-area {
+    text-align: center;
+    padding: 20px 16px 16px;
+    position: relative;
+  }
+  .emoji-speak-btn {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: none;
+    cursor: pointer;
+    font-size: 40px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 28px rgba(108,99,255,0.4);
+    transition: transform 0.15s;
+    margin-bottom: 10px;
+  }
+  .emoji-speak-btn:active { transform: scale(0.92); }
+  .emoji-speak-btn.speaking {
+    background: var(--accent);
+    animation: pulse-speak 0.6s ease infinite alternate;
+  }
+  .emoji-question {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    direction: rtl;
+    min-height: 28px;
+  }
+  .emoji-hint { font-size: 13px; color: var(--text-muted); font-weight: 600; min-height: 18px; }
+
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 2px 16px;
+  }
+  .emoji-tile {
+    aspect-ratio: 1;
+    border-radius: 18px;
+    border: 3px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    font-size: 44px;
+    position: relative;
+  }
+  .emoji-tile:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+  .emoji-tile:active { transform: scale(0.94); }
+  .emoji-tile .tile-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .emoji-tile.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    box-shadow: 0 0 0 5px rgba(34,197,94,0.25);
+    animation: swatch-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .emoji-tile.correct .tile-label { opacity: 1; color: #0d6e50; }
+  .emoji-tile.wrong {
+    border-color: var(--accent);
+    animation: shake 0.35s ease;
+  }
+  .emoji-hud {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 2px;
+  }
+  .emoji-hud-val {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .emoji-hud-label { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; text-align:center; }
 </style>
 </head>
 <body>
@@ -1422,6 +1539,7 @@
   <button class="tab" onclick="showTab('run')">🏃 ריצה</button>
   <button class="tab" onclick="showTab('listen')">🔊 האזנה</button>
   <button class="tab" onclick="showTab('colors')">🎨 צבעים</button>
+  <button class="tab" onclick="showTab('emoji')">😀 תמונות</button>
   <button class="tab" onclick="showTab('stats')">📊 סטטיסטיקות</button>
 </div>
 
@@ -1508,6 +1626,12 @@
       <div class="game-name">צבעים</div>
       <div class="game-desc">לקטנים — שמע וגע בצבע!</div>
       <div class="game-score">שיא: <span id="home-colors-best">0</span></div>
+    </div>
+    <div class="game-card" onclick="startGame('emoji')">
+      <div class="game-icon">😀</div>
+      <div class="game-name">תמונות</div>
+      <div class="game-desc">שמע וגע בתמונה הנכונה!</div>
+      <div class="game-score">שיא: <span id="home-emoji-best">0</span></div>
     </div>
   </div>
 
@@ -1912,6 +2036,76 @@
       </div>
     </div>
     <button class="btn-primary" onclick="startGame('colors')">🔄 שחק שוב</button>
+    <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
+  </div>
+</div>
+
+<!-- ═══════════════ EMOJI GAME ═══════════════ -->
+<div id="screen-emoji" class="screen">
+  <div id="emoji-setup">
+    <div class="game-header" style="margin-bottom:16px">
+      <button class="btn-back" onclick="goHome()">←</button>
+      <span class="game-title">😀 תמונות</span>
+      <span></span>
+    </div>
+    <p style="font-weight:700;font-size:15px;margin-bottom:12px;direction:rtl">בחר קטגוריות:</p>
+    <div class="emoji-cat-selector" id="emojiCatSelector"></div>
+    <button class="btn-primary" onclick="startEmojiGame()" id="startEmojiBtn">▶️ התחל משחק!</button>
+  </div>
+
+  <div id="emoji-game" style="display:none">
+    <div class="game-header">
+      <button class="btn-back" onclick="confirmLeaveGame('emoji')">←</button>
+      <span class="game-title">😀 תמונות</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="game-progress" id="emoji-progress">1 / 10</span>
+        <button onclick="confirmRestart('emoji')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)">↺</button>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="emoji-bar" style="width:10%"></div>
+    </div>
+
+    <div class="emoji-hud">
+      <div>
+        <div class="emoji-hud-val" id="emoji-score-disp">0</div>
+        <div class="emoji-hud-label">נקודות</div>
+      </div>
+      <div>
+        <div class="emoji-hud-val" id="emoji-streak-disp">0</div>
+        <div class="emoji-hud-label">רצף 🔥</div>
+      </div>
+    </div>
+
+    <div class="emoji-speak-area">
+      <div class="emoji-question" id="emojiQuestion">👂</div>
+      <button class="emoji-speak-btn" id="emojiSpeakBtn" onclick="emojiSpeak()">🔊</button>
+      <div class="emoji-hint" id="emojiHint">לחץ על התמונה הנכונה</div>
+    </div>
+
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <div class="feedback-banner" id="emoji-feedback"></div>
+  </div>
+
+  <div id="emoji-results" class="results" style="display:none">
+    <div class="results-icon" id="emoji-res-icon">🎉</div>
+    <h2 id="emoji-res-title">כל הכבוד!</h2>
+    <p id="emoji-res-msg">מעולה!</p>
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="emoji-res-score">0</div>
+        <div class="stat-label">נקודות</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="emoji-res-correct">0</div>
+        <div class="stat-label">נכון מניסיון ראשון</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="emoji-res-streak">0</div>
+        <div class="stat-label">שיא רצף</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="showEmojiSetup()">🔄 שחק שוב</button>
     <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
   </div>
 </div>
@@ -2425,7 +2619,7 @@ function confirmLeaveGame(type) {
       rn.paused = true;
       gamePaused['run'] = true;
     } else {
-      if (type === 'listen' || type === 'colors') window.speechSynthesis.cancel();
+      if (type === 'listen' || type === 'colors' || type === 'emoji') window.speechSynthesis.cancel();
       gamePaused[type] = true;
     }
     goHome();
@@ -2436,7 +2630,7 @@ function confirmRestart(type) {
   if (confirm('להתחיל מחדש?\nהתקדמות המשחק הנוכחי תאבד.')) {
     gamePaused[type] = false;
     if (type === 'run') cancelAnimationFrame(rn.animFrame);
-    if (type === 'listen' || type === 'colors') window.speechSynthesis.cancel();
+    if (type === 'listen' || type === 'colors' || type === 'emoji') window.speechSynthesis.cancel();
     if (type === 'mc') initMC(mc.reversed);
     if (type === 'flash') initFlash(fl.reversed);
     if (type === 'fill') initFill();
@@ -2444,6 +2638,7 @@ function confirmRestart(type) {
     if (type === 'run') initRun();
     if (type === 'listen') initListen();
     if (type === 'colors') initColors();
+    if (type === 'emoji') startEmojiGame();
   }
 }
 
@@ -2522,6 +2717,7 @@ function updateUI() {
   document.getElementById('home-run-best').textContent = state.bestScores.run || 0;
   document.getElementById('home-listen-best').textContent = state.bestScores.listen || 0;
   document.getElementById('home-colors-best').textContent = state.bestScores.colors || 0;
+  document.getElementById('home-emoji-best').textContent = state.bestScores.emoji || 0;
 
   // Disable fill game card if no builtin words available
   const fillDisabled = getFillWords(state.currentLevel).length < 4;
@@ -2576,7 +2772,7 @@ function startGame(type) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + type).classList.add('active');
-  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6, colors: 7 };
+  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6, colors: 7, emoji: 8 };
   document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
   navigateTo(type);
   activeGame = type;
@@ -2622,6 +2818,13 @@ function startGame(type) {
       renderColorsRound();
       return;
     }
+    if (type === 'emoji') {
+      document.getElementById('emoji-setup').style.display = 'none';
+      document.getElementById('emoji-game').style.display = 'block';
+      document.getElementById('emoji-results').style.display = 'none';
+      renderEmojiRound();
+      return;
+    }
     document.getElementById(type + '-game').style.display = 'block';
     document.getElementById(type + '-results').style.display = 'none';
     return;
@@ -2634,6 +2837,7 @@ function startGame(type) {
   if (type === 'run') initRun();
   if (type === 'listen') initListen();
   if (type === 'colors') initColors();
+  if (type === 'emoji') { showEmojiSetup(); renderEmojiCatSelector(); }
 }
 
 // ═══════════════════════════════════════════
@@ -2881,7 +3085,7 @@ function updateStatsScreen() {
       <div class="hi-left">
         <span class="hi-icon">${h.icon}</span>
         <div>
-          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : h.type === 'listen' ? 'האזנה' : h.type === 'colors' ? 'צבעים' : 'פלאשקארדס'}</div>
+          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : h.type === 'listen' ? 'האזנה' : h.type === 'colors' ? 'צבעים' : h.type === 'emoji' ? 'תמונות' : 'פלאשקארדס'}</div>
           <div class="hi-date">${h.date}</div>
         </div>
       </div>
@@ -3664,6 +3868,326 @@ function endColors() {
 
   // Speak final message
   const utt = new SpeechSynthesisUtterance(pct === 100 ? 'Amazing! Perfect score!' : 'Well done!');
+  utt.lang = 'en-US'; utt.rate = 0.9;
+  window.speechSynthesis.speak(utt);
+}
+
+// ═══════════════════════════════════════════
+//  EMOJI GAME
+// ═══════════════════════════════════════════
+const EMOJI_CATEGORIES = {
+  animals: {
+    label: 'חיות', emoji: '🐾',
+    items: [
+      { en: 'dog',      he: 'כלב',    icon: '🐶' },
+      { en: 'cat',      he: 'חתול',   icon: '🐱' },
+      { en: 'cow',      he: 'פרה',    icon: '🐄' },
+      { en: 'horse',    he: 'סוס',    icon: '🐴' },
+      { en: 'pig',      he: 'חזיר',   icon: '🐷' },
+      { en: 'sheep',    he: 'כבשה',   icon: '🐑' },
+      { en: 'elephant', he: 'פיל',    icon: '🐘' },
+      { en: 'lion',     he: 'אריה',   icon: '🦁' },
+      { en: 'monkey',   he: 'קוף',    icon: '🐒' },
+      { en: 'frog',     he: 'צפרדע',  icon: '🐸' },
+      { en: 'penguin',  he: 'פינגווין', icon: '🐧' },
+      { en: 'rabbit',   he: 'ארנב',   icon: '🐰' },
+      { en: 'bear',     he: 'דוב',    icon: '🐻' },
+      { en: 'fox',      he: 'שועל',   icon: '🦊' },
+      { en: 'duck',     he: 'ברווז',  icon: '🦆' },
+    ]
+  },
+  fruits: {
+    label: 'פירות', emoji: '🍎',
+    items: [
+      { en: 'apple',      he: 'תפוח',      icon: '🍎' },
+      { en: 'banana',     he: 'בננה',      icon: '🍌' },
+      { en: 'grapes',     he: 'ענבים',     icon: '🍇' },
+      { en: 'strawberry', he: 'תות',       icon: '🍓' },
+      { en: 'watermelon', he: 'אבטיח',     icon: '🍉' },
+      { en: 'orange',     he: 'תפוז',      icon: '🍊' },
+      { en: 'pineapple',  he: 'אננס',      icon: '🍍' },
+      { en: 'mango',      he: 'מנגו',      icon: '🥭' },
+      { en: 'peach',      he: 'אפרסק',     icon: '🍑' },
+      { en: 'cherry',     he: 'דובדבן',    icon: '🍒' },
+      { en: 'lemon',      he: 'לימון',     icon: '🍋' },
+      { en: 'pear',       he: 'אגס',       icon: '🍐' },
+    ]
+  },
+  vehicles: {
+    label: 'כלי רכב', emoji: '🚗',
+    items: [
+      { en: 'car',        he: 'מכונית',    icon: '🚗' },
+      { en: 'bus',        he: 'אוטובוס',   icon: '🚌' },
+      { en: 'train',      he: 'רכבת',      icon: '🚂' },
+      { en: 'airplane',   he: 'מטוס',      icon: '✈️' },
+      { en: 'boat',       he: 'סירה',      icon: '⛵' },
+      { en: 'bicycle',    he: 'אופניים',   icon: '🚲' },
+      { en: 'rocket',     he: 'טיל',       icon: '🚀' },
+      { en: 'helicopter', he: 'מסוק',      icon: '🚁' },
+      { en: 'truck',      he: 'משאית',     icon: '🚛' },
+      { en: 'ambulance',  he: 'אמבולנס',   icon: '🚑' },
+      { en: 'fire truck', he: 'מכבי אש',   icon: '🚒' },
+      { en: 'tractor',    he: 'טרקטור',    icon: '🚜' },
+    ]
+  },
+  food: {
+    label: 'אוכל', emoji: '🍕',
+    items: [
+      { en: 'pizza',      he: 'פיצה',      icon: '🍕' },
+      { en: 'hamburger',  he: 'המבורגר',   icon: '🍔' },
+      { en: 'ice cream',  he: 'גלידה',     icon: '🍦' },
+      { en: 'cake',       he: 'עוגה',      icon: '🎂' },
+      { en: 'bread',      he: 'לחם',       icon: '🍞' },
+      { en: 'egg',        he: 'ביצה',      icon: '🥚' },
+      { en: 'cheese',     he: 'גבינה',     icon: '🧀' },
+      { en: 'cookie',     he: 'עוגייה',    icon: '🍪' },
+      { en: 'sandwich',   he: 'כריך',      icon: '🥪' },
+      { en: 'sushi',      he: 'סושי',      icon: '🍣' },
+      { en: 'hot dog',    he: "נקניקייה",  icon: '🌭' },
+      { en: 'popcorn',    he: 'פופקורן',   icon: '🍿' },
+    ]
+  },
+  sports: {
+    label: 'ספורט', emoji: '⚽',
+    items: [
+      { en: 'soccer',     he: 'כדורגל',    icon: '⚽' },
+      { en: 'basketball', he: 'כדורסל',    icon: '🏀' },
+      { en: 'tennis',     he: 'טניס',      icon: '🎾' },
+      { en: 'swimming',   he: 'שחייה',     icon: '🏊' },
+      { en: 'cycling',    he: 'רכיבה',     icon: '🚴' },
+      { en: 'skiing',     he: 'סקי',       icon: '⛷️' },
+      { en: 'golf',       he: 'גולף',      icon: '⛳' },
+      { en: 'boxing',     he: 'אגרוף',     icon: '🥊' },
+      { en: 'baseball',   he: 'בייסבול',   icon: '⚾' },
+      { en: 'volleyball', he: 'כדורעף',    icon: '🏐' },
+      { en: 'archery',    he: 'קשתות',     icon: '🏹' },
+      { en: 'surfing',    he: 'גלישה',     icon: '🏄' },
+    ]
+  },
+  nature: {
+    label: 'טבע', emoji: '🌳',
+    items: [
+      { en: 'sun',        he: 'שמש',       icon: '☀️' },
+      { en: 'moon',       he: 'ירח',       icon: '🌙' },
+      { en: 'star',       he: 'כוכב',      icon: '⭐' },
+      { en: 'cloud',      he: 'ענן',       icon: '☁️' },
+      { en: 'rain',       he: 'גשם',       icon: '🌧️' },
+      { en: 'snow',       he: 'שלג',       icon: '❄️' },
+      { en: 'fire',       he: 'אש',        icon: '🔥' },
+      { en: 'tree',       he: 'עץ',        icon: '🌳' },
+      { en: 'flower',     he: 'פרח',       icon: '🌸' },
+      { en: 'mountain',   he: 'הר',        icon: '⛰️' },
+      { en: 'rainbow',    he: 'קשת בענן',  icon: '🌈' },
+      { en: 'wave',       he: 'גל',        icon: '🌊' },
+    ]
+  },
+};
+
+let em = {};
+let emSelectedCats = new Set(['animals']); // default
+
+function showEmojiSetup() {
+  document.getElementById('emoji-setup').style.display = 'block';
+  document.getElementById('emoji-game').style.display = 'none';
+  document.getElementById('emoji-results').style.display = 'none';
+  renderEmojiCatSelector();
+}
+
+function renderEmojiCatSelector() {
+  const container = document.getElementById('emojiCatSelector');
+  container.innerHTML = '';
+
+  // "Mix all" button
+  const mixBtn = document.createElement('button');
+  mixBtn.className = 'emoji-cat-btn' + (emSelectedCats.has('all') ? ' selected' : '');
+  mixBtn.innerHTML = `<span class="cat-emoji">🎲</span>הכל מיקס`;
+  mixBtn.style.minWidth = '100%';
+  mixBtn.onclick = () => {
+    if (emSelectedCats.has('all')) {
+      emSelectedCats.delete('all');
+    } else {
+      emSelectedCats.clear();
+      emSelectedCats.add('all');
+    }
+    renderEmojiCatSelector();
+  };
+  container.appendChild(mixBtn);
+
+  Object.entries(EMOJI_CATEGORIES).forEach(([key, cat]) => {
+    const btn = document.createElement('button');
+    const sel = emSelectedCats.has(key) || emSelectedCats.has('all');
+    btn.className = 'emoji-cat-btn' + (sel ? ' selected' : '');
+    btn.innerHTML = `<span class="cat-emoji">${cat.emoji}</span>${cat.label}`;
+    btn.onclick = () => {
+      emSelectedCats.delete('all');
+      if (emSelectedCats.has(key)) {
+        emSelectedCats.delete(key);
+        if (emSelectedCats.size === 0) emSelectedCats.add('all');
+      } else {
+        emSelectedCats.add(key);
+      }
+      renderEmojiCatSelector();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function getEmojiPool() {
+  if (emSelectedCats.has('all')) {
+    return Object.values(EMOJI_CATEGORIES).flatMap(c => c.items);
+  }
+  let pool = [];
+  emSelectedCats.forEach(key => {
+    if (EMOJI_CATEGORIES[key]) pool = pool.concat(EMOJI_CATEGORIES[key].items);
+  });
+  return pool;
+}
+
+function startEmojiGame() {
+  if (!ttsSupported()) { alert('הדפדפן שלך לא תומך בהשמעת קול.'); return; }
+  const pool = getEmojiPool();
+  if (pool.length < 6) { alert('בחר לפחות קטגוריה אחת עם מספיק פריטים!'); return; }
+
+  em.pool       = pool;
+  em.targets    = shuffle([...pool]).slice(0, 10);
+  em.idx        = 0;
+  em.score      = 0;
+  em.streak     = 0;
+  em.bestStreak = 0;
+  em.correct1   = 0;
+
+  document.getElementById('emoji-setup').style.display = 'none';
+  document.getElementById('emoji-game').style.display = 'block';
+  document.getElementById('emoji-results').style.display = 'none';
+  document.getElementById('emoji-feedback').className = 'feedback-banner';
+
+  renderEmojiRound();
+}
+
+function renderEmojiRound() {
+  const target = em.targets[em.idx];
+  em.firstTry = true;
+  em.answered = false;
+
+  document.getElementById('emoji-progress').textContent = `${em.idx + 1} / ${em.targets.length}`;
+  document.getElementById('emoji-bar').style.width = `${((em.idx + 1) / em.targets.length) * 100}%`;
+  document.getElementById('emoji-feedback').className = 'feedback-banner';
+  document.getElementById('emojiQuestion').textContent = '👂';
+  document.getElementById('emojiHint').textContent = 'לחץ על התמונה הנכונה';
+  document.getElementById('emojiSpeakBtn').className = 'emoji-speak-btn';
+  updateEmojiHUD();
+
+  // 6 tiles: target + 5 distractors (from entire pool, different from target)
+  const distractors = shuffle(em.pool.filter(i => i.en !== target.en)).slice(0, 5);
+  const tiles = shuffle([target, ...distractors]);
+
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  tiles.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-tile';
+    btn.innerHTML = `${item.icon}<span class="tile-label">${item.en}</span>`;
+    btn.onclick = () => handleEmojiTap(item, btn);
+    grid.appendChild(btn);
+  });
+
+  setTimeout(() => emojiSpeak(), 400);
+}
+
+function emojiSpeak() {
+  if (em.answered) return;
+  const target = em.targets[em.idx];
+  window.speechSynthesis.cancel();
+
+  const utt = new SpeechSynthesisUtterance(target.en);
+  utt.lang = 'en-US'; utt.rate = 0.82; utt.pitch = 1.1;
+
+  const btn = document.getElementById('emojiSpeakBtn');
+  btn.className = 'emoji-speak-btn speaking';
+  document.getElementById('emojiQuestion').textContent = '👂 שמע...';
+
+  utt.onend = utt.onerror = () => {
+    btn.className = 'emoji-speak-btn';
+    document.getElementById('emojiQuestion').textContent = `מה זה ${target.en}? 🤔`;
+  };
+  window.speechSynthesis.speak(utt);
+}
+
+function handleEmojiTap(item, btn) {
+  if (em.answered) return;
+  const target = em.targets[em.idx];
+  sfxClick();
+
+  if (item.en === target.en) {
+    em.answered = true;
+    window.speechSynthesis.cancel();
+    sfxCorrect();
+
+    em.streak++;
+    em.bestStreak = Math.max(em.bestStreak, em.streak);
+    if (em.firstTry) em.correct1++;
+    const pts = em.firstTry ? 20 + Math.min(em.streak, 5) * 4 : 8;
+    em.score += pts;
+
+    btn.classList.add('correct');
+    document.getElementById('emojiQuestion').textContent = `✅ ${target.en} — ${target.he}!`;
+    document.getElementById('emojiHint').textContent = em.firstTry ? `🌟 כל הכבוד! +${pts}` : `👍 נכון!`;
+    document.getElementById('emoji-feedback').className = 'feedback-banner correct';
+    document.getElementById('emoji-feedback').textContent = `✅ ${target.icon} = ${target.en}`;
+
+    updateEmojiHUD();
+
+    // Praise speech
+    setTimeout(() => {
+      const utt = new SpeechSynthesisUtterance(`${target.en}! ${em.firstTry ? 'Amazing!' : 'Good job!'}`);
+      utt.lang = 'en-US'; utt.rate = 0.88;
+      window.speechSynthesis.speak(utt);
+    }, 80);
+
+    em.idx++;
+    if (em.idx >= em.targets.length) {
+      setTimeout(() => endEmoji(), 1600);
+    } else {
+      setTimeout(() => renderEmojiRound(), 1800);
+    }
+
+  } else {
+    sfxWrong();
+    em.firstTry = false;
+    em.streak = 0;
+    btn.classList.add('wrong');
+    document.getElementById('emojiQuestion').textContent = '❌ נסה שוב!';
+    updateEmojiHUD();
+    setTimeout(() => btn.classList.remove('wrong'), 500);
+  }
+}
+
+function updateEmojiHUD() {
+  document.getElementById('emoji-score-disp').textContent = em.score;
+  document.getElementById('emoji-streak-disp').textContent = em.streak + (em.streak >= 3 ? '🔥' : '');
+}
+
+function endEmoji() {
+  window.speechSynthesis.cancel();
+  if (em.score > (state.bestScores.emoji || 0)) state.bestScores.emoji = em.score;
+  state.totalScore += em.score;
+  state.gamesPlayed++;
+  state.history.unshift({ type: 'emoji', score: em.score, date: new Date().toLocaleDateString('he-IL'), icon: '😀' });
+  if (state.history.length > 20) state.history.pop();
+  saveState();
+
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('emoji-game').style.display = 'none';
+  document.getElementById('emoji-results').style.display = 'block';
+
+  const pct = Math.round((em.correct1 / em.targets.length) * 100);
+  document.getElementById('emoji-res-icon').textContent = pct === 100 ? '🏆' : pct >= 70 ? '🌟' : '💪';
+  document.getElementById('emoji-res-title').textContent = pct === 100 ? 'מושלם! 💯' : pct >= 70 ? 'יפה מאוד!' : 'כל הכבוד!';
+  document.getElementById('emoji-res-score').textContent = em.score;
+  document.getElementById('emoji-res-correct').textContent = `${em.correct1}/${em.targets.length}`;
+  document.getElementById('emoji-res-streak').textContent = em.bestStreak;
+
+  const utt = new SpeechSynthesisUtterance(pct === 100 ? 'Perfect! Amazing job!' : 'Well done!');
   utt.lang = 'en-US'; utt.rate = 0.9;
   window.speechSynthesis.speak(utt);
 }
