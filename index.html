@@ -594,7 +594,112 @@
     font-size: 16px;
   }
 
-  /* ─── DIRECTION TOGGLE ─── */
+  /* ─── MATCH GAME ─── */
+  .match-config {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+  .match-config label { font-weight: 700; font-size: 14px; }
+  .match-count-btns { display: flex; gap: 6px; }
+  .match-count-btn {
+    width: 36px; height: 36px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-muted);
+  }
+  .match-count-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  .match-timer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  .match-timer {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--primary);
+    min-width: 52px;
+    text-align: center;
+  }
+  .match-timer.warning { color: var(--accent); }
+  .match-pairs-left {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .match-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .match-col { display: flex; flex-direction: column; gap: 8px; }
+
+  .match-word {
+    padding: 14px 10px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-weight: 700;
+    font-size: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+  }
+  .match-word:hover:not(.matched):not(.wrong-flash) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .match-word.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+    transform: scale(1.03);
+    box-shadow: var(--shadow);
+  }
+  .match-word.matched {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: #0d6e50;
+    cursor: default;
+    opacity: 0.7;
+  }
+  .match-word.wrong-flash {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: #c0002e;
+    animation: shake 0.35s ease;
+  }
+  .match-word[data-lang="en"] { direction: ltr; }
+  .match-word[data-lang="he"] { direction: rtl; }
   .dir-toggle {
     display: flex;
     align-items: center;
@@ -718,7 +823,6 @@
   <div class="nav-score">
     <span class="nav-username" id="navUsername" onclick="openNicknameModal()" title="שנה כינוי">👤</span>
     <button id="sfx-btn" onclick="toggleSfx()" title="כבה צלילים" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;">🔊</button>
-    <button id="music-btn" onclick="toggleMusic()" title="כבה מוזיקה" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;">🎵</button>
     <div class="streak-pill" id="navStreak">🔥 <span id="streakVal">0</span></div>
     <div class="score-pill">⭐ <span id="totalScore">0</span></div>
   </div>
@@ -729,6 +833,7 @@
   <button class="tab" onclick="showTab('mc')">🎯 מולטי-צ'ויס</button>
   <button class="tab" onclick="showTab('flash')">🃏 פלאשקארדס</button>
   <button class="tab" onclick="showTab('fill')">✏️ השלמה</button>
+  <button class="tab" onclick="showTab('match')">🔗 התאמה</button>
   <button class="tab" onclick="showTab('stats')">📊 סטטיסטיקות</button>
 </div>
 
@@ -776,6 +881,12 @@
       <div class="game-name">השלמת משפט</div>
       <div class="game-desc">השלם את המילה החסרה</div>
       <div class="game-score">שיא: <span id="home-fill-best">0</span></div>
+    </div>
+    <div class="game-card" onclick="startGame('match')">
+      <div class="game-icon">🔗</div>
+      <div class="game-name">התאמה</div>
+      <div class="game-desc">חבר עברית לאנגלית</div>
+      <div class="game-score">שיא: <span id="home-match-best">0</span></div>
     </div>
   </div>
 
@@ -931,6 +1042,63 @@
       </div>
     </div>
     <button class="btn-primary" onclick="startGame('fill')">🔄 שחק שוב</button>
+    <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
+  </div>
+</div>
+
+<!-- ═══════════════ MATCH GAME ═══════════════ -->
+<div id="screen-match" class="screen">
+  <div id="match-game">
+    <div class="game-header">
+      <button class="btn-back" onclick="goHome()">←</button>
+      <span class="game-title">🔗 התאמה</span>
+      <span class="match-pairs-left" id="match-pairs-left"></span>
+    </div>
+
+    <div class="match-config">
+      <label>כמה מילים?</label>
+      <div class="match-count-btns">
+        <button class="match-count-btn" onclick="setMatchCount(4,this)">4</button>
+        <button class="match-count-btn selected" onclick="setMatchCount(6,this)">6</button>
+        <button class="match-count-btn" onclick="setMatchCount(8,this)">8</button>
+        <button class="match-count-btn" onclick="setMatchCount(10,this)">10</button>
+      </div>
+    </div>
+
+    <div class="match-timer-bar">
+      <div class="match-timer" id="match-timer">0:00</div>
+      <div class="progress-bar-wrap" style="flex:1;margin:0">
+        <div class="progress-bar" id="match-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="match-columns">
+      <div class="match-col" id="match-col-he"></div>
+      <div class="match-col" id="match-col-en"></div>
+    </div>
+
+    <div class="feedback-banner" id="match-feedback"></div>
+  </div>
+
+  <div id="match-results" class="results" style="display:none">
+    <div class="results-icon" id="match-res-icon">🎉</div>
+    <h2 id="match-res-title">כל הכבוד!</h2>
+    <p id="match-res-msg">סיימת את ההתאמה!</p>
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="match-res-score">0</div>
+        <div class="stat-label">נקודות</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="match-res-time">0:00</div>
+        <div class="stat-label">זמן</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="match-res-errors">0</div>
+        <div class="stat-label">טעויות</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startGame('match')">🔄 שחק שוב</button>
     <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
   </div>
 </div>
@@ -1323,6 +1491,7 @@ function loadState() {
   if (saved) state = { ...state, ...JSON.parse(saved) };
   updateUI();
   updateNicknameUI();
+  history.replaceState({ screen: 'home' }, '');
   if (!state.nickname) openNicknameModal();
 }
 function saveState() {
@@ -1375,6 +1544,7 @@ function goHome() {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-home').classList.add('active');
   document.querySelectorAll('.tab')[0].classList.add('active');
+  navigateTo('home');
   updateUI();
 }
 
@@ -1392,6 +1562,7 @@ function updateUI() {
   document.getElementById('home-mc-best').textContent = state.bestScores.mc || 0;
   document.getElementById('home-flash-best').textContent = state.bestScores.flash || 0;
   document.getElementById('home-fill-best').textContent = state.bestScores.fill || 0;
+  document.getElementById('home-match-best').textContent = state.bestScores.match || 0;
   updateAddWordsUI();
 }
 
@@ -1437,11 +1608,13 @@ function startGame(type) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + type).classList.add('active');
-  const tabIdx = { mc: 1, flash: 2, fill: 3 };
+  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4 };
   document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
+  navigateTo(type);
   if (type === 'mc') initMC();
   if (type === 'flash') initFlash();
   if (type === 'fill') initFill();
+  if (type === 'match') initMatch();
 }
 
 // ═══════════════════════════════════════════
@@ -1689,7 +1862,7 @@ function updateStatsScreen() {
       <div class="hi-left">
         <span class="hi-icon">${h.icon}</span>
         <div>
-          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : 'פלאשקארדס'}</div>
+          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : 'פלאשקארדס'}</div>
           <div class="hi-date">${h.date}</div>
         </div>
       </div>
@@ -1823,9 +1996,6 @@ function endFill() {
 //  AUDIO SYSTEM
 // ═══════════════════════════════════════════
 let audioCtx = null;
-let musicNodes = {};
-let musicPlaying = false;
-let musicEnabled = true;
 let sfxEnabled = true;
 
 function getAudioCtx() {
@@ -1834,7 +2004,6 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-// ── Simple tone ──
 function playTone(freq, type, duration, volume, startTime, ctx) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -1848,14 +2017,12 @@ function playTone(freq, type, duration, volume, startTime, ctx) {
   osc.stop(startTime + duration);
 }
 
-// ── Click / tap ──
 function sfxClick() {
   if (!sfxEnabled) return;
   const ctx = getAudioCtx();
   playTone(600, 'sine', 0.07, 0.08, ctx.currentTime, ctx);
 }
 
-// ── Correct ──
 function sfxCorrect() {
   if (!sfxEnabled) return;
   const ctx = getAudioCtx();
@@ -1865,7 +2032,6 @@ function sfxCorrect() {
   playTone(784, 'sine', 0.2,  0.18, t + 0.2, ctx);
 }
 
-// ── Wrong ──
 function sfxWrong() {
   if (!sfxEnabled) return;
   const ctx = getAudioCtx();
@@ -1874,7 +2040,6 @@ function sfxWrong() {
   playTone(250, 'sawtooth', 0.18, 0.12, t + 0.12, ctx);
 }
 
-// ── Game complete fanfare ──
 function sfxComplete() {
   if (!sfxEnabled) return;
   const ctx = getAudioCtx();
@@ -1884,65 +2049,6 @@ function sfxComplete() {
   playTone(1047, 'sine', 0.5, 0.22, t + melody.length * 0.14, ctx);
 }
 
-// ── Background music ──
-const BG_MELODY = [
-  [392,1.2],[440,0.6],[494,0.6],[523,1.2],[494,0.6],[440,0.6],
-  [392,1.8],[0,0.6],
-  [349,1.2],[392,0.6],[440,0.6],[494,1.2],[440,0.6],[392,0.6],
-  [349,2.4],[0,1.2],
-  [523,0.9],[494,0.9],[440,0.9],[392,0.9],
-  [440,0.9],[494,0.9],[523,0.9],[587,0.9],
-  [523,1.8],[494,0.6],[440,1.2],[0,1.2]
-];
-
-function startMusic() {
-  if (!musicEnabled || musicPlaying) return;
-  const ctx = getAudioCtx();
-  musicPlaying = true;
-  scheduleLoop(ctx);
-}
-
-function scheduleLoop(ctx) {
-  if (!musicPlaying) return;
-  let t = ctx.currentTime + 0.05;
-  const totalDur = BG_MELODY.reduce((s, n) => s + n[1], 0);
-
-  BG_MELODY.forEach(([freq, dur]) => {
-    if (freq > 0) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t);
-      gain.gain.setValueAtTime(0.055, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.85);
-      osc.start(t); osc.stop(t + dur);
-    }
-    t += dur;
-  });
-
-  // Schedule next loop
-  setTimeout(() => { if (musicPlaying) scheduleLoop(ctx); }, (totalDur - 0.1) * 1000);
-}
-
-function stopMusic() {
-  musicPlaying = false;
-}
-
-function toggleMusic() {
-  musicEnabled = !musicEnabled;
-  const btn = document.getElementById('music-btn');
-  if (musicEnabled) {
-    btn.textContent = '🎵';
-    btn.title = 'כבה מוזיקה';
-    startMusic();
-  } else {
-    btn.textContent = '🔇';
-    btn.title = 'הפעל מוזיקה';
-    stopMusic();
-  }
-}
-
 function toggleSfx() {
   sfxEnabled = !sfxEnabled;
   const btn = document.getElementById('sfx-btn');
@@ -1950,19 +2056,233 @@ function toggleSfx() {
   btn.title = sfxEnabled ? 'כבה צלילים' : 'הפעל צלילים';
 }
 
-// Click sound on buttons
 document.addEventListener('click', e => {
   if (e.target.matches('.option-btn, .flash-btn, .level-btn, .game-card, .btn-primary, .btn-secondary, .next-btn, .dir-btn')) {
     sfxClick();
   }
 });
 
-// Start music on first interaction
-document.addEventListener('click', () => { startMusic(); }, { once: true });
+// ═══════════════════════════════════════════
+//  MATCH GAME
+// ═══════════════════════════════════════════
+let mt = {};
 
+function setMatchCount(n, btn) {
+  mt.count = n;
+  document.querySelectorAll('.match-count-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  initMatch();
+}
+
+function initMatch() {
+  const allWords = getAvailableWords(state.currentLevel);
+  const count = mt.count || 6;
+  mt.count = count;
+  mt.words = shuffle(allWords).slice(0, count);
+  mt.matched = 0;
+  mt.errors = 0;
+  mt.selectedHe = null;
+  mt.selectedEn = null;
+  mt.startTime = Date.now();
+  mt.elapsed = 0;
+  mt.done = false;
+
+  clearInterval(mt.timerInterval);
+  mt.timerInterval = setInterval(updateMatchTimer, 500);
+
+  document.getElementById('match-game').style.display = 'block';
+  document.getElementById('match-results').style.display = 'none';
+  document.getElementById('match-feedback').className = 'feedback-banner';
+  updateMatchPairsLeft();
+
+  // Build columns — Hebrew shuffled separately from English
+  const heWords = shuffle([...mt.words]);
+  const enWords = shuffle([...mt.words]);
+
+  const heCol = document.getElementById('match-col-he');
+  const enCol = document.getElementById('match-col-en');
+  heCol.innerHTML = '';
+  enCol.innerHTML = '';
+
+  heWords.forEach(w => {
+    const btn = document.createElement('button');
+    btn.className = 'match-word';
+    btn.dataset.id = w.en; // use English as unique key
+    btn.dataset.lang = 'he';
+    btn.textContent = w.he;
+    btn.onclick = () => selectMatchWord(btn, 'he');
+    heCol.appendChild(btn);
+  });
+
+  enWords.forEach(w => {
+    const btn = document.createElement('button');
+    btn.className = 'match-word';
+    btn.dataset.id = w.en;
+    btn.dataset.lang = 'en';
+    btn.textContent = w.en;
+    btn.onclick = () => selectMatchWord(btn, 'en');
+    enCol.appendChild(btn);
+  });
+}
+
+function updateMatchTimer() {
+  if (mt.done) return;
+  mt.elapsed = Math.floor((Date.now() - mt.startTime) / 1000);
+  const mins = Math.floor(mt.elapsed / 60);
+  const secs = mt.elapsed % 60;
+  const timerEl = document.getElementById('match-timer');
+  timerEl.textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+  timerEl.className = 'match-timer' + (mt.elapsed > 60 ? ' warning' : '');
+  // progress bar — based on matched pairs
+  document.getElementById('match-progress-bar').style.width =
+    `${(mt.matched / mt.count) * 100}%`;
+}
+
+function updateMatchPairsLeft() {
+  document.getElementById('match-pairs-left').textContent =
+    `${mt.matched}/${mt.count} זוגות`;
+}
+
+function selectMatchWord(btn, lang) {
+  if (btn.classList.contains('matched')) return;
+  sfxClick();
+
+  if (lang === 'he') {
+    // deselect previous he selection
+    document.querySelectorAll('#match-col-he .match-word.selected')
+      .forEach(b => b.classList.remove('selected'));
+    mt.selectedHe = btn;
+    btn.classList.add('selected');
+  } else {
+    document.querySelectorAll('#match-col-en .match-word.selected')
+      .forEach(b => b.classList.remove('selected'));
+    mt.selectedEn = btn;
+    btn.classList.add('selected');
+  }
+
+  // check for match when both sides selected
+  if (mt.selectedHe && mt.selectedEn) {
+    checkMatchPair();
+  }
+}
+
+function checkMatchPair() {
+  const heBtn = mt.selectedHe;
+  const enBtn = mt.selectedEn;
+  mt.selectedHe = null;
+  mt.selectedEn = null;
+
+  if (heBtn.dataset.id === enBtn.dataset.id) {
+    // ✅ Match!
+    sfxCorrect();
+    heBtn.classList.remove('selected');
+    enBtn.classList.remove('selected');
+    heBtn.classList.add('matched');
+    enBtn.classList.add('matched');
+    mt.matched++;
+    updateMatchPairsLeft();
+    updateMatchTimer();
+    if (mt.matched === mt.count) {
+      setTimeout(endMatch, 400);
+    }
+  } else {
+    // ❌ Wrong
+    sfxWrong();
+    mt.errors++;
+    heBtn.classList.remove('selected');
+    enBtn.classList.remove('selected');
+    heBtn.classList.add('wrong-flash');
+    enBtn.classList.add('wrong-flash');
+    setTimeout(() => {
+      heBtn.classList.remove('wrong-flash');
+      enBtn.classList.remove('wrong-flash');
+    }, 500);
+  }
+}
+
+function endMatch() {
+  mt.done = true;
+  clearInterval(mt.timerInterval);
+  sfxComplete();
+
+  // Score: base points per pair, time bonus, error penalty
+  const baseScore = mt.count * 20 * state.currentLevel;
+  const timeBonus = Math.max(0, 300 - mt.elapsed * 3);
+  const errorPenalty = mt.errors * 15;
+  const score = Math.max(0, baseScore + timeBonus - errorPenalty);
+
+  if (score > (state.bestScores.match || 0)) state.bestScores.match = score;
+  state.totalScore += score;
+  state.gamesPlayed++;
+  state.history.unshift({ type: 'match', score, date: new Date().toLocaleDateString('he-IL'), icon: '🔗' });
+  if (state.history.length > 20) state.history.pop();
+  saveState();
+
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('match-game').style.display = 'none';
+  document.getElementById('match-results').style.display = 'block';
+
+  const mins = Math.floor(mt.elapsed / 60);
+  const secs = mt.elapsed % 60;
+  const perfect = mt.errors === 0;
+  document.getElementById('match-res-icon').textContent = perfect ? '🏆' : mt.errors <= 2 ? '🌟' : '👍';
+  document.getElementById('match-res-title').textContent = perfect ? 'מושלם! אפס טעויות!' : mt.errors <= 2 ? 'כמעט מושלם!' : 'כל הכבוד!';
+  document.getElementById('match-res-score').textContent = score;
+  document.getElementById('match-res-time').textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+  document.getElementById('match-res-errors').textContent = mt.errors;
+}
 // ═══════════════════════════════════════════
-//  NICKNAME
-// ═══════════════════════════════════════════
+let currentScreen = 'home';
+let backPressedOnce = false;
+
+function navigateTo(screen) {
+  currentScreen = screen;
+  if (screen === 'home') {
+    history.replaceState({ screen: 'home' }, '');
+  } else {
+    history.pushState({ screen }, '');
+  }
+}
+
+window.addEventListener('popstate', e => {
+  const screen = e.state?.screen || 'home';
+
+  if (screen === 'home') {
+    // כבר בדף הבית — לחיצה כפולה לסגירה
+    if (backPressedOnce) {
+      // סגור את האפליקציה
+      history.back();
+      return;
+    }
+    backPressedOnce = true;
+    showToast('לחץ שוב לסגירה');
+    setTimeout(() => { backPressedOnce = false; }, 2000);
+    // דחוף state מחדש כדי ש-popstate הבא יעבוד
+    history.pushState({ screen: 'home' }, '');
+  } else {
+    goHome();
+  }
+});
+
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+      background:rgba(26,26,46,0.85); color:white;
+      padding:10px 22px; border-radius:99px;
+      font-size:14px; font-weight:600;
+      z-index:999; pointer-events:none;
+      transition:opacity 0.3s;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 1800);
+}
 function openNicknameModal() {
   const modal = document.getElementById('nicknameModal');
   modal.classList.remove('hidden');
