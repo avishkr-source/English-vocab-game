@@ -165,45 +165,72 @@
   }
   .hero p { color: var(--text-muted); font-size: 14px; }
   
-  .level-selector {
-    margin: 16px 0;
-  }
-  .level-selector label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 10px;
-    font-size: 15px;
-  }
-  .level-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  /* ─── HOME CONTROLS ROW ─── */
+  .home-controls {
+    display: flex;
     gap: 8px;
+    margin: 12px 0 16px;
+    align-items: stretch;
   }
-  .level-btn {
-    padding: 12px 4px;
+  .home-controls .ctrl-btn {
+    flex: 1;
+    padding: 11px 8px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--card);
     cursor: pointer;
     font-family: 'Rubik', sans-serif;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 13px;
     text-align: center;
     transition: all 0.2s;
-    color: var(--text-muted);
+    color: var(--text);
+    position: relative;
+    white-space: nowrap;
   }
-  .level-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .level-btn.selected {
-    border-color: var(--primary);
-    background: var(--primary-light);
-    color: var(--primary);
+  .home-controls .ctrl-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .home-controls .ctrl-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .home-controls .ctrl-btn.packs-btn { flex: 0 0 auto; padding: 11px 12px; }
+
+  /* ─── DROPDOWN PANEL ─── */
+  .dropdown-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    z-index: 150;
+    min-width: 180px;
+    overflow: hidden;
+    display: none;
   }
-  .level-btn .level-num {
-    display: block;
-    font-size: 20px;
-    font-weight: 900;
-    font-family: 'Nunito', sans-serif;
+  .dropdown-panel.open { display: block; animation: pop 0.15s ease; }
+  .dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
+  .dropdown-item:hover { background: var(--bg); }
+  .dropdown-item.selected { color: var(--primary); }
+  .dropdown-item .chk {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .dropdown-item.checked .chk { background: var(--primary); border-color: var(--primary); color: white; }
+  .dropdown-divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  .level-selector { display: none; } /* hide old */
 
   .game-cards {
     display: grid;
@@ -594,6 +621,12 @@
     font-size: 16px;
   }
 
+  .pack-item-edit { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.5; transition: opacity 0.15s; }
+  .pack-item-edit:hover { opacity: 1; }
+  .edit-pack-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .edit-pack-header h3 { flex: 1; font-weight: 800; font-size: 16px; margin: 0; }
   /* ─── CUSTOM PACKS ─── */
   .custom-banner {
     background: linear-gradient(135deg, var(--primary-light), #f0eeff);
@@ -972,21 +1005,36 @@
     <p>בחר רמה ומשחק — וצבור נקודות!</p>
   </div>
 
-  <div class="level-selector">
-    <label>📚 בחר רמה</label>
-    <div class="level-buttons">
-      <button class="level-btn selected" onclick="selectLevel(1,this)">
-        <span class="level-num">1</span>מתחיל
+  <!-- Controls row: Pack button + Level dropdown + Sources dropdown -->
+  <div class="home-controls">
+    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')">📦</button>
+
+    <!-- Level picker -->
+    <div style="position:relative; flex:1">
+      <button class="ctrl-btn" id="levelBtn" onclick="toggleDropdown('levelDrop',this)" style="width:100%">
+        📚 <span id="levelBtnLabel">רמה 1 — מתחיל</span> ▾
       </button>
-      <button class="level-btn" onclick="selectLevel(2,this)">
-        <span class="level-num">2</span>יסודי
+      <div class="dropdown-panel" id="levelDrop">
+        <div class="dropdown-item selected" id="lvlOpt1" onclick="selectLevelDrop(1)">1 — מתחיל</div>
+        <div class="dropdown-item" id="lvlOpt2" onclick="selectLevelDrop(2)">2 — יסודי</div>
+        <div class="dropdown-item" id="lvlOpt3" onclick="selectLevelDrop(3)">3 — בינוני</div>
+        <div class="dropdown-item" id="lvlOpt4" onclick="selectLevelDrop(4)">4 — מתקדם</div>
+      </div>
+    </div>
+
+    <!-- Sources picker -->
+    <div style="position:relative; flex:1">
+      <button class="ctrl-btn" id="sourcesBtn" onclick="toggleDropdown('sourcesDrop',this)" style="width:100%">
+        🎮 <span id="sourcesBtnLabel">מקורות</span> ▾
       </button>
-      <button class="level-btn" onclick="selectLevel(3,this)">
-        <span class="level-num">3</span>בינוני
-      </button>
-      <button class="level-btn" onclick="selectLevel(4,this)">
-        <span class="level-num">4</span>מתקדם
-      </button>
+      <div class="dropdown-panel" id="sourcesDrop" style="min-width:200px; right:0; left:auto">
+        <div class="dropdown-item" id="src-builtin" onclick="toggleSource('builtin')">
+          <span class="chk">✓</span> מילים מובנות
+        </div>
+        <hr class="dropdown-divider">
+        <div id="srcCustomList"></div>
+        <div id="srcEmptyMsg" style="padding:10px 16px;font-size:12px;color:var(--text-muted)">אין חבילות אישיות עדיין</div>
+      </div>
     </div>
   </div>
 
@@ -1020,18 +1068,10 @@
 
   <div id="addWordsSection" style="margin-top:8px;">
     <button class="btn-secondary" onclick="addWordPack()" id="addWordsBtn">
-      ➕ הוסף 50 מילים נוספות לרמה <span id="addLevelLabel">1</span>
+      ➕ הוסף מילים נוספות לרמה <span id="addLevelLabel">1</span>
     </button>
     <p class="words-remaining" id="wordsRemaining"></p>
   </div>
-
-  <div class="custom-banner" id="customBanner">
-    <span class="custom-banner-text" id="customBannerText"></span>
-    <button class="custom-banner-clear" onclick="clearCustomSelection()" title="בטל בחירת חבילות">✕</button>
-  </div>
-  <button class="btn-secondary" onclick="showTab2('custom')" style="margin-top:4px;">
-    📦 חבילות אישיות
-  </button>
 </div>
 
 <!-- ═══════════════ MULTIPLE CHOICE ═══════════════ -->
@@ -1247,30 +1287,24 @@
     <span></span>
   </div>
 
-  <!-- Mix mode toggle -->
-  <div class="mix-toggle" id="mixToggleWrap" style="display:none">
-    <div class="mix-toggle-text">
-      ערבב עם רמה רגילה
-      <small>שחק גם עם מילים מהרמה הנבחרת</small>
-    </div>
-    <button class="toggle-switch" id="mixToggleBtn" onclick="toggleMixMode()"></button>
-  </div>
-
   <!-- Existing packs list -->
   <div id="packList" class="pack-list"></div>
-  <div id="noPacksMsg" class="empty-state" style="padding:20px 0">
+  <div id="noPacksMsg" class="empty-state" style="padding:20px 0;display:none">
     <div class="e-icon">📦</div>
     <p>אין עדיין חבילות אישיות.<br>צור את הראשונה!</p>
   </div>
 
-  <!-- New pack form -->
-  <div class="new-pack-form">
-    <h3>➕ חבילה חדשה</h3>
+  <!-- New / Edit pack form -->
+  <div class="new-pack-form" id="packForm">
+    <div class="edit-pack-header">
+      <h3 id="packFormTitle">➕ חבילה חדשה</h3>
+      <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none;background:none;border:none;font-size:13px;color:var(--text-muted);cursor:pointer;font-weight:600;">ביטול</button>
+    </div>
     <input class="pack-name-input" id="packNameInput" type="text" placeholder="שם החבילה (למשל: פרק 3)" maxlength="30">
     <textarea class="pack-words-textarea" id="packWordsInput" placeholder="הכנס מילים — אחת בכל שורה:&#10;apple&#10;beautiful&#10;run - לרוץ&#10;school - בית ספר"></textarea>
     <p class="pack-hint">
-      💡 ניתן להכניס מילה באנגלית בלבד — התרגום יתמלא אוטומטית<br>
-      או בפורמט <strong>word - תרגום</strong> לתרגום ידני
+      💡 מילה בלבד — תתורגם אוטומטית<br>
+      <strong>word - תרגום</strong> — נשאר כמות שהוא
     </p>
     <div class="translate-status" id="translateStatus"></div>
     <div id="previewWrap" style="display:none">
@@ -1667,16 +1701,24 @@ let state = {
   bestScores: { mc: 0, flash: 0 },
   history: [],
   customPacks: [],        // [{id, name, words:[{en,he,ex}]}]
-  selectedPacks: [],      // [id, id, ...]
-  customMixMode: false    // false=אישי בלבד, true=אישי+רמה רגילה
+  activeSources: ['builtin'] // 'builtin' | 'custom_xxx'
 };
 
 function loadState() {
   const saved = localStorage.getItem('wordup_state');
-  if (saved) state = { ...state, ...JSON.parse(saved) };
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    // migrate old selectedPacks system
+    if (parsed.selectedPacks && !parsed.activeSources) {
+      parsed.activeSources = ['builtin', ...(parsed.selectedPacks || [])];
+    }
+    state = { ...state, ...parsed };
+  }
+  if (!state.activeSources || !state.activeSources.length) state.activeSources = ['builtin'];
   updateUI();
   updateNicknameUI();
-  updateCustomBanner();
+  updateSourcesUI();
+  selectLevelDrop(state.currentLevel);
   history.replaceState({ screen: 'home' }, '');
   if (!state.nickname) openNicknameModal();
 }
@@ -1688,39 +1730,23 @@ function saveState() {
 //  WORD HELPERS
 // ═══════════════════════════════════════════
 function getAvailableWords(level) {
-  // אם יש חבילות אישיות נבחרות
-  const hasCustom = state.selectedPacks && state.selectedPacks.length > 0;
+  const sources = state.activeSources || ['builtin'];
   let words = [];
-
-  if (hasCustom) {
-    // אסוף מילים מהחבילות האישיות הנבחרות
-    state.selectedPacks.forEach(id => {
-      const pack = (state.customPacks || []).find(p => p.id === id);
-      if (pack) words = words.concat(pack.words);
-    });
-    // אם מצב מיקס — הוסף גם מילים רגילות
-    if (state.customMixMode) {
-      for (let l = 1; l <= level; l++) {
-        if (!WORDS[l]) continue;
-        const packs = WORDS[l].packs;
-        const unlocked = state.unlockedPacks[l] || 1;
-        for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
-          words = words.concat(packs[p]);
-        }
+  if (sources.includes('builtin')) {
+    for (let l = 1; l <= level; l++) {
+      if (!WORDS[l]) continue;
+      const packs = WORDS[l].packs;
+      const unlocked = state.unlockedPacks[l] || 1;
+      for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
+        words = words.concat(packs[p]);
       }
     }
-    return words;
   }
-
-  // מצב רגיל — לפי רמה
-  for (let l = 1; l <= level; l++) {
-    if (!WORDS[l]) continue;
-    const packs = WORDS[l].packs;
-    const unlocked = state.unlockedPacks[l] || 1;
-    for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
-      words = words.concat(packs[p]);
+  (state.customPacks || []).forEach(pack => {
+    if (sources.includes(pack.id)) {
+      words = words.concat(pack.words);
     }
-  }
+  });
   return words;
 }
 
@@ -2205,6 +2231,7 @@ function endFill() {
 // ═══════════════════════════════════════════
 //  CUSTOM PACKS
 // ═══════════════════════════════════════════
+let editingPackId = null;
 
 function showTab2(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -2218,99 +2245,167 @@ function renderPacksScreen() {
   const packs = state.customPacks || [];
   const list = document.getElementById('packList');
   const noMsg = document.getElementById('noPacksMsg');
-  const mixWrap = document.getElementById('mixToggleWrap');
+  noMsg.style.display = packs.length === 0 ? 'block' : 'none';
 
-  // reset form
-  document.getElementById('packNameInput').value = '';
-  document.getElementById('packWordsInput').value = '';
+  list.innerHTML = '';
+  packs.forEach(pack => {
+    const el = document.createElement('div');
+    el.className = 'pack-item';
+    el.style.cursor = 'default';
+    el.innerHTML = `
+      <div class="pack-item-info" style="flex:1">
+        <div class="pack-item-name">${pack.name}</div>
+        <div class="pack-item-count">${pack.words.length} מילים</div>
+      </div>
+      <button class="pack-item-edit" onclick="editPack('${pack.id}')" title="ערוך">✏️</button>
+      <button class="pack-item-delete" onclick="deletePack('${pack.id}',event)" title="מחק">🗑️</button>
+    `;
+    list.appendChild(el);
+  });
+
+  // reset form to "new" mode
+  cancelEdit();
+}
+
+function editPack(id) {
+  const pack = (state.customPacks || []).find(p => p.id === id);
+  if (!pack) return;
+  editingPackId = id;
+  document.getElementById('packFormTitle').textContent = `✏️ עריכת: ${pack.name}`;
+  document.getElementById('packNameInput').value = pack.name;
+  // Fill textarea with current words
+  document.getElementById('packWordsInput').value = pack.words.map(w => `${w.en} - ${w.he}`).join('\n');
+  document.getElementById('cancelEditBtn').style.display = 'block';
   document.getElementById('previewWrap').style.display = 'none';
   document.getElementById('translateBtn').style.display = 'block';
   document.getElementById('savePackBtn').style.display = 'none';
   document.getElementById('translateStatus').className = 'translate-status';
-
-  noMsg.style.display = packs.length === 0 ? 'block' : 'none';
-  mixWrap.style.display = packs.length > 0 && (state.selectedPacks||[]).length > 0 ? 'flex' : 'none';
-
-  const btn = document.getElementById('mixToggleBtn');
-  btn.className = 'toggle-switch' + (state.customMixMode ? ' on' : '');
-
-  list.innerHTML = '';
-  packs.forEach(pack => {
-    const selected = (state.selectedPacks || []).includes(pack.id);
-    const el = document.createElement('div');
-    el.className = 'pack-item' + (selected ? ' selected' : '');
-    el.innerHTML = `
-      <div class="pack-item-check">${selected ? '✓' : ''}</div>
-      <div class="pack-item-info">
-        <div class="pack-item-name">${pack.name}</div>
-        <div class="pack-item-count">${pack.words.length} מילים</div>
-      </div>
-      <button class="pack-item-delete" onclick="deletePack('${pack.id}',event)" title="מחק חבילה">🗑️</button>
-    `;
-    el.onclick = () => togglePackSelection(pack.id);
-    list.appendChild(el);
-  });
+  document.getElementById('packForm').scrollIntoView({ behavior: 'smooth' });
 }
 
-function togglePackSelection(id) {
-  sfxClick();
-  let sel = state.selectedPacks || [];
-  if (sel.includes(id)) {
-    sel = sel.filter(x => x !== id);
-  } else {
-    sel = [...sel, id];
-  }
-  state.selectedPacks = sel;
-  saveState();
-  renderPacksScreen();
-  updateCustomBanner();
+function cancelEdit() {
+  editingPackId = null;
+  document.getElementById('packFormTitle').textContent = '➕ חבילה חדשה';
+  document.getElementById('packNameInput').value = '';
+  document.getElementById('packWordsInput').value = '';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('translateBtn').style.display = 'block';
+  document.getElementById('savePackBtn').style.display = 'none';
+  document.getElementById('translateStatus').className = 'translate-status';
+  pendingWords = [];
 }
 
 function deletePack(id, e) {
-  e.stopPropagation();
+  if (e) e.stopPropagation();
   if (!confirm('למחוק את החבילה?')) return;
   state.customPacks = (state.customPacks || []).filter(p => p.id !== id);
-  state.selectedPacks = (state.selectedPacks || []).filter(x => x !== id);
+  state.activeSources = (state.activeSources || ['builtin']).filter(s => s !== id);
+  if (!state.activeSources.length) state.activeSources = ['builtin'];
   saveState();
   renderPacksScreen();
-  updateCustomBanner();
+  updateSourcesUI();
 }
 
-function toggleMixMode() {
-  state.customMixMode = !state.customMixMode;
-  saveState();
-  renderPacksScreen();
-  updateCustomBanner();
-}
-
-function clearCustomSelection() {
-  state.selectedPacks = [];
-  saveState();
-  updateCustomBanner();
-}
-
-function updateCustomBanner() {
-  const banner = document.getElementById('customBanner');
-  const sel = state.selectedPacks || [];
-  if (sel.length === 0) {
-    banner.classList.remove('visible');
-    return;
+// ── Sources dropdown ──
+function toggleDropdown(id, btn) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+  // close all dropdowns
+  document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  if (!isOpen) {
+    panel.classList.add('open');
+    btn.classList.add('active');
+    if (id === 'sourcesDrop') renderSourcesDropdown();
   }
-  banner.classList.add('visible');
-  const names = sel.map(id => {
-    const p = (state.customPacks||[]).find(p => p.id === id);
-    return p ? p.name : '';
-  }).filter(Boolean).join(', ');
-  const mixTxt = state.customMixMode ? ` + רמה ${state.currentLevel}` : '';
-  document.getElementById('customBannerText').textContent = `📦 משחק עם: ${names}${mixTxt}`;
 }
 
+// Close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.home-controls')) {
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  }
+});
+
+function renderSourcesDropdown() {
+  const sources = state.activeSources || ['builtin'];
+  const packs = state.customPacks || [];
+
+  // builtin item
+  const builtinEl = document.getElementById('src-builtin');
+  const builtinChecked = sources.includes('builtin');
+  builtinEl.className = 'dropdown-item' + (builtinChecked ? ' checked' : '');
+  builtinEl.querySelector('.chk').textContent = builtinChecked ? '✓' : '';
+
+  // custom packs
+  const listEl = document.getElementById('srcCustomList');
+  const emptyEl = document.getElementById('srcEmptyMsg');
+  listEl.innerHTML = '';
+  emptyEl.style.display = packs.length === 0 ? 'block' : 'none';
+  packs.forEach(pack => {
+    const checked = sources.includes(pack.id);
+    const div = document.createElement('div');
+    div.className = 'dropdown-item' + (checked ? ' checked' : '');
+    div.innerHTML = `<span class="chk">${checked ? '✓' : ''}</span> ${pack.name}`;
+    div.onclick = () => toggleSource(pack.id);
+    listEl.appendChild(div);
+  });
+}
+
+function toggleSource(id) {
+  let sources = [...(state.activeSources || ['builtin'])];
+  if (sources.includes(id)) {
+    sources = sources.filter(s => s !== id);
+  } else {
+    sources.push(id);
+  }
+  if (sources.length === 0) sources = ['builtin']; // לא מאפשר בחירה ריקה
+  state.activeSources = sources;
+  saveState();
+  renderSourcesDropdown();
+  updateSourcesUI();
+}
+
+function updateSourcesUI() {
+  const sources = state.activeSources || ['builtin'];
+  const packs = state.customPacks || [];
+  const parts = [];
+  if (sources.includes('builtin')) parts.push('מובנות');
+  packs.forEach(p => { if (sources.includes(p.id)) parts.push(p.name); });
+  const label = parts.length <= 1 ? parts[0] || 'מקורות' : `${parts.length} מקורות`;
+  document.getElementById('sourcesBtnLabel').textContent = label;
+  const btn = document.getElementById('sourcesBtn');
+  const hasCustom = sources.some(s => s !== 'builtin');
+  btn.style.borderColor = hasCustom ? 'var(--accent)' : '';
+  btn.style.color = hasCustom ? 'var(--accent)' : '';
+}
+
+// ── Level dropdown ──
+const LEVEL_NAMES = { 1: 'רמה 1 — מתחיל', 2: 'רמה 2 — יסודי', 3: 'רמה 3 — בינוני', 4: 'רמה 4 — מתקדם' };
+function selectLevelDrop(lvl) {
+  state.currentLevel = lvl;
+  saveState();
+  document.getElementById('levelBtnLabel').textContent = LEVEL_NAMES[lvl];
+  [1,2,3,4].forEach(l => {
+    document.getElementById('lvlOpt'+l).className = 'dropdown-item' + (l === lvl ? ' selected' : '');
+  });
+  document.getElementById('levelDrop').classList.remove('open');
+  document.getElementById('levelBtn').classList.remove('active');
+  updateAddWordsUI();
+}
+
+// keep old selectLevel working for anything that calls it
+function selectLevel(lvl) { selectLevelDrop(lvl); }
+
+// ── Translation ──
 async function translateWord(word) {
   const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|he`;
   const res = await fetch(url);
   const data = await res.json();
   if (data.responseStatus === 200) return data.responseData.translatedText;
-  throw new Error('תרגום נכשל');
+  throw new Error('failed');
 }
 
 let pendingWords = [];
@@ -2324,11 +2419,11 @@ async function translateAndPreview() {
   const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
   pendingWords = [];
   lines.forEach(line => {
-    const parts = line.split('-').map(p => p.trim());
-    if (parts.length >= 2 && parts[1]) {
-      pendingWords.push({ en: parts[0], he: parts[1], manual: true });
+    const dash = line.indexOf(' - ');
+    if (dash !== -1) {
+      pendingWords.push({ en: line.slice(0, dash).trim(), he: line.slice(dash + 3).trim(), manual: true });
     } else {
-      pendingWords.push({ en: parts[0], he: '', manual: false });
+      pendingWords.push({ en: line.trim(), he: '', manual: false });
     }
   });
 
@@ -2343,20 +2438,16 @@ async function translateAndPreview() {
     const w = pendingWords[i];
     if (!w.manual) {
       statusEl.textContent = `מתרגם: ${w.en} (${i+1}/${pendingWords.length})`;
-      try {
-        w.he = await translateWord(w.en);
-      } catch {
-        w.he = '';
-        failed.push(w.en);
-      }
+      try { w.he = await translateWord(w.en); }
+      catch { w.he = ''; failed.push(w.en); }
     }
   }
 
   btn.disabled = false;
   btn.textContent = 'תרגם ובנה חבילה ✨';
   statusEl.textContent = failed.length > 0
-    ? `⚠️ לא הצליח לתרגם: ${failed.join(', ')} — מלא ידנית`
-    : `✅ תורגם בהצלחה! ערוך אם צריך ואז שמור.`;
+    ? `⚠️ לא הצליח לתרגם: ${failed.join(', ')}`
+    : `✅ תורגם! ערוך אם צריך ושמור.`;
 
   const tbody = document.getElementById('previewBody');
   tbody.innerHTML = '';
@@ -2378,15 +2469,24 @@ function savePack() {
   const words = pendingWords
     .filter(w => w.en && w.he)
     .map(w => ({ en: w.en.trim(), he: w.he.trim(), ex: `${w.en.trim()}.` }));
-
   if (words.length === 0) { alert('אין מילים תקינות לשמירה'); return; }
 
-  const pack = { id: 'custom_' + Date.now(), name, words };
-  state.customPacks = [...(state.customPacks || []), pack];
+  if (editingPackId) {
+    // עדכון חבילה קיימת
+    state.customPacks = (state.customPacks || []).map(p =>
+      p.id === editingPackId ? { ...p, name, words } : p
+    );
+    showToast(`✅ "${name}" עודכנה! (${words.length} מילים)`);
+  } else {
+    // חבילה חדשה
+    const pack = { id: 'custom_' + Date.now(), name, words };
+    state.customPacks = [...(state.customPacks || []), pack];
+    showToast(`✅ "${name}" נשמרה! (${words.length} מילים)`);
+  }
+
   saveState();
-  showToast(`✅ "${name}" נשמרה! (${words.length} מילים)`);
+  updateSourcesUI();
   renderPacksScreen();
-  updateCustomBanner();
 }
 
 // ═══════════════════════════════════════════
