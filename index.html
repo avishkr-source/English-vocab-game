@@ -1144,6 +1144,126 @@
     white-space: nowrap;
   }
   .nav-username:hover { background: var(--border); }
+
+  /* ─── LISTEN GAME ─── */
+  .listen-speak-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 20px 20px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .listen-hebrew {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-height: 22px;
+    transition: opacity 0.3s;
+    direction: rtl;
+  }
+  .listen-hebrew.visible { color: var(--primary); font-size: 18px; }
+  .listen-play-btn {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: none;
+    cursor: pointer;
+    font-size: 36px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 24px rgba(108,99,255,0.4);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .listen-play-btn:active { transform: scale(0.93); }
+  .listen-play-btn.speaking {
+    background: var(--accent);
+    animation: pulse-speak 0.6s ease infinite alternate;
+  }
+  @keyframes pulse-speak {
+    from { box-shadow: 0 6px 24px rgba(239,68,68,0.3); transform: scale(1); }
+    to   { box-shadow: 0 6px 36px rgba(239,68,68,0.6); transform: scale(1.06); }
+  }
+  .listen-replays {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .listen-progress {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .listen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .listen-word-btn {
+    padding: 18px 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    direction: ltr;
+    line-height: 1.2;
+  }
+  .listen-word-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .listen-word-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: #0d6e50;
+    animation: pop 0.3s ease;
+  }
+  .listen-word-btn.wrong {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: #c0002e;
+    animation: shake 0.35s ease;
+  }
+  .listen-word-btn.found {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: #0d6e50;
+    opacity: 0.5;
+    cursor: default;
+  }
+  .listen-word-btn:disabled { cursor: default; }
+
+  /* score popup */
+  .listen-pts-popup {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--green);
+    pointer-events: none;
+    animation: float-up 0.8s ease forwards;
+    opacity: 0;
+  }
+  @keyframes float-up {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-40px); }
+  }
 </style>
 </head>
 <body>
@@ -1176,6 +1296,7 @@
   <button class="tab" onclick="showTab('fill')">✏️ השלמה</button>
   <button class="tab" onclick="showTab('match')">🔗 התאמה</button>
   <button class="tab" onclick="showTab('run')">🏃 ריצה</button>
+  <button class="tab" onclick="showTab('listen')">🔊 האזנה</button>
   <button class="tab" onclick="showTab('stats')">📊 סטטיסטיקות</button>
 </div>
 
@@ -1250,6 +1371,12 @@
       <div class="game-name">Word Run</div>
       <div class="game-desc">עצור את המילה הנופלת!</div>
       <div class="game-score">שיא: <span id="home-run-best">0</span></div>
+    </div>
+    <div class="game-card" onclick="startGame('listen')">
+      <div class="game-icon">🔊</div>
+      <div class="game-name">האזנה</div>
+      <div class="game-desc">שמע וזהה את המילה</div>
+      <div class="game-score">שיא: <span id="home-listen-best">0</span></div>
     </div>
   </div>
 
@@ -1541,6 +1668,58 @@
       </div>
     </div>
     <button class="btn-primary" onclick="startGame('run')">🔄 שחק שוב</button>
+    <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
+  </div>
+</div>
+
+<!-- ═══════════════ LISTEN GAME ═══════════════ -->
+<div id="screen-listen" class="screen">
+  <div id="listen-game">
+    <div class="game-header">
+      <button class="btn-back" onclick="confirmLeaveGame('listen')">←</button>
+      <span class="game-title">🔊 האזנה</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="game-progress" id="listen-progress">1 / 10</span>
+        <button onclick="confirmRestart('listen')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="listen-bar" style="width:10%"></div>
+    </div>
+
+    <!-- Speak area -->
+    <div class="listen-speak-area">
+      <p style="font-size:14px;color:var(--text-muted);font-weight:600;margin:0">מה המילה שנאמרת?</p>
+      <button class="listen-play-btn" id="listenPlayBtn" onclick="listenSpeak()">🔊</button>
+      <span class="listen-replays" id="listenReplays"></span>
+      <div class="listen-hebrew" id="listenHebrew"></div>
+    </div>
+
+    <!-- Word grid -->
+    <div class="listen-progress" id="listenFoundMsg"></div>
+    <div class="listen-grid" id="listenGrid"></div>
+    <div class="feedback-banner" id="listen-feedback"></div>
+  </div>
+
+  <div id="listen-results" class="results" style="display:none">
+    <div class="results-icon" id="listen-res-icon">🎉</div>
+    <h2 id="listen-res-title">כל הכבוד!</h2>
+    <p id="listen-res-msg">סיימת את משחק ההאזנה!</p>
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="listen-res-score">0</div>
+        <div class="stat-label">נקודות</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="listen-res-correct">0</div>
+        <div class="stat-label">נכון מהניסיון הראשון</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="listen-res-replays">0</div>
+        <div class="stat-label">השמעות חוזרות</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startGame('listen')">🔄 שחק שוב</button>
     <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
   </div>
 </div>
@@ -2054,6 +2233,7 @@ function confirmLeaveGame(type) {
       rn.paused = true;
       gamePaused['run'] = true;
     } else {
+      if (type === 'listen') window.speechSynthesis.cancel();
       gamePaused[type] = true;
     }
     goHome();
@@ -2064,11 +2244,13 @@ function confirmRestart(type) {
   if (confirm('להתחיל מחדש?\nהתקדמות המשחק הנוכחי תאבד.')) {
     gamePaused[type] = false;
     if (type === 'run') cancelAnimationFrame(rn.animFrame);
+    if (type === 'listen') window.speechSynthesis.cancel();
     if (type === 'mc') initMC(mc.reversed);
     if (type === 'flash') initFlash(fl.reversed);
     if (type === 'fill') initFill();
     if (type === 'match') initMatch();
     if (type === 'run') initRun();
+    if (type === 'listen') initListen();
   }
 }
 
@@ -2145,6 +2327,7 @@ function updateUI() {
   document.getElementById('home-fill-best').textContent = state.bestScores.fill || 0;
   document.getElementById('home-match-best').textContent = state.bestScores.match || 0;
   document.getElementById('home-run-best').textContent = state.bestScores.run || 0;
+  document.getElementById('home-listen-best').textContent = state.bestScores.listen || 0;
 
   // Disable fill game card if no builtin words available
   const fillDisabled = getFillWords(state.currentLevel).length < 4;
@@ -2199,7 +2382,7 @@ function startGame(type) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + type).classList.add('active');
-  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5 };
+  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6 };
   document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
   navigateTo(type);
   activeGame = type;
@@ -2233,6 +2416,13 @@ function startGame(type) {
       `;
       return;
     }
+    if (type === 'listen') {
+      document.getElementById('listen-game').style.display = 'block';
+      document.getElementById('listen-results').style.display = 'none';
+      // Re-render current round and re-speak
+      renderListenRound();
+      return;
+    }
     document.getElementById(type + '-game').style.display = 'block';
     document.getElementById(type + '-results').style.display = 'none';
     return;
@@ -2243,6 +2433,7 @@ function startGame(type) {
   if (type === 'fill') initFill();
   if (type === 'match') initMatch();
   if (type === 'run') initRun();
+  if (type === 'listen') initListen();
 }
 
 // ═══════════════════════════════════════════
@@ -2490,7 +2681,7 @@ function updateStatsScreen() {
       <div class="hi-left">
         <span class="hi-icon">${h.icon}</span>
         <div>
-          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : 'פלאשקארדס'}</div>
+          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : h.type === 'listen' ? 'האזנה' : 'פלאשקארדס'}</div>
           <div class="hi-date">${h.date}</div>
         </div>
       </div>
@@ -2887,6 +3078,198 @@ function endRun() {
   document.getElementById('run-res-score').textContent = rn.score;
   document.getElementById('run-res-words').textContent = rn.wordsAnswered;
   document.getElementById('run-res-streak').textContent = rn.bestStreak;
+}
+
+// ═══════════════════════════════════════════
+//  LISTEN GAME
+// ═══════════════════════════════════════════
+let ln = {};
+
+// Check TTS support
+function ttsSupported() {
+  return 'speechSynthesis' in window;
+}
+
+function initListen() {
+  if (!ttsSupported()) {
+    alert('הדפדפן שלך לא תומך בהשמעת קול. נסה ב-Chrome או Safari.');
+    goHome(); return;
+  }
+
+  const allWords = getAvailableWords(state.currentLevel);
+  if (allWords.length < 6) { alert('צריך לפחות 6 מילים!'); return; }
+
+  // Pick 10 target words for this round
+  ln.targets  = shuffle([...allWords]).slice(0, 10);
+  ln.all      = allWords;
+  ln.idx      = 0;          // which target word we're on
+  ln.score    = 0;
+  ln.correct1 = 0;          // correct on first try
+  ln.totalReplays = 0;
+  ln.done     = false;
+
+  document.getElementById('listen-game').style.display = 'block';
+  document.getElementById('listen-results').style.display = 'none';
+  document.getElementById('listen-feedback').className = 'feedback-banner';
+
+  renderListenRound();
+}
+
+function renderListenRound() {
+  const target = ln.targets[ln.idx];
+  ln.replays   = 0;
+  ln.firstTry  = true;
+  ln.answered  = false;
+
+  // Progress
+  document.getElementById('listen-progress').textContent = `${ln.idx + 1} / ${ln.targets.length}`;
+  document.getElementById('listen-bar').style.width = `${((ln.idx + 1) / ln.targets.length) * 100}%`;
+  document.getElementById('listen-feedback').className = 'feedback-banner';
+  document.getElementById('listenHebrew').textContent = '';
+  document.getElementById('listenHebrew').className = 'listen-hebrew';
+  document.getElementById('listenReplays').textContent = 'לחץ להשמעה';
+  document.getElementById('listenFoundMsg').textContent = '';
+  document.getElementById('listenPlayBtn').className = 'listen-play-btn';
+
+  // Build grid: target + 8 distractors (3 cols × 3 rows = 9 words)
+  const distractors = shuffle(ln.all.filter(w => w.en !== target.en)).slice(0, 8);
+  const gridWords   = shuffle([target, ...distractors]);
+  ln.gridWords      = gridWords;
+
+  const grid = document.getElementById('listenGrid');
+  grid.innerHTML = '';
+  gridWords.forEach(w => {
+    const btn = document.createElement('button');
+    btn.className = 'listen-word-btn';
+    btn.textContent = w.en;
+    btn.dataset.en = w.en;
+    btn.onclick = () => handleListenTap(w, btn);
+    grid.appendChild(btn);
+  });
+
+  // Auto-speak after short delay
+  setTimeout(() => listenSpeak(), 400);
+}
+
+function listenSpeak() {
+  if (ln.answered) return;
+  const target = ln.targets[ln.idx];
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  const utt = new SpeechSynthesisUtterance(target.en);
+  utt.lang  = 'en-US';
+  utt.rate  = 0.85;
+  utt.pitch = 1;
+
+  const btn = document.getElementById('listenPlayBtn');
+  btn.className = 'listen-play-btn speaking';
+
+  utt.onend = () => {
+    btn.className = 'listen-play-btn';
+  };
+  utt.onerror = () => {
+    btn.className = 'listen-play-btn';
+  };
+
+  window.speechSynthesis.speak(utt);
+
+  if (ln.replays > 0) {
+    ln.totalReplays++;
+    document.getElementById('listenReplays').textContent = `הושמע ${ln.replays + 1} פעמים`;
+  } else {
+    document.getElementById('listenReplays').textContent = 'לחץ שוב לחזרה 🔁';
+  }
+  ln.replays++;
+}
+
+function handleListenTap(word, btn) {
+  if (ln.answered) return;
+  const target = ln.targets[ln.idx];
+  sfxClick();
+
+  if (word.en === target.en) {
+    // ✅ Correct
+    ln.answered = true;
+    sfxCorrect();
+    window.speechSynthesis.cancel();
+    document.getElementById('listenPlayBtn').className = 'listen-play-btn';
+
+    const replayPenalty = Math.min(ln.replays - 1, 4) * 5;
+    const pts = Math.max(10, (20 * state.currentLevel) - replayPenalty);
+    ln.score += pts;
+    if (ln.firstTry) ln.correct1++;
+
+    btn.className = 'listen-word-btn correct';
+    btn.disabled = true;
+
+    // Show Hebrew translation
+    const heb = document.getElementById('listenHebrew');
+    heb.textContent = target.he;
+    heb.className = 'listen-hebrew visible';
+
+    // Floating score popup
+    showListenPoints('+' + pts);
+
+    const fb = document.getElementById('listen-feedback');
+    fb.className = 'feedback-banner correct';
+    fb.textContent = ln.firstTry
+      ? `✅ נכון! "${target.en}" = ${target.he}`
+      : `✅ נכון! (אחרי ${ln.replays - 1} חזרות)`;
+
+    ln.idx++;
+    if (ln.idx >= ln.targets.length) {
+      setTimeout(() => endListen(), 1400);
+    } else {
+      setTimeout(() => renderListenRound(), 1500);
+    }
+
+  } else {
+    // ❌ Wrong
+    sfxWrong();
+    ln.firstTry = false;
+    btn.classList.add('wrong');
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+    }, 500);
+
+    const fb = document.getElementById('listen-feedback');
+    fb.className = 'feedback-banner wrong';
+    fb.textContent = '❌ לא נכון — נסה שוב!';
+  }
+}
+
+function showListenPoints(text) {
+  const area = document.querySelector('.listen-speak-area');
+  const el = document.createElement('div');
+  el.className = 'listen-pts-popup';
+  el.textContent = text;
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function endListen() {
+  window.speechSynthesis.cancel();
+  ln.done = true;
+
+  if (ln.score > (state.bestScores.listen || 0)) state.bestScores.listen = ln.score;
+  state.totalScore += ln.score;
+  state.gamesPlayed++;
+  state.history.unshift({ type: 'listen', score: ln.score, date: new Date().toLocaleDateString('he-IL'), icon: '🔊' });
+  if (state.history.length > 20) state.history.pop();
+  saveState();
+
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('listen-game').style.display = 'none';
+  document.getElementById('listen-results').style.display = 'block';
+
+  const pct = Math.round((ln.correct1 / ln.targets.length) * 100);
+  document.getElementById('listen-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '🌟' : '💪';
+  document.getElementById('listen-res-title').textContent = pct >= 80 ? 'מצוין!' : pct >= 50 ? 'יפה!' : 'המשך לתרגל!';
+  document.getElementById('listen-res-score').textContent = ln.score;
+  document.getElementById('listen-res-correct').textContent = `${ln.correct1}/${ln.targets.length}`;
+  document.getElementById('listen-res-replays').textContent = ln.totalReplays;
 }
 
 // ═══════════════════════════════════════════
