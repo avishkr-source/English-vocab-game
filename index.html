@@ -1264,6 +1264,130 @@
     0%   { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-40px); }
   }
+  /* ─── COLORS GAME ─── */
+  .colors-speak-area {
+    text-align: center;
+    padding: 24px 16px 20px;
+    position: relative;
+  }
+  .colors-question {
+    font-family: 'Nunito', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: var(--text);
+    direction: rtl;
+  }
+  .colors-speak-btn {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: none;
+    cursor: pointer;
+    font-size: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 30px rgba(108,99,255,0.45);
+    transition: transform 0.15s;
+    margin-bottom: 12px;
+  }
+  .colors-speak-btn:active { transform: scale(0.92); }
+  .colors-speak-btn.speaking {
+    background: var(--accent);
+    animation: pulse-speak 0.6s ease infinite alternate;
+  }
+  .colors-hint {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    direction: rtl;
+    min-height: 20px;
+  }
+
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 0 4px 20px;
+  }
+  .color-swatch {
+    aspect-ratio: 1;
+    border-radius: 20px;
+    border: 4px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .color-swatch:active { transform: scale(0.94); }
+  .color-swatch:hover  { transform: scale(1.04); box-shadow: 0 6px 20px rgba(0,0,0,0.22); }
+  .color-swatch.correct {
+    border-color: #22c55e;
+    animation: swatch-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 0 0 6px rgba(34,197,94,0.3);
+  }
+  .color-swatch.wrong {
+    animation: shake 0.35s ease;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 6px rgba(239,68,68,0.3);
+  }
+  .color-swatch .swatch-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    opacity: 0; /* hidden by default — revealed on correct */
+    transition: opacity 0.3s;
+  }
+  .color-swatch.correct .swatch-label { opacity: 1; }
+
+  /* celebration overlay on the speak area */
+  .colors-celebrate {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px;
+    pointer-events: none;
+    animation: celebrate-pop 0.6s ease forwards;
+    opacity: 0;
+  }
+  @keyframes celebrate-pop {
+    0%   { opacity: 0; transform: scale(0.3); }
+    50%  { opacity: 1; transform: scale(1.3); }
+    100% { opacity: 0; transform: scale(1); }
+  }
+  @keyframes swatch-pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  /* score + streak display */
+  .colors-hud {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 4px;
+  }
+  .colors-hud-item {
+    text-align: center;
+  }
+  .colors-hud-val {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .colors-hud-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
 </style>
 </head>
 <body>
@@ -1297,6 +1421,7 @@
   <button class="tab" onclick="showTab('match')">🔗 התאמה</button>
   <button class="tab" onclick="showTab('run')">🏃 ריצה</button>
   <button class="tab" onclick="showTab('listen')">🔊 האזנה</button>
+  <button class="tab" onclick="showTab('colors')">🎨 צבעים</button>
   <button class="tab" onclick="showTab('stats')">📊 סטטיסטיקות</button>
 </div>
 
@@ -1377,6 +1502,12 @@
       <div class="game-name">האזנה</div>
       <div class="game-desc">שמע וזהה את המילה</div>
       <div class="game-score">שיא: <span id="home-listen-best">0</span></div>
+    </div>
+    <div class="game-card" onclick="startGame('colors')">
+      <div class="game-icon">🎨</div>
+      <div class="game-name">צבעים</div>
+      <div class="game-desc">לקטנים — שמע וגע בצבע!</div>
+      <div class="game-score">שיא: <span id="home-colors-best">0</span></div>
     </div>
   </div>
 
@@ -1720,6 +1851,67 @@
       </div>
     </div>
     <button class="btn-primary" onclick="startGame('listen')">🔄 שחק שוב</button>
+    <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
+  </div>
+</div>
+
+<!-- ═══════════════ COLORS GAME ═══════════════ -->
+<div id="screen-colors" class="screen">
+  <div id="colors-game">
+    <div class="game-header">
+      <button class="btn-back" onclick="confirmLeaveGame('colors')">←</button>
+      <span class="game-title">🎨 צבעים</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="game-progress" id="colors-progress">1 / 10</span>
+        <button onclick="confirmRestart('colors')" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted)" title="התחל מחדש">↺</button>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="colors-bar" style="width:10%"></div>
+    </div>
+
+    <!-- HUD -->
+    <div class="colors-hud">
+      <div class="colors-hud-item">
+        <div class="colors-hud-val" id="colors-score-disp">0</div>
+        <div class="colors-hud-label">נקודות</div>
+      </div>
+      <div class="colors-hud-item">
+        <div class="colors-hud-val" id="colors-streak-disp">0🔥</div>
+        <div class="colors-hud-label">רצף</div>
+      </div>
+    </div>
+
+    <!-- Speak area -->
+    <div class="colors-speak-area">
+      <p class="colors-question" id="colorsQuestion">לחץ כדי לשמוע את הצבע! 👆</p>
+      <button class="colors-speak-btn" id="colorsSpeakBtn" onclick="colorsSpeak()">🔊</button>
+      <div class="colors-hint" id="colorsHint">לחץ על הצבע הנכון</div>
+    </div>
+
+    <!-- Color swatches grid -->
+    <div class="colors-grid" id="colorsGrid"></div>
+  </div>
+
+  <div id="colors-results" class="results" style="display:none">
+    <div class="results-icon" id="colors-res-icon">🎉</div>
+    <h2 id="colors-res-title">כל הכבוד!</h2>
+    <p id="colors-res-msg">למדת את הצבעים!</p>
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="colors-res-score">0</div>
+        <div class="stat-label">נקודות</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="colors-res-correct">0</div>
+        <div class="stat-label">נכון מניסיון ראשון</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="colors-res-streak">0</div>
+        <div class="stat-label">שיא רצף</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startGame('colors')">🔄 שחק שוב</button>
     <button class="btn-secondary" onclick="goHome()">← חזור הביתה</button>
   </div>
 </div>
@@ -2233,7 +2425,7 @@ function confirmLeaveGame(type) {
       rn.paused = true;
       gamePaused['run'] = true;
     } else {
-      if (type === 'listen') window.speechSynthesis.cancel();
+      if (type === 'listen' || type === 'colors') window.speechSynthesis.cancel();
       gamePaused[type] = true;
     }
     goHome();
@@ -2244,13 +2436,14 @@ function confirmRestart(type) {
   if (confirm('להתחיל מחדש?\nהתקדמות המשחק הנוכחי תאבד.')) {
     gamePaused[type] = false;
     if (type === 'run') cancelAnimationFrame(rn.animFrame);
-    if (type === 'listen') window.speechSynthesis.cancel();
+    if (type === 'listen' || type === 'colors') window.speechSynthesis.cancel();
     if (type === 'mc') initMC(mc.reversed);
     if (type === 'flash') initFlash(fl.reversed);
     if (type === 'fill') initFill();
     if (type === 'match') initMatch();
     if (type === 'run') initRun();
     if (type === 'listen') initListen();
+    if (type === 'colors') initColors();
   }
 }
 
@@ -2328,6 +2521,7 @@ function updateUI() {
   document.getElementById('home-match-best').textContent = state.bestScores.match || 0;
   document.getElementById('home-run-best').textContent = state.bestScores.run || 0;
   document.getElementById('home-listen-best').textContent = state.bestScores.listen || 0;
+  document.getElementById('home-colors-best').textContent = state.bestScores.colors || 0;
 
   // Disable fill game card if no builtin words available
   const fillDisabled = getFillWords(state.currentLevel).length < 4;
@@ -2382,7 +2576,7 @@ function startGame(type) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + type).classList.add('active');
-  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6 };
+  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6, colors: 7 };
   document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
   navigateTo(type);
   activeGame = type;
@@ -2419,8 +2613,13 @@ function startGame(type) {
     if (type === 'listen') {
       document.getElementById('listen-game').style.display = 'block';
       document.getElementById('listen-results').style.display = 'none';
-      // Re-render current round and re-speak
       renderListenRound();
+      return;
+    }
+    if (type === 'colors') {
+      document.getElementById('colors-game').style.display = 'block';
+      document.getElementById('colors-results').style.display = 'none';
+      renderColorsRound();
       return;
     }
     document.getElementById(type + '-game').style.display = 'block';
@@ -2434,6 +2633,7 @@ function startGame(type) {
   if (type === 'match') initMatch();
   if (type === 'run') initRun();
   if (type === 'listen') initListen();
+  if (type === 'colors') initColors();
 }
 
 // ═══════════════════════════════════════════
@@ -2681,7 +2881,7 @@ function updateStatsScreen() {
       <div class="hi-left">
         <span class="hi-icon">${h.icon}</span>
         <div>
-          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : h.type === 'listen' ? 'האזנה' : 'פלאשקארדס'}</div>
+          <div class="hi-name">${h.type === 'mc' ? 'מולטי-צ\'ויס' : h.type === 'fill' ? 'השלמת משפט' : h.type === 'match' ? 'התאמה' : h.type === 'run' ? 'Word Run' : h.type === 'listen' ? 'האזנה' : h.type === 'colors' ? 'צבעים' : 'פלאשקארדס'}</div>
           <div class="hi-date">${h.date}</div>
         </div>
       </div>
@@ -3270,6 +3470,202 @@ function endListen() {
   document.getElementById('listen-res-score').textContent = ln.score;
   document.getElementById('listen-res-correct').textContent = `${ln.correct1}/${ln.targets.length}`;
   document.getElementById('listen-res-replays').textContent = ln.totalReplays;
+}
+
+// ═══════════════════════════════════════════
+//  COLORS GAME
+// ═══════════════════════════════════════════
+const COLORS_DB = [
+  { en: 'red',    he: 'אדום',    hex: '#ef4444' },
+  { en: 'blue',   he: 'כחול',   hex: '#3b82f6' },
+  { en: 'yellow', he: 'צהוב',   hex: '#facc15' },
+  { en: 'green',  he: 'ירוק',   hex: '#22c55e' },
+  { en: 'orange', he: 'כתום',   hex: '#f97316' },
+  { en: 'purple', he: 'סגול',   hex: '#a855f7' },
+  { en: 'pink',   he: 'ורוד',   hex: '#ec4899' },
+  { en: 'black',  he: 'שחור',   hex: '#1f2937' },
+  { en: 'white',  he: 'לבן',    hex: '#f1f5f9' },
+  { en: 'brown',  he: 'חום',    hex: '#92400e' },
+  { en: 'gray',   he: 'אפור',   hex: '#6b7280' },
+  { en: 'cyan',   he: 'תכלת',   hex: '#06b6d4' },
+];
+
+let cl = {};
+
+function initColors() {
+  if (!ttsSupported()) {
+    alert('הדפדפן שלך לא תומך בהשמעת קול. נסה ב-Chrome או Safari.');
+    goHome(); return;
+  }
+
+  // Pick 10 rounds from the full color list
+  cl.targets    = shuffle([...COLORS_DB]).slice(0, 10);
+  cl.idx        = 0;
+  cl.score      = 0;
+  cl.streak     = 0;
+  cl.bestStreak = 0;
+  cl.correct1   = 0;
+  cl.done       = false;
+
+  document.getElementById('colors-game').style.display = 'block';
+  document.getElementById('colors-results').style.display = 'none';
+
+  renderColorsRound();
+}
+
+function renderColorsRound() {
+  const target = cl.targets[cl.idx];
+  cl.firstTry = true;
+  cl.answered = false;
+
+  // Progress
+  const total = cl.targets.length;
+  document.getElementById('colors-progress').textContent = `${cl.idx + 1} / ${total}`;
+  document.getElementById('colors-bar').style.width = `${((cl.idx + 1) / total) * 100}%`;
+  document.getElementById('colorsHint').textContent = 'לחץ על הצבע הנכון';
+  document.getElementById('colorsQuestion').textContent = '🔊';
+  document.getElementById('colorsSpeakBtn').className = 'colors-speak-btn';
+  updateColorsHUD();
+
+  // Build grid: target + distractors, always show ALL 12 colors (or fewer if less exist)
+  // We show 6 swatches: target + 5 random distractors
+  const distractors = shuffle(COLORS_DB.filter(c => c.en !== target.en)).slice(0, 5);
+  const gridColors  = shuffle([target, ...distractors]);
+
+  const grid = document.getElementById('colorsGrid');
+  grid.innerHTML = '';
+  gridColors.forEach(color => {
+    const btn = document.createElement('button');
+    btn.className = 'color-swatch';
+    btn.style.background = color.hex;
+    // white needs a border to be visible
+    if (color.en === 'white') btn.style.border = '4px solid #cbd5e1';
+    btn.dataset.en = color.en;
+    btn.innerHTML = `<span class="swatch-label">${color.en}</span>`;
+    btn.onclick = () => handleColorTap(color, btn);
+    grid.appendChild(btn);
+  });
+
+  // Auto-speak after short delay
+  setTimeout(() => colorsSpeak(), 500);
+}
+
+function colorsSpeak() {
+  if (cl.answered) return;
+  const target = cl.targets[cl.idx];
+  window.speechSynthesis.cancel();
+
+  const utt = new SpeechSynthesisUtterance(target.en);
+  utt.lang  = 'en-US';
+  utt.rate  = 0.8;
+  utt.pitch = 1.1;
+
+  const btn = document.getElementById('colorsSpeakBtn');
+  btn.className = 'colors-speak-btn speaking';
+  document.getElementById('colorsQuestion').textContent = '👂 שמע בעיון...';
+
+  utt.onend = utt.onerror = () => {
+    btn.className = 'colors-speak-btn';
+    document.getElementById('colorsQuestion').textContent = 'איזה צבע שמעת? 🤔';
+  };
+  window.speechSynthesis.speak(utt);
+}
+
+function handleColorTap(color, btn) {
+  if (cl.answered) return;
+  const target = cl.targets[cl.idx];
+  sfxClick();
+
+  if (color.en === target.en) {
+    // ✅ Correct!
+    cl.answered = true;
+    window.speechSynthesis.cancel();
+
+    sfxCorrect();
+    cl.streak++;
+    cl.bestStreak = Math.max(cl.bestStreak, cl.streak);
+    if (cl.firstTry) cl.correct1++;
+
+    const pts = cl.firstTry ? 20 + cl.streak * 5 : 10;
+    cl.score += pts;
+
+    btn.classList.add('correct');
+    document.getElementById('colorsQuestion').textContent = `✅ ${target.en.toUpperCase()} — ${target.he}!`;
+    document.getElementById('colorsHint').textContent = cl.firstTry
+      ? `🌟 כל הכבוד! +${pts} נקודות`
+      : `👍 נכון!`;
+
+    // Celebrate with emoji burst
+    showColorsCelebration();
+    updateColorsHUD();
+
+    // Speak the color name again with praise
+    setTimeout(() => {
+      const utt2 = new SpeechSynthesisUtterance(`${target.en}! Great job!`);
+      utt2.lang = 'en-US'; utt2.rate = 0.85;
+      window.speechSynthesis.speak(utt2);
+    }, 100);
+
+    cl.idx++;
+    if (cl.idx >= cl.targets.length) {
+      setTimeout(() => endColors(), 1600);
+    } else {
+      setTimeout(() => renderColorsRound(), 1800);
+    }
+
+  } else {
+    // ❌ Wrong
+    sfxWrong();
+    cl.firstTry = false;
+    cl.streak   = 0;
+    btn.classList.add('wrong');
+    document.getElementById('colorsQuestion').textContent = '❌ לא נכון — נסה שוב!';
+    updateColorsHUD();
+    setTimeout(() => btn.classList.remove('wrong'), 500);
+  }
+}
+
+function showColorsCelebration() {
+  const area = document.querySelector('.colors-speak-area');
+  const emojis = ['🎉','⭐','✨','🌟','💫','🎊'];
+  const el = document.createElement('div');
+  el.className = 'colors-celebrate';
+  el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  area.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
+function updateColorsHUD() {
+  document.getElementById('colors-score-disp').textContent = cl.score;
+  document.getElementById('colors-streak-disp').textContent = cl.streak + (cl.streak >= 3 ? '🔥' : '');
+}
+
+function endColors() {
+  window.speechSynthesis.cancel();
+  cl.done = true;
+
+  if (cl.score > (state.bestScores.colors || 0)) state.bestScores.colors = cl.score;
+  state.totalScore += cl.score;
+  state.gamesPlayed++;
+  state.history.unshift({ type: 'colors', score: cl.score, date: new Date().toLocaleDateString('he-IL'), icon: '🎨' });
+  if (state.history.length > 20) state.history.pop();
+  saveState();
+
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('colors-game').style.display = 'none';
+  document.getElementById('colors-results').style.display = 'block';
+
+  const pct = Math.round((cl.correct1 / cl.targets.length) * 100);
+  document.getElementById('colors-res-icon').textContent = pct === 100 ? '🏆' : pct >= 70 ? '🌟' : '💪';
+  document.getElementById('colors-res-title').textContent = pct === 100 ? 'מושלם! 100%!' : pct >= 70 ? 'יפה מאוד!' : 'כל הכבוד!';
+  document.getElementById('colors-res-score').textContent = cl.score;
+  document.getElementById('colors-res-correct').textContent = `${cl.correct1}/${cl.targets.length}`;
+  document.getElementById('colors-res-streak').textContent = cl.bestStreak;
+
+  // Speak final message
+  const utt = new SpeechSynthesisUtterance(pct === 100 ? 'Amazing! Perfect score!' : 'Well done!');
+  utt.lang = 'en-US'; utt.rate = 0.9;
+  window.speechSynthesis.speak(utt);
 }
 
 // ═══════════════════════════════════════════
