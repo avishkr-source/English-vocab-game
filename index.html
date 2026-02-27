@@ -1553,30 +1553,30 @@
   .emoji-question { font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 900; color: var(--text); margin: 0 0 2px; }
   .emoji-hint { font-size: 13px; color: var(--text-muted); font-weight: 600; }
 
-  /* ── Grid: JS sets width/height on each tile ── */
+  /* ── Grid: same approach as working test ── */
   .emoji-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
     width: 100%;
   }
   .emoji-tile {
-    border-radius: 18px;
-    border: 3px solid var(--border);
     background: var(--card);
-    cursor: pointer;
+    border: 3px solid var(--border);
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     transition: transform 0.15s, border-color 0.15s, background 0.15s;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     /* width & height set by JS */
   }
-  .emoji-tile .tile-icon { line-height: 1; display: block; /* font-size set by JS */ }
-  .emoji-tile .tile-label { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 11px; color: var(--text-muted); display: block; opacity: 0; transition: opacity 0.3s; }
-  .emoji-tile:active { transform: scale(0.92); }
+  .emoji-tile .tile-icon { display: block; line-height: 1; text-align: center; /* font-size set by JS */ }
+  .emoji-tile .tile-label { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 12px; color: var(--text-muted); display: block; opacity: 0; transition: opacity 0.3s; }
+  .emoji-tile:active { transform: scale(0.93); }
   .emoji-tile.correct { border-color: var(--green) !important; background: var(--green-light) !important; box-shadow: 0 0 0 4px rgba(34,197,94,0.25); animation: swatch-pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
   .emoji-tile.correct .tile-label { opacity: 1; color: #0d6e50; }
   .emoji-tile.wrong { border-color: var(--accent) !important; background: var(--accent-light) !important; animation: shake 0.35s ease; }</style>
@@ -4155,30 +4155,31 @@ function renderEmojiRound() {
   document.getElementById('emojiSpeakBtn').className = 'emoji-speak-btn';
   updateEmojiHUD();
 
-  // 6 tiles: target + 5 distractors (from entire pool, different from target)
+  // 6 tiles: target + 5 distractors — displayed in 2×3 grid
   const distractors = shuffle(em.pool.filter(i => i.en !== target.en)).slice(0, 5);
   const tiles = shuffle([target, ...distractors]);
 
   const grid = document.getElementById('emojiGrid');
   grid.innerHTML = '';
   tiles.forEach(item => {
-    const btn = document.createElement('button');
-    btn.className = 'emoji-tile';
-    btn.innerHTML = `<span class="tile-icon">${item.icon}</span><span class="tile-label">${item.en}</span>`;
-    btn.onclick = () => handleEmojiTap(item, btn);
-    grid.appendChild(btn);
+    const div = document.createElement('div');
+    div.className = 'emoji-tile';
+    div.innerHTML = `<span class="tile-icon">${item.icon}</span><span class="tile-label">${item.en}</span>`;
+    div.addEventListener('click', () => handleEmojiTap(item, div));
+    grid.appendChild(div);
   });
 
-  // Size tiles with JS after render (most reliable cross-browser approach)
+  // Size tiles with JS — exact same approach as working test
   requestAnimationFrame(() => {
     const gridW = grid.offsetWidth;
-    const tileSize = Math.floor((gridW - 20) / 3); // 20 = 2 gaps × 10px
-    const iconSize = Math.floor(tileSize * 0.50);
+    const tileSize = Math.floor((gridW - 12) / 2); // 2 cols, gap 12px
+    const iconSize = Math.floor(tileSize * 0.55);
     grid.querySelectorAll('.emoji-tile').forEach(t => {
       t.style.width  = tileSize + 'px';
       t.style.height = tileSize + 'px';
-      const icon = t.querySelector('.tile-icon');
-      if (icon) icon.style.fontSize = iconSize + 'px';
+    });
+    grid.querySelectorAll('.tile-icon').forEach(s => {
+      s.style.fontSize = iconSize + 'px';
     });
   });
 
