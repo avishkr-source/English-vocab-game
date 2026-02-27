@@ -1388,6 +1388,9 @@
     font-weight: 600;
     margin-top: 2px;
   /* ─── EMOJI GAME ─── */
+  #screen-emoji { padding: 16px 16px 24px; }
+
+  /* ── Setup screen ── */
   .emoji-cat-selector {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1415,69 +1418,86 @@
   .emoji-cat-btn.mix-btn { grid-column: 1 / -1; }
   .emoji-cat-btn .cat-emoji { font-size: 26px; display: block; margin-bottom: 4px; }
 
+  /* ── In-game HUD ── */
   .emoji-hud {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 32px;
-    padding: 10px 0 6px;
+    gap: 40px;
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
   }
-  .emoji-hud > div { text-align: center; }
+  .emoji-hud-block { text-align: center; }
   .emoji-hud-val {
+    display: block;
     font-family: 'Nunito', sans-serif;
     font-weight: 900;
-    font-size: 28px;
+    font-size: 26px;
     color: var(--primary);
-    line-height: 1;
-    display: block;
+    line-height: 1.1;
   }
-  .emoji-hud-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 3px; display: block; }
+  .emoji-hud-label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
 
-  .emoji-speak-area {
-    text-align: center;
-    padding: 12px 16px 10px;
-    position: relative;
+  /* ── Speak row ── */
+  .emoji-speak-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 4px 10px;
+    justify-content: center;
   }
   .emoji-speak-btn {
-    width: 72px; height: 72px;
+    flex-shrink: 0;
+    width: 64px; height: 64px;
     border-radius: 50%;
     background: var(--primary);
     border: none;
     cursor: pointer;
-    font-size: 34px;
-    display: inline-flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 24px rgba(108,99,255,0.4);
+    font-size: 30px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 18px rgba(108,99,255,0.4);
     transition: transform 0.15s;
-    margin-bottom: 8px;
   }
-  .emoji-speak-btn:active { transform: scale(0.92); }
+  .emoji-speak-btn:active { transform: scale(0.91); }
   .emoji-speak-btn.speaking {
     background: var(--accent);
     animation: pulse-speak 0.6s ease infinite alternate;
   }
+  .emoji-speak-text { text-align: right; direction: rtl; }
   .emoji-question {
     font-family: 'Nunito', sans-serif;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
-    margin-bottom: 4px;
-    direction: rtl;
-    min-height: 26px;
-    display: block;
+    color: var(--text);
+    margin: 0 0 2px;
   }
-  .emoji-hint { font-size: 13px; color: var(--text-muted); font-weight: 600; min-height: 18px; display: block; }
+  .emoji-hint { font-size: 13px; color: var(--text-muted); font-weight: 600; }
 
-  /* THE MAIN FIX — big emoji tiles in 3×2 grid */
+  /* ── Emoji grid — vw-based sizing, works on all mobile browsers ── */
   .emoji-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
     gap: 10px;
-    padding: 0 4px 12px;
     width: 100%;
+    padding: 0 0 8px;
+  }
+  /* wrapper just holds the vw-based height */
+  .emoji-tile-wrap {
+    width: 100%;
+    /* tile height = (screen - 2×16px padding - 2×10px gaps) / 3 */
+    height: calc((100vw - 52px) / 3);
   }
   .emoji-tile {
-    aspect-ratio: 1;
+    width: 100%;
+    height: 100%;
     border-radius: 18px;
     border: 3px solid var(--border);
     background: var(--card);
@@ -1486,14 +1506,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    position: relative;
-    width: 100%;
+    gap: 4px;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
   }
   .emoji-tile .tile-icon {
-    font-size: 52px;
+    /* icon = ~55% of tile height */
+    font-size: calc((100vw - 52px) / 3 * 0.52);
     line-height: 1;
     display: block;
   }
@@ -1502,25 +1521,24 @@
     font-weight: 800;
     font-size: 11px;
     color: var(--text-muted);
+    display: block;
     opacity: 0;
     transition: opacity 0.3s;
-    display: block;
   }
-  .emoji-tile:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
-  .emoji-tile:active { transform: scale(0.93); }
+  .emoji-tile:active { transform: scale(0.92); }
+  .emoji-tile:hover { border-color: var(--primary); }
   .emoji-tile.correct {
-    border-color: var(--green);
-    background: var(--green-light);
-    box-shadow: 0 0 0 5px rgba(34,197,94,0.25);
+    border-color: var(--green) !important;
+    background: var(--green-light) !important;
+    box-shadow: 0 0 0 4px rgba(34,197,94,0.25);
     animation: swatch-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
   }
   .emoji-tile.correct .tile-label { opacity: 1; color: #0d6e50; }
   .emoji-tile.wrong {
-    border-color: var(--accent);
-    background: var(--accent-light);
+    border-color: var(--accent) !important;
+    background: var(--accent-light) !important;
     animation: shake 0.35s ease;
-  }
-</style>
+  }</style>
 </head>
 <body>
 
@@ -2081,25 +2099,30 @@
       <div class="progress-bar" id="emoji-bar" style="width:10%"></div>
     </div>
 
+    <!-- HUD -->
     <div class="emoji-hud">
-      <div>
+      <div class="emoji-hud-block">
         <span class="emoji-hud-val" id="emoji-score-disp">0</span>
-        <span class="emoji-hud-label">נקודות</span>
+        <span class="emoji-hud-label">נקודות ⭐</span>
       </div>
-      <div>
+      <div class="emoji-hud-block">
         <span class="emoji-hud-val" id="emoji-streak-disp">0</span>
         <span class="emoji-hud-label">רצף 🔥</span>
       </div>
     </div>
 
-    <div class="emoji-speak-area">
-      <div class="emoji-question" id="emojiQuestion">👂</div>
+    <!-- Speak row -->
+    <div class="emoji-speak-row">
       <button class="emoji-speak-btn" id="emojiSpeakBtn" onclick="emojiSpeak()">🔊</button>
-      <div class="emoji-hint" id="emojiHint">לחץ על התמונה הנכונה</div>
+      <div class="emoji-speak-text">
+        <p class="emoji-question" id="emojiQuestion">לחץ להשמעה</p>
+        <span class="emoji-hint" id="emojiHint">גע בתמונה הנכונה</span>
+      </div>
     </div>
 
+    <!-- Emoji grid using padding-bottom trick for square tiles -->
     <div class="emoji-grid" id="emojiGrid"></div>
-    <div class="feedback-banner" id="emoji-feedback"></div>
+    <div class="feedback-banner" id="emoji-feedback" style="margin-top:8px"></div>
   </div>
 
   <div id="emoji-results" class="results" style="display:none">
@@ -4086,8 +4109,8 @@ function renderEmojiRound() {
   document.getElementById('emoji-progress').textContent = `${em.idx + 1} / ${em.targets.length}`;
   document.getElementById('emoji-bar').style.width = `${((em.idx + 1) / em.targets.length) * 100}%`;
   document.getElementById('emoji-feedback').className = 'feedback-banner';
-  document.getElementById('emojiQuestion').textContent = '👂';
-  document.getElementById('emojiHint').textContent = 'לחץ על התמונה הנכונה';
+  document.getElementById('emojiQuestion').textContent = 'לחץ להשמעה 🔊';
+  document.getElementById('emojiHint').textContent = 'גע בתמונה הנכונה';
   document.getElementById('emojiSpeakBtn').className = 'emoji-speak-btn';
   updateEmojiHUD();
 
@@ -4098,11 +4121,16 @@ function renderEmojiRound() {
   const grid = document.getElementById('emojiGrid');
   grid.innerHTML = '';
   tiles.forEach(item => {
+    const wrap = document.createElement('div');
+    wrap.className = 'emoji-tile-wrap';
+
     const btn = document.createElement('button');
     btn.className = 'emoji-tile';
     btn.innerHTML = `<span class="tile-icon">${item.icon}</span><span class="tile-label">${item.en}</span>`;
     btn.onclick = () => handleEmojiTap(item, btn);
-    grid.appendChild(btn);
+
+    wrap.appendChild(btn);
+    grid.appendChild(wrap);
   });
 
   setTimeout(() => emojiSpeak(), 400);
@@ -4123,8 +4151,7 @@ function emojiSpeak() {
   utt.onend = utt.onerror = () => {
     btn.className = 'emoji-speak-btn';
     document.getElementById('emojiQuestion').textContent = `מה זה ${target.en}? 🤔`;
-  };
-  window.speechSynthesis.speak(utt);
+  };  window.speechSynthesis.speak(utt);
 }
 
 function handleEmojiTap(item, btn) {
