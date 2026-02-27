@@ -2621,7 +2621,8 @@ function goHome() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-home').classList.add('active');
-  document.querySelectorAll('.tab')[0].classList.add('active');
+  const homeTab = document.querySelector('.tab');
+  if (homeTab) homeTab.classList.add('active');
   navigateTo('home');
   updateUI();
 }
@@ -2697,10 +2698,7 @@ function addWordPack() {
 // ═══════════════════════════════════════════
 function startGame(type) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + type).classList.add('active');
-  const tabIdx = { mc: 1, flash: 2, fill: 3, match: 4, run: 5, listen: 6, colors: 7, emoji: 8 };
-  document.querySelectorAll('.tab')[tabIdx[type]].classList.add('active');
   navigateTo(type);
   activeGame = type;
 
