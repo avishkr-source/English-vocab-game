@@ -1469,14 +1469,6 @@
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('home')">🏠 בית</button>
-  <button class="tab" onclick="showTab('mc')">🎯 מולטי-צ'ויס</button>
-  <button class="tab" onclick="showTab('flash')">🃏 פלאשקארדס</button>
-  <button class="tab" onclick="showTab('fill')">✏️ השלמה</button>
-  <button class="tab" onclick="showTab('match')">🔗 התאמה</button>
-  <button class="tab" onclick="showTab('run')">🏃 ריצה</button>
-  <button class="tab" onclick="showTab('listen')">🔊 האזנה</button>
-  <button class="tab" onclick="showTab('colors')">🎨 צבעים</button>
-  <button class="tab" onclick="showTab('emoji')">😀 תמונות</button>
   <button class="tab" onclick="showTab('stats')">📊 סטטיסטיקות</button>
 </div>
 
@@ -2585,6 +2577,9 @@ function confirmResetHistory() {
     saveState();
     updateUI();
     updateStatsScreen();
+    // update nav score display immediately
+    document.getElementById('totalScore').textContent = 0;
+    document.getElementById('streakVal').textContent = 0;
     showToast('✅ היסטוריה אופסה');
   }
 }
@@ -4031,14 +4026,13 @@ function renderEmojiRound() {
   function sizeEmojiTiles() {
     const gridW = grid.offsetWidth;
     if (!gridW) { requestAnimationFrame(sizeEmojiTiles); return; }
-    // Available height = screen height minus all other elements (nav ~56, header ~48, progress ~8, hud ~60, speak ~80, feedback ~40, padding ~40)
-    const otherH = 56 + 48 + 8 + 60 + 80 + 40 + 40;
+    // Available height = screen height minus all other elements
+    const otherH = 56 + 48 + 8 + 70 + 75 + 50 + 48;
     const availH = window.innerHeight - otherH;
-    // 3 rows of tiles with 2 gaps
+    // 3 rows of tiles with 2 gaps of 12px
     const byHeight = Math.floor((availH - 24) / 3);
-    // Also constrain by width (2 cols)
     const byWidth  = Math.floor((gridW - 12) / 2);
-    const tileSize = Math.min(byHeight, byWidth, 130); // max 130px
+    const tileSize = Math.min(byHeight, byWidth, 110); // max 110px
     const iconSize = Math.floor(tileSize * 0.55);
     grid.querySelectorAll('div').forEach(t => {
       t.style.height = tileSize + 'px';
