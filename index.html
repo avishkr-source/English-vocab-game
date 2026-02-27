@@ -175,23 +175,24 @@
   }
   .home-controls .ctrl-btn {
     flex: 1;
-    padding: 11px 8px;
+    padding: 10px 6px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--card);
     cursor: pointer;
     font-family: 'Rubik', sans-serif;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
     transition: all 0.2s;
     color: var(--text);
     position: relative;
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.3;
   }
   .home-controls .ctrl-btn:hover { border-color: var(--primary); color: var(--primary); }
   .home-controls .ctrl-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-  .home-controls .ctrl-btn.packs-btn { flex: 0 0 auto; padding: 11px 12px; }
+  .home-controls .ctrl-btn.packs-btn { flex: 1; padding: 10px 6px; }
 
   /* ─── DROPDOWN PANEL ─── */
   .dropdown-panel {
@@ -1488,12 +1489,12 @@
 
   <!-- Controls row: Pack button + Level dropdown + Sources dropdown -->
   <div class="home-controls">
-    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')" style="font-size:13px;padding:8px 12px">📦 חבילות מילים אישיות</button>
+    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')" style="">📦 חבילות<br>מילים<br>אישיות</button>
 
     <!-- Level picker -->
     <div style="position:relative; flex:1">
       <button class="ctrl-btn" id="levelBtn" onclick="toggleDropdown('levelDrop',this)" style="width:100%">
-        📚 <span id="levelBtnLabel">רמה 1 — מתחיל</span> ▾
+        📚 <span id="levelBtnLabel">רמה 1<br>מתחיל</span> ▾
       </button>
       <div class="dropdown-panel" id="levelDrop">
         <div class="dropdown-item selected" id="lvlOpt1" onclick="selectLevelDrop(1)">1 — מתחיל</div>
@@ -1506,7 +1507,7 @@
     <!-- Sources picker -->
     <div style="position:relative; flex:1">
       <button class="ctrl-btn" id="sourcesBtn" onclick="toggleDropdown('sourcesDrop',this)" style="width:100%">
-        🎮 <span id="sourcesBtnLabel">מקורות</span> ▾
+        🎮 <span id="sourcesBtnLabel">מילים<br>אקראיות</span> ▾
       </button>
       <div class="dropdown-panel" id="sourcesDrop" style="min-width:200px; right:0; left:auto">
         <div class="dropdown-item" id="src-builtin" onclick="toggleSource('builtin')">
@@ -2896,7 +2897,7 @@ function endMC() {
   document.getElementById('mc-results').style.display = 'block';
   const pct = Math.round((mc.correct / mc.words.length) * 100);
   document.getElementById('mc-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
-  document.getElementById('mc-res-title').textContent = g('כל הכבוד!','כל הכבוד!') ;
+  document.getElementById('mc-res-title').textContent = pct >= 80 ? 'כל הכבוד!' : pct >= 50 ? 'יפה!' : g('המשך לתרגל!','המשיכי לתרגל!');
   document.getElementById('mc-res-score').textContent = mc.score;
   document.getElementById('mc-res-correct').textContent = `${mc.correct}/${mc.words.length}`;
   document.getElementById('mc-res-streak').textContent = mc.bestStreak;
@@ -2991,7 +2992,7 @@ function endFlash() {
   document.getElementById('flash-game').style.display = 'none';
   document.getElementById('flash-results').style.display = 'block';
   const pct = Math.round((fl.knew / fl.words.length) * 100);
-  document.getElementById('flash-res-title').textContent = pct >= 80 ? 'מדהים! 🌟' : pct >= 50 ? 'יפה! 👍' : 'המשך לתרגל! 💪';
+  document.getElementById('flash-res-title').textContent = pct >= 80 ? 'מדהים! 🌟' : pct >= 50 ? 'יפה! 👍' : g('המשך לתרגל! 💪','המשיכי לתרגל! 💪');
   document.getElementById('flash-res-score').textContent = fl.score;
   document.getElementById('flash-res-knew').textContent = `${fl.knew}/${fl.words.length}`;
   document.getElementById('flash-res-pct').textContent = pct + '%';
@@ -3138,7 +3139,7 @@ function endFill() {
   document.getElementById('fill-results').style.display = 'block';
   const pct = Math.round((fi.correct / fi.words.length) * 100);
   document.getElementById('fill-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
-  document.getElementById('fill-res-title').textContent = g('כל הכבוד!','כל הכבוד!') ;
+  document.getElementById('fill-res-title').textContent = pct >= 80 ? 'כל הכבוד!' : pct >= 50 ? 'יפה!' : g('המשך לתרגל!','המשיכי לתרגל!');
   document.getElementById('fill-res-score').textContent = fi.score;
   document.getElementById('fill-res-correct').textContent = `${fi.correct}/${fi.words.length}`;
   document.getElementById('fill-res-streak').textContent = fi.bestStreak;
@@ -3409,7 +3410,7 @@ function endRun() {
 
   const great = rn.score > 200;
   document.getElementById('run-res-icon').textContent = great ? '🏆' : rn.wordsAnswered > 5 ? '⭐' : '💪';
-  document.getElementById('run-res-title').textContent = great ? 'מדהים!' : rn.wordsAnswered > 5 ? 'יפה!' : 'המשך לתרגל!';
+  document.getElementById('run-res-title').textContent = great ? 'מדהים!' : rn.wordsAnswered > 5 ? 'יפה!' : g('המשך לתרגל!','המשיכי לתרגל!');
   document.getElementById('run-res-score').textContent = rn.score;
   document.getElementById('run-res-words').textContent = rn.wordsAnswered;
   document.getElementById('run-res-streak').textContent = rn.bestStreak;
@@ -3601,7 +3602,7 @@ function endListen() {
 
   const pct = Math.round((ln.correct1 / ln.targets.length) * 100);
   document.getElementById('listen-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '🌟' : '💪';
-  document.getElementById('listen-res-title').textContent = pct >= 80 ? 'מצוין!' : pct >= 50 ? 'יפה!' : 'המשך לתרגל!';
+  document.getElementById('listen-res-title').textContent = pct >= 80 ? 'מצוין!' : pct >= 50 ? 'יפה!' : g('המשך לתרגל!','המשיכי לתרגל!');
   document.getElementById('listen-res-score').textContent = ln.score;
   document.getElementById('listen-res-correct').textContent = `${ln.correct1}/${ln.targets.length}`;
   document.getElementById('listen-res-replays').textContent = ln.totalReplays;
@@ -4297,10 +4298,10 @@ function updateSourcesUI() {
   const sources = state.activeSources || ['builtin'];
   const packs = state.customPacks || [];
   const parts = [];
-  if (sources.includes('builtin')) parts.push('מילים אקראיות');
+  if (sources.includes('builtin')) parts.push('מילים<br>אקראיות');
   packs.forEach(p => { if (sources.includes(p.id)) parts.push(p.name); });
-  const label = parts.length <= 1 ? parts[0] || 'מקורות' : `${parts.length} מקורות`;
-  document.getElementById('sourcesBtnLabel').textContent = label;
+  const label = parts.length === 0 ? 'מקורות' : parts.length === 1 ? parts[0] : `${parts.length}<br>מקורות`;
+  document.getElementById('sourcesBtnLabel').innerHTML = label;
   const btn = document.getElementById('sourcesBtn');
   const hasCustom = sources.some(s => s !== 'builtin');
   btn.style.borderColor = hasCustom ? 'var(--accent)' : '';
@@ -4309,11 +4310,12 @@ function updateSourcesUI() {
 }
 
 // ── Level dropdown ──
-const LEVEL_NAMES = { 1: 'רמה 1 — מתחיל', 2: 'רמה 2 — יסודי', 3: 'רמה 3 — בינוני', 4: 'רמה 4 — מתקדם' };
+const LEVEL_NAMES = { 1: 'רמה 1<br>מתחיל', 2: 'רמה 2<br>יסודי', 3: 'רמה 3<br>בינוני', 4: 'רמה 4<br>מתקדם' };
+const LEVEL_NAMES_LONG = { 1: '1 — מתחיל', 2: '2 — יסודי', 3: '3 — בינוני', 4: '4 — מתקדם' };
 function selectLevelDrop(lvl) {
   state.currentLevel = lvl;
   saveState();
-  document.getElementById('levelBtnLabel').textContent = LEVEL_NAMES[lvl];
+  document.getElementById('levelBtnLabel').innerHTML = LEVEL_NAMES[lvl];
   [1,2,3,4].forEach(l => {
     document.getElementById('lvlOpt'+l).className = 'dropdown-item' + (l === lvl ? ' selected' : '');
   });
