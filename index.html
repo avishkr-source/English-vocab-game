@@ -1439,6 +1439,19 @@
     <h2>היי! מה שמך?</h2>
     <p>בחר כינוי שיופיע באפליקציה</p>
     <input class="nickname-input" id="nicknameInput" type="text" placeholder="כינוי שלך..." maxlength="16">
+    <p style="font-weight:700;font-size:15px;margin:14px 0 10px;direction:rtl">אני</p>
+    <div style="display:flex;gap:12px;margin-bottom:18px">
+      <div id="genderMale" onclick="selectGender('male')"
+        style="flex:1;padding:14px 8px;border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--card)">
+        <div style="font-size:36px;margin-bottom:4px">👦</div>
+        <div style="font-weight:700;font-size:14px;color:var(--text-muted)">בן</div>
+      </div>
+      <div id="genderFemale" onclick="selectGender('female')"
+        style="flex:1;padding:14px 8px;border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--card)">
+        <div style="font-size:36px;margin-bottom:4px">👧</div>
+        <div style="font-weight:700;font-size:14px;color:var(--text-muted)">בת</div>
+      </div>
+    </div>
     <button class="btn-primary" onclick="saveNickname()" style="margin-bottom:0">בואו נתחיל! 🚀</button>
   </div>
 </div>
@@ -1475,7 +1488,7 @@
 
   <!-- Controls row: Pack button + Level dropdown + Sources dropdown -->
   <div class="home-controls">
-    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')">📦</button>
+    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')" style="font-size:13px;padding:8px 12px">📦 חבילות מילים אישיות</button>
 
     <!-- Level picker -->
     <div style="position:relative; flex:1">
@@ -1497,7 +1510,7 @@
       </button>
       <div class="dropdown-panel" id="sourcesDrop" style="min-width:200px; right:0; left:auto">
         <div class="dropdown-item" id="src-builtin" onclick="toggleSource('builtin')">
-          <span class="chk">✓</span> מילים מובנות
+          <span class="chk">✓</span> מילים אקראיות
         </div>
         <hr class="dropdown-divider">
         <div id="srcCustomList"></div>
@@ -1981,11 +1994,11 @@
   <!-- GAME -->
   <div id="emoji-game" style="display:none">
     <div class="game-header">
-      <button class="btn-back" onclick="confirmLeaveGame('emoji')">←</button>
+      <button class="btn-back" onclick="showEmojiSetup()">←</button>
       <span class="game-title">😀 תמונות</span>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="game-progress" id="emoji-progress">1 / 10</span>
-        <span onclick="confirmRestart('emoji')" style="font-size:18px;cursor:pointer;color:var(--text-muted)">↺</span>
+        <span onclick="startEmojiGame()" style="font-size:18px;cursor:pointer;color:var(--text-muted)">↺</span>
       </div>
     </div>
     <div class="progress-bar-wrap"><div class="progress-bar" id="emoji-bar" style="width:10%"></div></div>
@@ -2883,7 +2896,7 @@ function endMC() {
   document.getElementById('mc-results').style.display = 'block';
   const pct = Math.round((mc.correct / mc.words.length) * 100);
   document.getElementById('mc-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
-  document.getElementById('mc-res-title').textContent = pct >= 80 ? 'כל הכבוד!' : pct >= 50 ? 'יפה!' : 'המשך לתרגל!';
+  document.getElementById('mc-res-title').textContent = g('כל הכבוד!','כל הכבוד!') ;
   document.getElementById('mc-res-score').textContent = mc.score;
   document.getElementById('mc-res-correct').textContent = `${mc.correct}/${mc.words.length}`;
   document.getElementById('mc-res-streak').textContent = mc.bestStreak;
@@ -3125,7 +3138,7 @@ function endFill() {
   document.getElementById('fill-results').style.display = 'block';
   const pct = Math.round((fi.correct / fi.words.length) * 100);
   document.getElementById('fill-res-icon').textContent = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
-  document.getElementById('fill-res-title').textContent = pct >= 80 ? 'כל הכבוד!' : pct >= 50 ? 'יפה!' : 'המשך לתרגל!';
+  document.getElementById('fill-res-title').textContent = g('כל הכבוד!','כל הכבוד!') ;
   document.getElementById('fill-res-score').textContent = fi.score;
   document.getElementById('fill-res-correct').textContent = `${fi.correct}/${fi.words.length}`;
   document.getElementById('fill-res-streak').textContent = fi.bestStreak;
@@ -4013,11 +4026,18 @@ function renderEmojiRound() {
     grid.appendChild(div);
   });
 
-  // Only set HEIGHT — let grid handle width via 1fr 1fr columns
+  // Calculate tile height based on available screen space
   function sizeEmojiTiles() {
     const gridW = grid.offsetWidth;
     if (!gridW) { requestAnimationFrame(sizeEmojiTiles); return; }
-    const tileSize = Math.floor((gridW - 12) / 2); // gap=12
+    // Available height = screen height minus all other elements (nav ~56, header ~48, progress ~8, hud ~60, speak ~80, feedback ~40, padding ~40)
+    const otherH = 56 + 48 + 8 + 60 + 80 + 40 + 40;
+    const availH = window.innerHeight - otherH;
+    // 3 rows of tiles with 2 gaps
+    const byHeight = Math.floor((availH - 24) / 3);
+    // Also constrain by width (2 cols)
+    const byWidth  = Math.floor((gridW - 12) / 2);
+    const tileSize = Math.min(byHeight, byWidth, 130); // max 130px
     const iconSize = Math.floor(tileSize * 0.55);
     grid.querySelectorAll('div').forEach(t => {
       t.style.height = tileSize + 'px';
@@ -4265,18 +4285,19 @@ function toggleSource(id) {
   } else {
     sources.push(id);
   }
-  if (sources.length === 0) sources = ['builtin']; // לא מאפשר בחירה ריקה
+  if (sources.length === 0) sources = ['builtin'];
   state.activeSources = sources;
   saveState();
   renderSourcesDropdown();
   updateSourcesUI();
+  // Keep dropdown open — do NOT close it
 }
 
 function updateSourcesUI() {
   const sources = state.activeSources || ['builtin'];
   const packs = state.customPacks || [];
   const parts = [];
-  if (sources.includes('builtin')) parts.push('מובנות');
+  if (sources.includes('builtin')) parts.push('מילים אקראיות');
   packs.forEach(p => { if (sources.includes(p.id)) parts.push(p.name); });
   const label = parts.length <= 1 ? parts[0] || 'מקורות' : `${parts.length} מקורות`;
   document.getElementById('sourcesBtnLabel').textContent = label;
@@ -4663,17 +4684,15 @@ window.addEventListener('popstate', e => {
   const screen = e.state?.screen || 'home';
 
   if (screen === 'home') {
-    // כבר בדף הבית — לחיצה כפולה לסגירה
-    if (backPressedOnce) {
-      // סגור את האפליקציה
-      history.back();
-      return;
-    }
     backPressedOnce = true;
     showToast('לחץ שוב לסגירה');
     setTimeout(() => { backPressedOnce = false; }, 2000);
-    // דחוף state מחדש כדי ש-popstate הבא יעבוד
     history.pushState({ screen: 'home' }, '');
+  } else if (screen === 'emoji') {
+    // בזמן משחק תמונות — חזרה לתפריט הקטגוריות
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    showEmojiSetup();
+    history.pushState({ screen: 'emoji' }, '');
   } else {
     goHome();
   }
@@ -4703,7 +4722,28 @@ function openNicknameModal() {
   modal.classList.remove('hidden');
   const input = document.getElementById('nicknameInput');
   input.value = state.nickname || '';
+  selectedGender = state.gender || 'male';
+  selectGender(selectedGender);
   setTimeout(() => input.focus(), 100);
+}
+
+let selectedGender = 'male'; // default
+
+// Gender-aware text helper
+function g(male, female) {
+  return (state.gender === 'female') ? female : male;
+}
+
+function selectGender(gdr) {
+  selectedGender = gdr;
+  const maleEl   = document.getElementById('genderMale');
+  const femaleEl = document.getElementById('genderFemale');
+  const activeStyle   = 'flex:1;padding:14px 8px;border:2px solid var(--primary);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--primary-light)';
+  const inactiveStyle = 'flex:1;padding:14px 8px;border:2px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--card)';
+  maleEl.style.cssText   = gdr === 'male'   ? activeStyle : inactiveStyle;
+  femaleEl.style.cssText = gdr === 'female' ? activeStyle : inactiveStyle;
+  maleEl.querySelector('div:last-child').style.color   = gdr === 'male'   ? 'var(--primary)' : 'var(--text-muted)';
+  femaleEl.querySelector('div:last-child').style.color = gdr === 'female' ? 'var(--primary)' : 'var(--text-muted)';
 }
 
 function saveNickname() {
@@ -4711,6 +4751,7 @@ function saveNickname() {
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
   state.nickname = name;
+  state.gender = selectedGender;
   saveState();
   document.getElementById('nicknameModal').classList.add('hidden');
   updateNicknameUI();
@@ -4718,9 +4759,11 @@ function saveNickname() {
 
 function updateNicknameUI() {
   const name = state.nickname;
+  const isFemale = state.gender === 'female';
   if (name) {
     document.getElementById('navUsername').textContent = name;
-    document.getElementById('heroGreeting').innerHTML = `היי ${name}! 👋<br>בוא נלמד אנגלית`;
+    const verb = isFemale ? 'בואי' : 'בוא';
+    document.getElementById('heroGreeting').innerHTML = `היי ${name}! 👋<br>${verb} נלמד אנגלית`;
   } else {
     document.getElementById('navUsername').textContent = '👤';
     document.getElementById('heroGreeting').innerHTML = `שלום! 👋<br>בוא נלמד אנגלית`;
