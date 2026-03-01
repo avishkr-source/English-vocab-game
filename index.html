@@ -5778,11 +5778,12 @@ function mmSyncState(data) {
   const turn    = data.turn;
   const players = data.players || {};
 
+  // Render all cards
+  const prevFlipped = mm.currentFlipped || [];
   mm.currentTurn    = turn;
   mm.currentFlipped = flipped;
   mm.matched        = matched;
 
-  // Render all cards
   mm.cards.forEach((card, idx) => {
     const el = card._el;
     if (!el) return;
@@ -5792,11 +5793,13 @@ function mmSyncState(data) {
     } else if (flipped.includes(idx)) {
       const { css, html } = mmFrontStyle(card, false);
       el.style.cssText = css; el.innerHTML = html;
-      if (memSoundOn && (card.type === 'en' || card.type === 'word')) {
+      // Speak only if this card was just newly flipped (wasn't flipped before)
+      if (!prevFlipped.includes(idx) && memSoundOn && (card.type === 'en' || card.type === 'word')) {
         memSpeak(card.text);
       }
     } else {
       el.style.cssText = mmBackStyle();
+      el.dataset.state = 'back';
       el.innerHTML = '🧠';
     }
   });
