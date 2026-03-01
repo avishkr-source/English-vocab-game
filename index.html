@@ -5547,7 +5547,7 @@ async function mmCreateRoom() {
   }
 
   const code    = mmGenCode();
-  const myName  = state.nickname || 'שחקן 1';
+  const myName  = state.nickname || 'אנונימי';
   const roomRef = fbDb.ref('rooms/' + code);
 
   const roomData = {
@@ -5604,7 +5604,7 @@ async function mmJoinRoom() {
   if (!data)                     { alert('חדר לא נמצא. בדוק את הקוד.'); return; }
   if (data.status !== 'waiting') { alert('החדר כבר בשימוש.'); return; }
 
-  const myName = state.nickname || 'שחקן 2';
+  const myName = state.nickname || 'אנונימי';
   mm = {
     code,
     role: 'p2',
@@ -5841,8 +5841,9 @@ function mmSyncState(data) {
 }
 
 function mmUpdateScoreboard(players, turn) {
-  const p1 = players?.p1 || { name: 'שחקן 1', score: 0 };
-  const p2 = players?.p2 || { name: 'שחקן 2', score: 0 };
+  const myName = mm.myName || state.nickname || 'אנונימי';
+  const p1 = players?.p1 || { name: mm.role === 'p1' ? myName : 'שחקן 1', score: 0 };
+  const p2 = players?.p2 || { name: mm.role === 'p2' ? myName : 'ממתין...', score: 0 };
   const myRole = mm.role;
   const myTurn = turn === myRole;
 
@@ -5869,8 +5870,9 @@ function mmUpdateScoreboard(players, turn) {
 function mmShowResults(data) {
   clearInterval(mm.timerInterval);
   if (mm.roomRef) mm.roomRef.off();
-  const p1 = data.players?.p1 || { name: 'שחקן 1', score: 0 };
-  const p2 = data.players?.p2 || { name: 'שחקן 2', score: 0 };
+  const myName = mm.myName || state.nickname || 'אנונימי';
+  const p1 = data.players?.p1 || { name: mm.role === 'p1' ? myName : 'שחקן 1', score: 0 };
+  const p2 = data.players?.p2 || { name: mm.role === 'p2' ? myName : 'שחקן 2', score: 0 };
 
   let icon = '🤝', title = 'תיקו!', sub = 'שניכם שיחקתם נהדר!';
   if (p1.score > p2.score) {
