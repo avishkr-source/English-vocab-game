@@ -2235,9 +2235,15 @@
     <div style="font-size:64px;margin-bottom:16px">⏳</div>
     <h2 style="font-family:'Nunito',sans-serif;font-weight:900;margin-bottom:8px">ממתין לשחקן שני...</h2>
     <p style="color:var(--text-muted);margin-bottom:24px">שתף את הקוד עם חברך</p>
-    <div id="mmRoomCode" style="font-family:'Nunito',sans-serif;font-weight:900;font-size:52px;letter-spacing:12px;color:var(--primary);background:var(--primary-light);padding:20px;border-radius:16px;margin-bottom:20px">----</div>
-    <p style="font-size:13px;color:var(--text-muted)">הקוד תקף ל-10 דקות</p>
-    <button class="btn-secondary" onclick="mmCancelRoom()" style="margin-top:20px">✕ בטל</button>
+    <div id="mmRoomCode" style="font-family:'Nunito',sans-serif;font-weight:900;font-size:52px;letter-spacing:12px;color:var(--primary);background:var(--primary-light);padding:20px;border-radius:16px;margin-bottom:16px">----</div>
+    <div onclick="mmShareCode()"
+      style="display:block;width:100%;padding:14px;background:var(--primary);color:white;
+             border-radius:var(--radius-sm);text-align:center;font-family:'Nunito',sans-serif;
+             font-weight:900;font-size:17px;cursor:pointer;box-sizing:border-box;margin-bottom:12px">
+      📤 שתף את הקוד עם חבר
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">הקוד תקף ל-10 דקות</p>
+    <button class="btn-secondary" onclick="mmCancelRoom()">✕ בטל</button>
   </div>
 
   <!-- GAME -->
@@ -5619,6 +5625,30 @@ async function mmJoinRoom() {
 }
 
 // ── Cancel waiting room ──
+function mmShareCode() {
+  const code = mm.code;
+  const gameUrl = window.location.href.split('?')[0]; // clean URL
+  const text =
+    `🧠 בוא נשחק זיכרון ב-WordUp!\n` +
+    `הקוד שלי: *${code}*\n\n` +
+    `1. פתח את המשחק: ${gameUrl}\n` +
+    `2. לחץ על "זיכרון 2 שחקנים"\n` +
+    `3. הכנס את הקוד ${code} והצטרף!\n\n` +
+    `⏳ הקוד תקף ל-10 דקות`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'WordUp — זיכרון 2 שחקנים', text })
+      .catch(() => {}); // user cancelled — no problem
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('✅ הקוד הועתק! הדבק בוואטסאפ');
+    }).catch(() => {
+      prompt('העתק את הקוד:', text);
+    });
+  }
+}
+
 function mmCancelRoom() {
   if (mm.roomRef) { mm.roomRef.off(); mm.roomRef.remove().catch(() => {}); }
   mm = {};
@@ -5661,21 +5691,42 @@ function mmRenderBoard() {
   board.style.gridTemplateColumns = `repeat(${cfg.cols},1fr)`;
   board.innerHTML = '';
 
-  const navH = 56, headerH = 50, scoreH = 90, padding = 20;
-  const availH = window.innerHeight - navH - headerH - scoreH - padding;
-  const rows = cfg.cards / cfg.cols;
-  const cardH = Math.max(45, Math.floor((availH - (rows-1)*7) / rows));
-  mm._cardFontSize = Math.max(9, Math.min(13, Math.floor(cardH * 0.22)));
-  mm._cardH = cardH;
+  // Wait for layout then size via JS (same pattern as emoji game)
+  function sizeCards() {
+    const boardW = board.offsetWidth;
+    if (!boardW) { requestAnimationFrame(sizeCards); return; }
+
+    const navH = 56, headerH = 50, scoreH = 95, padding = 24;
+    const availH = window.innerHeight - navH - headerH - scoreH - padding;
+    const rows = cfg.cards / cfg.cols;
+    const cols = cfg.cols;
+
+    const byW = Math.floor((boardW - (cols - 1) * 7) / cols);
+    const byH = Math.floor((availH  - (rows - 1) * 7) / rows);
+    const cardH = Math.max(40, Math.min(byW, byH)); // square-ish, never too tall
+
+    mm._cardFontSize = Math.max(8, Math.min(13, Math.floor(cardH * 0.20)));
+    mm._cardH = cardH;
+
+    board.querySelectorAll('[data-mem-card]').forEach(div => {
+      div.style.height = cardH + 'px';
+      // also update brain emoji font size on back cards
+      if (div.dataset.state === 'back') div.style.fontSize = Math.floor(cardH * 0.38) + 'px';
+    });
+  }
 
   cards.forEach((card, idx) => {
     const div = document.createElement('div');
-    div.style.cssText = mmBackStyle(cardH);
+    div.style.cssText = mmBackStyle(60); // temp height, will be updated
+    div.dataset.memCard = '1';
+    div.dataset.state = 'back';
     div.innerHTML = '🧠';
     div.addEventListener('click', () => mmFlip(idx, div));
     board.appendChild(div);
     mm.cards[idx]._el = div;
   });
+
+  requestAnimationFrame(sizeCards);
 }
 
 function mmBackStyle(h) {
@@ -5685,22 +5736,27 @@ function mmBackStyle(h) {
 }
 
 function mmFrontStyle(card, matched) {
-  const h = mm._cardH;
-  const fs = mm._cardFontSize;
+  const h = mm._cardH || 60;
+  const fs = mm._cardFontSize || 11;
   const bg = matched ? '#f0fdf4' : 'white';
   const border = matched ? '#22c55e' : '#e2e8f0';
   const color  = matched ? '#0d6e50' : '#1a1a2e';
+  const cursor = matched ? 'default' : 'pointer';
   if (card.isEmoji) {
-    const es = Math.floor(h * 0.5);
-    return { css: `background:${bg};border:2px solid ${border};border-radius:10px;` +
-      `display:flex;align-items:center;justify-content:center;` +
-      `cursor:${matched?'default':'pointer'};box-sizing:border-box;height:${h}px;`,
-      html: `<span style="font-size:${es}px;line-height:1">${card.text}</span>` };
+    const es = Math.floor(h * 0.42); // smaller ratio so it fits
+    return {
+      css: `background:${bg};border:2px solid ${border};border-radius:10px;` +
+        `display:flex;align-items:center;justify-content:center;` +
+        `cursor:${cursor};box-sizing:border-box;height:${h}px;`,
+      html: `<span style="font-size:${es}px;line-height:1">${card.text}</span>`
+    };
   }
-  return { css: `background:${bg};border:2px solid ${border};border-radius:10px;` +
-    `display:flex;align-items:center;justify-content:center;` +
-    `cursor:${matched?'default':'pointer'};padding:4px;text-align:center;box-sizing:border-box;height:${h}px;`,
-    html: `<span style="font-family:Nunito,sans-serif;font-weight:900;font-size:${fs}px;color:${color};line-height:1.2">${card.text}</span>` };
+  return {
+    css: `background:${bg};border:2px solid ${border};border-radius:10px;` +
+      `display:flex;align-items:center;justify-content:center;` +
+      `cursor:${cursor};padding:3px;text-align:center;box-sizing:border-box;height:${h}px;`,
+    html: `<span style="font-family:Nunito,sans-serif;font-weight:900;font-size:${fs}px;color:${color};line-height:1.15;word-break:break-word">${card.text}</span>`
+  };
 }
 
 // ── Flip a card (my turn only) ──
@@ -5754,7 +5810,7 @@ function mmSyncState(data) {
     const cA = mm.cards[a], cB = mm.cards[b];
 
     if (cA.pairId === cB.pairId && cA.type !== cB.type) {
-      // Match!
+      // Match! — short delay then update
       sfxCorrect();
       const newMatched = [...(data.matched || []), a, b];
       const newScore = (players[turn]?.score || 0) + 1;
@@ -5765,20 +5821,18 @@ function mmSyncState(data) {
           matched: newMatched,
           [`players/${turn}/score`]: newScore,
         };
-        if (newMatched.length === mm.cfg.cards) {
-          update.status = 'done';
-        }
+        if (newMatched.length === mm.cfg.cards) update.status = 'done';
         await mm.roomRef.update(update);
         mm.locked = false;
-      }, 500);
+      }, 600);
     } else {
-      // No match — switch turn
+      // No match — wait 1.2s so both players can see the cards, then flip back
       sfxWrong();
       setTimeout(async () => {
         const nextTurn = turn === 'p1' ? 'p2' : 'p1';
         await mm.roomRef.update({ flipped: [], turn: nextTurn });
         mm.locked = false;
-      }, 900);
+      }, 1400);
     }
   }
 }
