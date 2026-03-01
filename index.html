@@ -2216,13 +2216,17 @@
       🏠 צור חדר חדש
     </div>
     <div style="text-align:center;color:var(--text-muted);font-weight:700;margin-bottom:12px">— או —</div>
-    <div style="display:flex;gap:10px">
-      <input id="mmJoinCode" type="text" maxlength="4"
-        placeholder="קוד חדר (4 ספרות)"
-        style="flex:1;padding:14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;text-align:center;letter-spacing:6px;background:var(--card);color:var(--text);box-sizing:border-box;text-transform:uppercase">
-      <div onclick="mmJoinRoom()" style="padding:14px 18px;background:var(--accent);color:white;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;cursor:pointer;white-space:nowrap">
-        🚀 הצטרף
-      </div>
+    <input id="mmJoinCode" type="number" maxlength="4"
+      placeholder="קוד חדר (4 ספרות)"
+      style="width:100%;padding:14px;border:2px solid var(--border);border-radius:var(--radius-sm);
+             font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;text-align:center;
+             letter-spacing:4px;background:var(--card);color:var(--text);box-sizing:border-box;
+             margin-bottom:10px;display:block">
+    <div onclick="mmJoinRoom()"
+      style="display:block;width:100%;padding:15px;background:var(--accent);color:white;
+             border-radius:var(--radius-sm);text-align:center;font-family:'Nunito',sans-serif;
+             font-weight:900;font-size:17px;cursor:pointer;box-sizing:border-box">
+      🚀 הצטרף לחדר
     </div>
   </div>
 
