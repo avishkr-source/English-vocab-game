@@ -1432,26 +1432,91 @@
   .emoji-tile.wrong { border-color: #ef4444 !important; background: #fff5f5 !important; animation: shake 0.35s ease; }
 
   /* ─── MEMORY GAME ─── */
-  .mem-setup-sizes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
-  .mem-size-btn { padding: 14px 8px; border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--card); font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 20px; cursor: pointer; text-align: center; transition: all 0.15s; color: var(--text-muted); }
-  .mem-size-btn .mem-size-label { display: block; font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .mem-setup-sizes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .mem-size-btn {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+    padding: 10px 4px;
+    transition: all 0.15s;
+    color: var(--text-muted);
+    box-sizing: border-box;
+  }
   .mem-size-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-  .mem-hud { display: flex; justify-content: center; gap: 32px; padding: 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+
+  .mem-hud { display: flex; justify-content: center; gap: 28px; padding: 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
   .mem-hud-block { text-align: center; }
-  .mem-hud-val { display: block; font-family: 'Nunito',sans-serif; font-weight: 900; font-size: 26px; color: var(--primary); line-height: 1; }
+  .mem-hud-val { display: block; font-family: 'Nunito',sans-serif; font-weight: 900; font-size: 24px; color: var(--primary); line-height: 1; }
   .mem-hud-label { display: block; font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
   .mem-board { display: grid; gap: 7px; width: 100%; }
-  .mem-card { border-radius: 12px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
-  .mem-card.flipped  { transform: rotateY(180deg); }
-  .mem-card.matched  { transform: rotateY(180deg); cursor: default; }
-  .mem-card-face { position: absolute; inset: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; padding: 4px; }
-  .mem-card-back  { background: linear-gradient(135deg,#6c63ff,#8b5cf6); box-shadow: 0 3px 10px rgba(108,99,255,0.3); font-size: 22px; }
-  .mem-card-front { background: var(--card); border: 2px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.08); transform: rotateY(180deg); flex-direction: column; gap: 2px; text-align: center; }
-  .mem-card-front .mem-word { font-family: 'Nunito',sans-serif; font-weight: 900; color: var(--text); line-height: 1.2; }
-  .mem-card-front .mem-type { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
-  .mem-card.matched .mem-card-front { background: var(--green-light); border-color: var(--green); }
-  .mem-card.matched .mem-card-front .mem-word { color: #0d6e50; }
-  .mem-card.wrong-flash .mem-card-front { background: #fff5f5; border-color: #ef4444; animation: shake 0.35s ease; }</style>
+
+  /* Simple show/hide approach — no 3D (unreliable on Android) */
+  .mem-card {
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.12s;
+    box-sizing: border-box;
+  }
+  .mem-card:active { transform: scale(0.94); }
+
+  /* Back face (hidden state) */
+  .mem-card-back-face {
+    width: 100%; height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6c63ff, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 3px 10px rgba(108,99,255,0.3);
+  }
+
+  /* Front face (revealed state) */
+  .mem-card-front-face {
+    display: none;
+    width: 100%; height: 100%;
+    border-radius: 12px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-align: center;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+  .mem-card-front-face .mem-word {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .mem-card-front-face .mem-type {
+    font-size: 9px; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .mem-card.flipped .mem-card-back-face  { display: none; }
+  .mem-card.flipped .mem-card-front-face { display: flex; }
+  .mem-card.matched .mem-card-back-face  { display: none; }
+  .mem-card.matched .mem-card-front-face { display: flex; background: var(--green-light); border-color: var(--green); }
+  .mem-card.matched .mem-card-front-face .mem-word { color: #0d6e50; }
+  .mem-card.matched { cursor: default; }
+  .mem-card.wrong-flash .mem-card-front-face { background: #fff5f5 !important; border-color: #ef4444 !important; animation: shake 0.35s ease; }</style>
 </head>
 <body>
 
@@ -2072,8 +2137,10 @@
       <span class="game-title">🧠 זיכרון</span>
       <span></span>
     </div>
-    <p style="font-weight:700;font-size:16px;margin-bottom:14px;text-align:right">כמה כרטיסים?</p>
-    <div class="mem-setup-sizes" id="memSizeSelector"></div>
+    <p style="font-weight:700;font-size:16px;margin-bottom:10px;text-align:right">סוג משחק:</p>
+    <div id="memModeSelector" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px"></div>
+    <p style="font-weight:700;font-size:16px;margin-bottom:10px;text-align:right">כמה כרטיסים?</p>
+    <div id="memSizeSelector" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px"></div>
     <div onclick="startMemoryGame()" style="display:block;width:100%;padding:15px;background:var(--primary);color:white;border-radius:var(--radius-sm);text-align:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;cursor:pointer;box-sizing:border-box">▶️ התחל משחק!</div>
   </div>
 
@@ -2684,6 +2751,16 @@ function getBuiltinWords(level) {
     }
   }
   return words;
+}
+
+function getActiveWords(level) {
+  const sources = state.activeSources || ['builtin'];
+  let words = [];
+  if (sources.includes('builtin')) words = words.concat(getBuiltinWords(level));
+  (state.customPacks || []).forEach(pack => {
+    if (sources.includes(pack.id)) words = words.concat(pack.words || []);
+  });
+  return words.length ? words : getBuiltinWords(level);
 }
 
 function hasOnlyCustomSources() {
@@ -4245,64 +4322,120 @@ function endEmoji() {
 //  MEMORY GAME
 // ═══════════════════════════════════════════
 const MEM_SIZES = [
-  { cards: 8,  pairs: 4,  cols: 4, label: '4 זוגות',  emoji: '😊' },
-  { cards: 12, pairs: 6,  cols: 4, label: '6 זוגות',  emoji: '🙂' },
-  { cards: 16, pairs: 8,  cols: 4, label: '8 זוגות',  emoji: '😐' },
-  { cards: 20, pairs: 10, cols: 4, label: '10 זוגות', emoji: '😤' },
-  { cards: 24, pairs: 12, cols: 4, label: '12 זוגות', emoji: '😰' },
-  { cards: 30, pairs: 15, cols: 5, label: '15 זוגות', emoji: '🤯' },
+  { cards:  8, pairs:  4, cols: 4, label: '4 זוגות',  diff: 'קל',       emoji: '😊' },
+  { cards: 12, pairs:  6, cols: 4, label: '6 זוגות',  diff: 'קל',       emoji: '🙂' },
+  { cards: 16, pairs:  8, cols: 4, label: '8 זוגות',  diff: 'בינוני',   emoji: '😐' },
+  { cards: 20, pairs: 10, cols: 4, label: '10 זוגות', diff: 'בינוני',   emoji: '😤' },
+  { cards: 24, pairs: 12, cols: 4, label: '12 זוגות', diff: 'קשה',      emoji: '😰' },
+  { cards: 30, pairs: 15, cols: 5, label: '15 זוגות', diff: 'קשה',      emoji: '🤯' },
+  { cards: 36, pairs: 18, cols: 6, label: '18 זוגות', diff: 'מאתגר 🔥', emoji: '🥵' },
+  { cards: 48, pairs: 24, cols: 6, label: '24 זוגות', diff: 'מאסטר 💀', emoji: '💀' },
 ];
 
+// Flat list of all emoji items for emoji-mode matching
+const EMOJI_FLAT = Object.values(EMOJI_CATEGORIES).flatMap(c => c.items);
+
 let mem = {};
-let memSelectedSize = 0; // index into MEM_SIZES
+let memSelectedSize = 0;
+let memSelectedMode = 'words'; // 'words' | 'emoji'
 
 function showMemSetup() {
   if (mem.timerInterval) clearInterval(mem.timerInterval);
   document.getElementById('mem-setup').style.display = 'block';
   document.getElementById('mem-game').style.display = 'none';
   document.getElementById('mem-results').style.display = 'none';
+  renderMemModeSelector();
   renderMemSizeSelector();
+}
+
+function renderMemModeSelector() {
+  const container = document.getElementById('memModeSelector');
+  container.innerHTML = '';
+  const modes = [
+    { id: 'words', label: 'מילה + תרגום', icon: '🔤', sub: 'אנגלית ↔ עברית' },
+    { id: 'emoji', label: 'מילה + אמוג\'י', icon: '😀', sub: 'אנגלית ↔ תמונה' },
+  ];
+  modes.forEach(m => {
+    const sel = memSelectedMode === m.id;
+    const div = document.createElement('div');
+    div.style.cssText =
+      `border:2px solid ${sel ? 'var(--primary)' : 'var(--border)'};` +
+      `border-radius:var(--radius-sm);background:${sel ? 'var(--primary-light)' : 'var(--card)'};` +
+      `color:${sel ? 'var(--primary)' : 'var(--text-muted)'};` +
+      `font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;` +
+      `text-align:center;padding:12px 6px;box-sizing:border-box;`;
+    div.innerHTML =
+      `<span style="font-size:28px;display:block;margin-bottom:4px">${m.icon}</span>` +
+      `<span style="font-size:13px;font-weight:900;display:block">${m.label}</span>` +
+      `<span style="font-size:11px;font-weight:600;display:block;opacity:0.75">${m.sub}</span>`;
+    div.addEventListener('click', () => { memSelectedMode = m.id; renderMemModeSelector(); });
+    container.appendChild(div);
+  });
 }
 
 function renderMemSizeSelector() {
   const container = document.getElementById('memSizeSelector');
   container.innerHTML = '';
+
   MEM_SIZES.forEach((s, i) => {
-    const btn = document.createElement('div');
-    btn.className = 'mem-size-btn' + (i === memSelectedSize ? ' selected' : '');
-    btn.innerHTML = `${s.cards}<span class="mem-size-label">${s.label}</span>`;
-    btn.addEventListener('click', () => {
-      memSelectedSize = i;
-      renderMemSizeSelector();
-    });
-    container.appendChild(btn);
+    const sel = (i === memSelectedSize);
+    const div = document.createElement('div');
+    div.style.cssText =
+      `border:2px solid ${sel ? 'var(--primary)' : 'var(--border)'};` +
+      `border-radius:var(--radius-sm);` +
+      `background:${sel ? 'var(--primary-light)' : 'var(--card)'};` +
+      `color:${sel ? 'var(--primary)' : 'var(--text-muted)'};` +
+      `font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;` +
+      `text-align:center;padding:8px 2px;box-sizing:border-box;`;
+    div.innerHTML =
+      `<span style="font-size:18px;display:block">${s.emoji}</span>` +
+      `<span style="font-size:18px;font-weight:900;display:block">${s.cards}</span>` +
+      `<span style="font-size:10px;font-weight:600;display:block">${s.label}</span>`;
+    div.addEventListener('click', () => { memSelectedSize = i; renderMemSizeSelector(); });
+    container.appendChild(div);
   });
 }
 
 function startMemoryGame() {
   const cfg = MEM_SIZES[memSelectedSize];
-  const words = shuffle(getWords(state.currentLevel)).slice(0, cfg.pairs);
-  if (words.length < cfg.pairs) {
-    alert(`צריך לפחות ${cfg.pairs} מילים. נסה רמה גבוהה יותר או הוסף מילים.`);
-    return;
-  }
 
-  // Build card pairs: one EN card + one HE card per word
-  const cards = [];
-  words.forEach((w, i) => {
-    cards.push({ id: i, pairId: i, lang: 'en', text: w.en });
-    cards.push({ id: i + cfg.pairs, pairId: i, lang: 'he', text: w.he });
-  });
+  let cards = [];
+
+  if (memSelectedMode === 'emoji') {
+    // emoji mode: English word ↔ matching emoji icon
+    const emojiWords = shuffle(EMOJI_FLAT).slice(0, cfg.pairs);
+    if (emojiWords.length < cfg.pairs) {
+      alert(`אין מספיק אמוג'ים (${EMOJI_FLAT.length} זמינים, צריך ${cfg.pairs}). בחר פחות כרטיסים.`);
+      return;
+    }
+    emojiWords.forEach((item, i) => {
+      cards.push({ pairId: i, type: 'word',  text: item.en,   isEmoji: false });
+      cards.push({ pairId: i, type: 'emoji', text: item.icon, isEmoji: true  });
+    });
+  } else {
+    // words mode: English ↔ Hebrew
+    const words = shuffle(getActiveWords(state.currentLevel)).slice(0, cfg.pairs);
+    if (words.length < cfg.pairs) {
+      alert(`צריך לפחות ${cfg.pairs} מילים ברמה הנוכחית.\nנסה רמה נמוכה יותר או הוסף מילים.`);
+      return;
+    }
+    words.forEach((w, i) => {
+      cards.push({ pairId: i, type: 'en', text: w.en, isEmoji: false });
+      cards.push({ pairId: i, type: 'he', text: w.he, isEmoji: false });
+    });
+  }
 
   mem = {
     cfg,
+    mode: memSelectedMode,
     cards: shuffle(cards),
-    flipped: [],      // indices of currently face-up (unmatched) cards
+    flipped: [],
     matched: new Set(),
     moves: 0,
     seconds: 0,
     timerInterval: null,
     locked: false,
+    _cardFontSize: 12,
   };
 
   document.getElementById('mem-setup').style.display = 'none';
@@ -4327,33 +4460,88 @@ function fmtTime(s) {
 function renderMemBoard() {
   const board = document.getElementById('memBoard');
   const { cfg, cards } = mem;
-  board.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+
+  // Set grid inline — exactly like emojiGrid
+  board.style.cssText = `display:grid;grid-template-columns:repeat(${cfg.cols},1fr);gap:7px;width:100%`;
   board.innerHTML = '';
 
-  // Card height: fill available space
-  const navH = 56, headerH = 50, hudH = 68, padding = 24;
-  const availH = window.innerHeight - navH - headerH - hudH - padding;
-  const rows = cfg.cards / cfg.cols;
-  const cardH = Math.floor((availH - (rows - 1) * 7) / rows);
-  const fontSize = Math.max(10, Math.min(16, Math.floor(cardH * 0.22)));
-
   cards.forEach((card, idx) => {
-    const el = document.createElement('div');
-    el.className = 'mem-card';
-    el.style.height = cardH + 'px';
-    el.innerHTML = `
-      <div class="mem-card-face mem-card-back">🧠</div>
-      <div class="mem-card-face mem-card-front">
-        <span class="mem-type">${card.lang === 'en' ? 'English' : 'עברית'}</span>
-        <span class="mem-word" style="font-size:${fontSize}px">${card.text}</span>
-      </div>`;
-    el.addEventListener('click', () => flipMemCard(idx, el));
-    board.appendChild(el);
-    mem.cards[idx]._el = el;
+    const div = document.createElement('div');
+    // Back face shown by default — inline everything, no CSS classes
+    div.style.cssText =
+      'background:linear-gradient(135deg,#6c63ff,#8b5cf6);' +
+      'border-radius:12px;display:flex;align-items:center;justify-content:center;' +
+      'cursor:pointer;box-shadow:0 3px 10px rgba(108,99,255,0.3);' +
+      'font-size:22px;box-sizing:border-box;';
+    div.innerHTML = '🧠';
+    div.dataset.state = 'back'; // 'back' | 'front' | 'matched'
+    div.addEventListener('click', () => flipMemCard(idx, div));
+    board.appendChild(div);
+    mem.cards[idx]._el = div;
   });
 
-  document.getElementById('mem-pairs-left').textContent =
-    `${mem.cfg.pairs} זוגות`;
+  // Size via JS — same pattern as sizeEmojiTiles
+  function sizeMemCards() {
+    const boardW = board.offsetWidth;
+    if (!boardW) { requestAnimationFrame(sizeMemCards); return; }
+    const cols = cfg.cols;
+    const rows = cfg.cards / cols;
+    const cardW = Math.floor((boardW - (cols - 1) * 7) / cols);
+    // also constrain by available height
+    const otherH = 56 + 50 + 65 + 28;
+    const availH = window.innerHeight - otherH;
+    const byH = Math.floor((availH - (rows - 1) * 7) / rows);
+    const cardH = Math.max(50, Math.min(cardW, byH));
+    const fontSize = Math.max(9, Math.min(14, Math.floor(cardH * 0.22)));
+    board.querySelectorAll('div').forEach(d => {
+      d.style.height = cardH + 'px';
+      // update font size for front-face text
+      const word = d.querySelector('span[data-role="word"]');
+      if (word) word.style.fontSize = fontSize + 'px';
+    });
+    mem._cardFontSize = fontSize;
+  }
+  requestAnimationFrame(sizeMemCards);
+
+  document.getElementById('mem-pairs-left').textContent = `${cfg.pairs} זוגות`;
+}
+
+function showMemCardFront(div, card) {
+  const fs = mem._cardFontSize || 12;
+  const h = div.style.height;
+  if (card.isEmoji) {
+    const emojiSize = Math.floor((parseInt(h) || 60) * 0.52);
+    div.style.cssText =
+      'background:white;border:2px solid #e2e8f0;border-radius:12px;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      `cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08);box-sizing:border-box;height:${h};`;
+    div.innerHTML = `<span style="font-size:${emojiSize}px;line-height:1">${card.text}</span>`;
+  } else {
+    div.style.cssText =
+      'background:white;border:2px solid #e2e8f0;border-radius:12px;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      `cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08);box-sizing:border-box;padding:4px;text-align:center;height:${h};`;
+    div.innerHTML =
+      `<span data-role="word" style="font-family:Nunito,sans-serif;font-weight:900;font-size:${fs}px;color:#1a1a2e;line-height:1.2">${card.text}</span>`;
+  }
+}
+
+function showMemCardMatched(div, card) {
+  const fs = mem._cardFontSize || 12;
+  const h = div.style.height;
+  if (card.isEmoji) {
+    const emojiSize = Math.floor((parseInt(h) || 60) * 0.52);
+    div.style.cssText =
+      'background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;' +
+      `display:flex;align-items:center;justify-content:center;cursor:default;box-sizing:border-box;height:${h};`;
+    div.innerHTML = `<span style="font-size:${emojiSize}px;line-height:1;opacity:0.65">${card.text}</span>`;
+  } else {
+    div.style.cssText =
+      'background:#f0fdf4;border:2px solid #22c55e;border-radius:12px;' +
+      `display:flex;align-items:center;justify-content:center;cursor:default;box-sizing:border-box;padding:4px;text-align:center;height:${h};`;
+    div.innerHTML =
+      `<span data-role="word" style="font-family:Nunito,sans-serif;font-weight:900;font-size:${fs}px;color:#0d6e50;line-height:1.2">${card.text}</span>`;
+  }
 }
 
 function flipMemCard(idx, el) {
@@ -4362,7 +4550,10 @@ function flipMemCard(idx, el) {
   if (mem.flipped.includes(idx)) return;
   if (mem.flipped.length >= 2) return;
 
-  el.classList.add('flipped');
+  const card = mem.cards[idx];
+  const h = el.style.height;
+  showMemCardFront(el, card);
+  el.style.height = h;
   mem.flipped.push(idx);
   sfxClick();
 
@@ -4372,15 +4563,18 @@ function flipMemCard(idx, el) {
     updateMemHUD();
 
     const [a, b] = mem.flipped;
-    const cardA = mem.cards[a];
-    const cardB = mem.cards[b];
+    const cardA = mem.cards[a], cardB = mem.cards[b];
 
-    if (cardA.pairId === cardB.pairId && cardA.lang !== cardB.lang) {
-      // ✅ Match!
+    if (cardA.pairId === cardB.pairId && cardA.type !== cardB.type) {
+      // ✅ Match
       sfxCorrect();
       setTimeout(() => {
-        mem.cards[a]._el.classList.add('matched');
-        mem.cards[b]._el.classList.add('matched');
+        const hA = mem.cards[a]._el.style.height;
+        const hB = mem.cards[b]._el.style.height;
+        showMemCardMatched(mem.cards[a]._el, cardA);
+        showMemCardMatched(mem.cards[b]._el, cardB);
+        mem.cards[a]._el.style.height = hA;
+        mem.cards[b]._el.style.height = hB;
         mem.matched.add(a);
         mem.matched.add(b);
         mem.flipped = [];
@@ -4389,14 +4583,26 @@ function flipMemCard(idx, el) {
         if (mem.matched.size === mem.cfg.cards) endMemory();
       }, 400);
     } else {
-      // ❌ No match
+      // ❌ No match — flash red then flip back
       sfxWrong();
+      const elA = mem.cards[a]._el, elB = mem.cards[b]._el;
       setTimeout(() => {
-        mem.cards[a]._el.classList.add('wrong-flash');
-        mem.cards[b]._el.classList.add('wrong-flash');
+        [elA, elB].forEach(e => {
+          e.style.background = '#fff5f5';
+          e.style.borderColor = '#ef4444';
+        });
         setTimeout(() => {
-          mem.cards[a]._el.classList.remove('flipped', 'wrong-flash');
-          mem.cards[b]._el.classList.remove('flipped', 'wrong-flash');
+          const hA = elA.style.height, hB = elB.style.height;
+          // Back to hidden
+          [elA, elB].forEach((e, i) => {
+            const h = [hA, hB][i];
+            e.style.cssText =
+              'background:linear-gradient(135deg,#6c63ff,#8b5cf6);' +
+              'border-radius:12px;display:flex;align-items:center;justify-content:center;' +
+              'cursor:pointer;box-shadow:0 3px 10px rgba(108,99,255,0.3);' +
+              `font-size:22px;box-sizing:border-box;height:${h};`;
+            e.innerHTML = '🧠';
+          });
           mem.flipped = [];
           mem.locked = false;
         }, 500);
