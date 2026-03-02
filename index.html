@@ -2181,6 +2181,8 @@
 
     <div id="memBoard" style="display:grid;gap:7px;width:100%"></div>
   </div>
+  <!-- scroll hint shown only when board overflows -->
+  <div id="memScrollHint" style="display:none;text-align:center;font-size:12px;color:var(--text-muted);padding:4px 0;animation:pulse 1.5s infinite">⬇️ גלול למטה לכרטיסים הנוספים</div>
 
   <!-- RESULTS -->
   <div id="mem-results" class="results" style="display:none">
@@ -4590,26 +4592,32 @@ function renderMemBoard() {
     mem.cards[idx]._el = div;
   });
 
-  // Size via JS — same pattern as sizeEmojiTiles
+  // Size via JS — constrain by width, allow vertical scroll if needed
   function sizeMemCards() {
     const boardW = board.offsetWidth;
     if (!boardW) { requestAnimationFrame(sizeMemCards); return; }
     const cols = cfg.cols;
     const rows = cfg.cards / cols;
+    // Card width from grid
     const cardW = Math.floor((boardW - (cols - 1) * 7) / cols);
-    // also constrain by available height
+    // Ideal height to fit all on screen
     const otherH = 56 + 50 + 65 + 28;
     const availH = window.innerHeight - otherH;
     const byH = Math.floor((availH - (rows - 1) * 7) / rows);
-    const cardH = Math.max(50, Math.min(cardW, byH));
-    const fontSize = Math.max(9, Math.min(14, Math.floor(cardH * 0.22)));
+    // Use width-based square cards, but don't go below 44px
+    // If byH < cardW, cards will overflow → show scroll hint
+    const cardH = Math.max(44, Math.min(cardW * 0.85, byH));
+    const fontSize = Math.max(8, Math.min(13, Math.floor(cardH * 0.24)));
     board.querySelectorAll('div').forEach(d => {
       d.style.height = cardH + 'px';
-      // update font size for front-face text
       const word = d.querySelector('span[data-role="word"]');
       if (word) word.style.fontSize = fontSize + 'px';
     });
     mem._cardFontSize = fontSize;
+    // Show scroll hint if board will overflow screen
+    const totalBoardH = rows * cardH + (rows - 1) * 7;
+    const hint = document.getElementById('memScrollHint');
+    if (hint) hint.style.display = totalBoardH > availH ? 'block' : 'none';
   }
   requestAnimationFrame(sizeMemCards);
 
@@ -4683,9 +4691,15 @@ function flipMemCard(idx, el) {
   mem.flipped.push(idx);
   sfxClick();
 
-  // Speak English word (or emoji's English name) when flipped
-  if (card.type === 'en' || card.type === 'word') {
-    memSpeak(card.text);
+  // Always speak the English word — find it from the pair if needed
+  if (memSoundOn) {
+    if (card.type === 'en' || card.type === 'word') {
+      memSpeak(card.text);
+    } else {
+      // Hebrew or emoji card — find the English pair card and speak it
+      const partner = mem.cards.find(c => c.pairId === card.pairId && (c.type === 'en' || c.type === 'word'));
+      if (partner) memSpeak(partner.text);
+    }
   }
 
   if (mem.flipped.length === 2) {
@@ -5794,8 +5808,14 @@ function mmSyncState(data) {
       const { css, html } = mmFrontStyle(card, false);
       el.style.cssText = css; el.innerHTML = html;
       // Speak only if this card was just newly flipped (wasn't flipped before)
-      if (!prevFlipped.includes(idx) && memSoundOn && (card.type === 'en' || card.type === 'word')) {
-        memSpeak(card.text);
+      if (!prevFlipped.includes(idx) && memSoundOn) {
+        if (card.type === 'en' || card.type === 'word') {
+          memSpeak(card.text);
+        } else {
+          // Hebrew or emoji card — find English partner
+          const partner = mm.cards.find(c => c.pairId === card.pairId && (c.type === 'en' || c.type === 'word'));
+          if (partner) memSpeak(partner.text);
+        }
       }
     } else {
       el.style.cssText = mmBackStyle();
