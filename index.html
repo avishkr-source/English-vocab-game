@@ -4691,13 +4691,12 @@ function flipMemCard(idx, el) {
   mem.flipped.push(idx);
   sfxClick();
 
-  // Always speak the English word — find it from the pair if needed
+  // Speak only when flipping English or emoji card (not Hebrew)
   if (memSoundOn) {
     if (card.type === 'en' || card.type === 'word') {
       memSpeak(card.text);
-    } else {
-      // Hebrew or emoji card — find the English pair card and speak it
-      const partner = mem.cards.find(c => c.pairId === card.pairId && (c.type === 'en' || c.type === 'word'));
+    } else if (card.type === 'emoji') {
+      const partner = mem.cards.find(c => c.pairId === card.pairId && c.type === 'word');
       if (partner) memSpeak(partner.text);
     }
   }
@@ -5807,13 +5806,12 @@ function mmSyncState(data) {
     } else if (flipped.includes(idx)) {
       const { css, html } = mmFrontStyle(card, false);
       el.style.cssText = css; el.innerHTML = html;
-      // Speak only if this card was just newly flipped (wasn't flipped before)
+      // Speak only if newly flipped AND it's English or emoji card (not Hebrew)
       if (!prevFlipped.includes(idx) && memSoundOn) {
         if (card.type === 'en' || card.type === 'word') {
           memSpeak(card.text);
-        } else {
-          // Hebrew or emoji card — find English partner
-          const partner = mm.cards.find(c => c.pairId === card.pairId && (c.type === 'en' || c.type === 'word'));
+        } else if (card.type === 'emoji') {
+          const partner = mm.cards.find(c => c.pairId === card.pairId && c.type === 'word');
           if (partner) memSpeak(partner.text);
         }
       }
