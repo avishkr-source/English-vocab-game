@@ -5035,30 +5035,36 @@ async function loadBandFromFirebase(bandId) {
 }
 
 async function toggleSource(id) {
-  let sources = [...(state.activeSources || ['builtin'])];
-  if (sources.includes(id)) {
-    sources = sources.filter(s => s !== id);
-    if (sources.length === 0) sources = ['builtin'];
-    state.activeSources = sources;
-    saveState();
-    renderSourcesDropdown();
-    updateSourcesUI();
-  } else {
-    sources.push(id);
-    state.activeSources = sources;
-    saveState();
-    renderSourcesDropdown();
-    updateSourcesUI();
+  try {
+    dbg('toggleSource start: ' + id);
+    let sources = [...(state.activeSources || ['builtin'])];
+    if (sources.includes(id)) {
+      sources = sources.filter(s => s !== id);
+      if (sources.length === 0) sources = ['builtin'];
+      state.activeSources = sources;
+      saveState();
+      dbg('removed: ' + id);
+    } else {
+      sources.push(id);
+      state.activeSources = sources;
+      saveState();
+      dbg('added: ' + id);
 
-    // If band and cache is missing or empty — download now
-    const isBand = ['band1','band2','band3'].includes(id);
-    const cacheEmpty = !bandCache[id] || bandCache[id].length === 0;
-    dbg('toggleSource: ' + id + ' | isBand=' + isBand + ' | cacheEmpty=' + cacheEmpty);
-    if (isBand && cacheEmpty) {
-      await loadBandFromFirebase(id);
-    } else if (isBand) {
-      dbg('using cache: ' + bandCache[id].length + ' words');
+      const isBand = ['band1','band2','band3'].includes(id);
+      const cacheEmpty = !bandCache[id] || bandCache[id].length === 0;
+      dbg('isBand=' + isBand + ' cacheEmpty=' + cacheEmpty);
+      if (isBand && cacheEmpty) {
+        await loadBandFromFirebase(id);
+      }
     }
+    dbg('calling renderSourcesDropdown...');
+    renderSourcesDropdown();
+    dbg('calling updateSourcesUI...');
+    updateSourcesUI();
+    dbg('toggleSource done');
+  } catch(e) {
+    dbg('❌ toggleSource ERROR: ' + e.message);
+    showToast('שגיאה: ' + e.message);
   }
 }
 
