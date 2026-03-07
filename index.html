@@ -4978,14 +4978,21 @@ function getBandWords(bandId) {
 
 async function loadBandFromFirebase(bandId) {
   initFirebase();
-  if (!fbDb) { showToast('❌ שגיאה בחיבור ל-Firebase'); return []; }
+  console.log('loadBandFromFirebase:', bandId, '| fbDb:', !!fbDb);
+  if (!fbDb) {
+    console.error('fbDb is null!');
+    showToast('❌ Firebase לא מחובר — בדוק חיבור אינטרנט');
+    return [];
+  }
 
   const statusEl = document.getElementById(bandId + '-status');
   if (statusEl) statusEl.textContent = '⏳';
 
   try {
+    console.log('Fetching wordlists/' + bandId + '...');
     const snap = await fbDb.ref('wordlists/' + bandId).once('value');
     const data = snap.val();
+    console.log('Got data:', data ? Object.keys(data).length + ' items' : 'null');
     if (!data) throw new Error('empty');
     const words = Object.values(data).filter(w => w && w.en && w.he);
     if (!words.length) throw new Error('no words');
@@ -4996,13 +5003,13 @@ async function loadBandFromFirebase(bandId) {
     renderSourcesDropdown();
     return words;
   } catch(e) {
+    console.error('loadBandFromFirebase error:', e);
     if (statusEl) statusEl.textContent = '❌';
-    // Remove from sources since load failed
     state.activeSources = (state.activeSources || []).filter(s => s !== bandId);
     saveState();
     renderSourcesDropdown();
     updateSourcesUI();
-    showToast('❌ שגיאה בטעינת ' + bandId + '. בדוק חיבור לאינטרנט.');
+    showToast('❌ שגיאה: ' + e.message);
     return [];
   }
 }
@@ -5587,7 +5594,6 @@ document.getElementById('nicknameInput').addEventListener('keydown', e => {
 //  FIREBASE + MEMORY MULTIPLAYER
 // ═══════════════════════════════════════════
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDqAggZSTELczNM5Pf1zbm9PX84ueZ6JTY",
   authDomain: "wordup-game-1aac7.firebaseapp.com",
@@ -5598,16 +5604,20 @@ const firebaseConfig = {
   appId: "1:937852561362:web:5b40829ef5620717ca4a0b"
 };
 
-let fbApp, fbDb;
-function initFirebase() {
-  if (fbApp) return;
-  try {
-    fbApp = firebase.initializeApp(firebaseConfig);
-    fbDb  = firebase.database();
-  } catch(e) {
-    console.warn('Firebase init failed:', e);
-  }
+// Initialize Firebase immediately — once, safely
+let fbDb;
+try {
+  const existingApps = firebase.apps;
+  const fbApp = existingApps.length
+    ? existingApps[0]
+    : firebase.initializeApp(firebaseConfig);
+  fbDb = firebase.database(fbApp);
+  console.log('✅ Firebase ready');
+} catch(e) {
+  console.error('❌ Firebase init error:', e);
 }
+
+function initFirebase() { /* already done above */ }
 
 // ── Multiplayer state ──
 let mm = {};
