@@ -3218,6 +3218,10 @@ function setFlDir(reversed) {
 
 function initFlash(reversed) {
   const allWords = getAvailableWords(state.currentLevel);
+  if (allWords.length < 2) {
+    alert('אין מילים זמינות.\nבחר מקור מילים בתפריט הראשי.');
+    goHome(); return;
+  }
   fl.words = shuffle(allWords).slice(0, 15);
   fl.idx = 0;
   fl.score = 0;
@@ -3287,7 +3291,7 @@ function endFlash() {
 
   document.getElementById('flash-game').style.display = 'none';
   document.getElementById('flash-results').style.display = 'block';
-  const pct = Math.round((fl.knew / fl.words.length) * 100);
+  const pct = fl.words.length ? Math.round((fl.knew / fl.words.length) * 100) : 0;
   document.getElementById('flash-res-title').textContent = pct >= 80 ? 'מדהים! 🌟' : pct >= 50 ? 'יפה! 👍' : g('המשך לתרגל! 💪','המשיכי לתרגל! 💪');
   document.getElementById('flash-res-score').textContent = fl.score;
   document.getElementById('flash-res-knew').textContent = `${fl.knew}/${fl.words.length}`;
@@ -4942,27 +4946,31 @@ function getBandWords(bandId) {
 
 async function loadBandFromFirebase(bandId) {
   initFirebase();
+  if (!fbDb) { showToast('❌ שגיאה בחיבור ל-Firebase'); return []; }
+
   const statusEl = document.getElementById(bandId + '-status');
-  if (statusEl) statusEl.textContent = '⏳ טוען...';
+  if (statusEl) statusEl.textContent = '⏳';
+
   try {
     const snap = await fbDb.ref('wordlists/' + bandId).once('value');
     const data = snap.val();
     if (!data) throw new Error('empty');
-    // Firebase returns object with numeric keys — convert to array
     const words = Object.values(data).filter(w => w && w.en && w.he);
+    if (!words.length) throw new Error('no words');
     bandCache[bandId] = words;
     saveBandCache();
     if (statusEl) statusEl.textContent = `(${words.length})`;
+    showToast(`✅ ${bandId.replace('band','Band ')} נטען — ${words.length} מילים`);
     renderSourcesDropdown();
     return words;
   } catch(e) {
     if (statusEl) statusEl.textContent = '❌';
-    showToast('שגיאה בטעינת ' + bandId + '. בדוק חיבור לאינטרנט.');
-    // Remove from active sources if failed
+    // Remove from sources since load failed
     state.activeSources = (state.activeSources || []).filter(s => s !== bandId);
     saveState();
     renderSourcesDropdown();
     updateSourcesUI();
+    showToast('❌ שגיאה בטעינת ' + bandId + '. בדוק חיבור לאינטרנט.');
     return [];
   }
 }
@@ -4970,25 +4978,26 @@ async function loadBandFromFirebase(bandId) {
 async function toggleSource(id) {
   let sources = [...(state.activeSources || ['builtin'])];
   if (sources.includes(id)) {
+    // Deselect
     sources = sources.filter(s => s !== id);
+    if (sources.length === 0) sources = ['builtin'];
+    state.activeSources = sources;
+    saveState();
+    renderSourcesDropdown();
+    updateSourcesUI();
   } else {
-    // If it's a band and not cached yet — load first
-    if (['band1','band2','band3'].includes(id) && !bandCache[id]) {
-      sources.push(id); // add optimistically
-      state.activeSources = sources;
-      saveState();
-      renderSourcesDropdown();
-      updateSourcesUI();
-      await loadBandFromFirebase(id);
-      return;
-    }
+    // Select
     sources.push(id);
+    state.activeSources = sources;
+    saveState();
+    renderSourcesDropdown();
+    updateSourcesUI();
+
+    // If band and not yet cached — download now
+    if (['band1','band2','band3'].includes(id) && !bandCache[id]) {
+      await loadBandFromFirebase(id);
+    }
   }
-  if (sources.length === 0) sources = ['builtin'];
-  state.activeSources = sources;
-  saveState();
-  renderSourcesDropdown();
-  updateSourcesUI();
 }
 
 function renderSourcesDropdown() {
