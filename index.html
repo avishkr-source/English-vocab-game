@@ -4963,7 +4963,15 @@ let bandCache = {}; // { band1: [...], band2: [...], band3: [...] }
 function loadBandCache() {
   try {
     const raw = localStorage.getItem(BAND_CACHE_KEY);
-    if (raw) bandCache = JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Validate — only keep bands with actual words
+      Object.keys(parsed).forEach(k => {
+        if (Array.isArray(parsed[k]) && parsed[k].length > 0) {
+          bandCache[k] = parsed[k];
+        }
+      });
+    }
   } catch(e) { bandCache = {}; }
 }
 loadBandCache();
@@ -5029,7 +5037,6 @@ async function loadBandFromFirebase(bandId) {
 async function toggleSource(id) {
   let sources = [...(state.activeSources || ['builtin'])];
   if (sources.includes(id)) {
-    // Deselect
     sources = sources.filter(s => s !== id);
     if (sources.length === 0) sources = ['builtin'];
     state.activeSources = sources;
@@ -5037,16 +5044,20 @@ async function toggleSource(id) {
     renderSourcesDropdown();
     updateSourcesUI();
   } else {
-    // Select
     sources.push(id);
     state.activeSources = sources;
     saveState();
     renderSourcesDropdown();
     updateSourcesUI();
 
-    // If band and not yet cached — download now
-    if (['band1','band2','band3'].includes(id) && !bandCache[id]) {
+    // If band and cache is missing or empty — download now
+    const isBand = ['band1','band2','band3'].includes(id);
+    const cacheEmpty = !bandCache[id] || bandCache[id].length === 0;
+    dbg('toggleSource: ' + id + ' | isBand=' + isBand + ' | cacheEmpty=' + cacheEmpty);
+    if (isBand && cacheEmpty) {
       await loadBandFromFirebase(id);
+    } else if (isBand) {
+      dbg('using cache: ' + bandCache[id].length + ' words');
     }
   }
 }
@@ -6149,10 +6160,15 @@ initApp();
          padding:8px;z-index:9999;direction:ltr;display:none">
   טפ לנקות
 </div>
-<div onclick="document.getElementById('debugPanel').style.display = document.getElementById('debugPanel').style.display==='none'?'block':'none'"
-  style="position:fixed;bottom:62px;right:8px;background:#6c63ff;color:white;
-         font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;z-index:10000;cursor:pointer">
-  🐛 DEBUG
+<div style="position:fixed;bottom:62px;right:8px;z-index:10000;display:flex;gap:4px">
+  <div onclick="localStorage.removeItem('wordup_bands');bandCache={};dbg('cache cleared!');showToast('Cache נוקה — בחר Band מחדש')"
+    style="background:#e11d48;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer">
+    🗑 Cache
+  </div>
+  <div onclick="document.getElementById('debugPanel').style.display = document.getElementById('debugPanel').style.display==='none'?'block':'none'"
+    style="background:#6c63ff;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer">
+    🐛 DEBUG
+  </div>
 </div>
 
 </body>
