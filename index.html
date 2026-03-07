@@ -2778,10 +2778,11 @@ function getAvailableWords(level) {
       }
     }
   }
+  ['band1','band2','band3'].forEach(bandId => {
+    if (sources.includes(bandId)) words = words.concat(getBandWords(bandId));
+  });
   (state.customPacks || []).forEach(pack => {
-    if (sources.includes(pack.id)) {
-      words = words.concat(pack.words);
-    }
+    if (sources.includes(pack.id)) words = words.concat(pack.words);
   });
   return words;
 }
