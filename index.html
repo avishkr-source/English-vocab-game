@@ -6087,7 +6087,21 @@ if ('serviceWorker' in navigator) {
 // ═══════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════
-loadState();
+async function initApp() {
+  loadState();
+
+  // If any bands are selected but not cached — fetch them now
+  const activeBands = (state.activeSources || []).filter(s => ['band1','band2','band3'].includes(s));
+  const missingBands = activeBands.filter(b => !bandCache[b] || bandCache[b].length === 0);
+
+  if (missingBands.length > 0) {
+    initFirebase();
+    showToast('⏳ טוען מילים...');
+    await Promise.all(missingBands.map(b => loadBandFromFirebase(b)));
+  }
+}
+
+initApp();
 </script>
 </body>
 </html>
