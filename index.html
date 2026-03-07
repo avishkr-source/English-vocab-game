@@ -1588,31 +1588,63 @@
 
     <!-- Sources picker -->
     <div style="position:relative; flex:1">
-      <button class="ctrl-btn" id="sourcesBtn" onclick="toggleDropdown('sourcesDrop',this)" style="width:100%">
+      <button class="ctrl-btn" id="sourcesBtn" onclick="openSourcesSheet()" style="width:100%">
         🎮 <span id="sourcesBtnLabel">מילים<br>אקראיות</span> ▾
       </button>
-      <div class="dropdown-panel" id="sourcesDrop" style="min-width:220px; right:0; left:auto">
-        <div class="dropdown-item" id="src-builtin" onclick="toggleSource('builtin')">
-          <span class="chk">✓</span> מילים אקראיות
-        </div>
-        <hr class="dropdown-divider">
-        <div style="padding:6px 16px 4px;font-size:11px;font-weight:700;color:var(--text-muted)">📚 מילון משרד החינוך</div>
-        <div class="dropdown-item" id="src-band1" onclick="toggleSource('band1')">
-          <span class="chk"></span> 📗 Band 1 — בסיסי
-          <span id="band1-status" style="font-size:10px;color:var(--text-muted);margin-right:4px"></span>
-        </div>
-        <div class="dropdown-item" id="src-band2" onclick="toggleSource('band2')">
-          <span class="chk"></span> 📘 Band 2 — בינוני
-          <span id="band2-status" style="font-size:10px;color:var(--text-muted);margin-right:4px"></span>
-        </div>
-        <div class="dropdown-item" id="src-band3" onclick="toggleSource('band3')">
-          <span class="chk"></span> 📕 Band 3 — מתקדם
-          <span id="band3-status" style="font-size:10px;color:var(--text-muted);margin-right:4px"></span>
-        </div>
-        <hr class="dropdown-divider">
-        <div id="srcCustomList"></div>
-        <div id="srcEmptyMsg" style="padding:10px 16px;font-size:12px;color:var(--text-muted)">אין חבילות אישיות עדיין</div>
+    </div>
+  </div>
+
+  <!-- Sources Bottom Sheet -->
+  <div id="sourcesOverlay" onclick="closeSourcesSheet()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000"></div>
+  <div id="sourcesSheet"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1001;
+           background:var(--card);border-radius:20px 20px 0 0;
+           padding:0 0 32px;max-height:75vh;overflow-y:auto;
+           box-shadow:0 -4px 24px rgba(0,0,0,0.15);direction:rtl">
+    <!-- Handle -->
+    <div style="display:flex;justify-content:center;padding:12px 0 4px">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:4px"></div>
+    </div>
+    <div style="padding:4px 20px 12px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px">
+      🎮 בחר מקורות מילים
+    </div>
+
+    <div style="padding:0 12px">
+      <!-- Builtin -->
+      <div class="dropdown-item" id="src-builtin" onclick="toggleSource('builtin')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk">✓</span> 🎲 מילים אקראיות
       </div>
+
+      <!-- Bands -->
+      <div style="padding:10px 16px 6px;font-size:12px;font-weight:700;color:var(--text-muted)">
+        📚 מילון משרד החינוך
+      </div>
+      <div class="dropdown-item" id="src-band1" onclick="toggleSource('band1')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 📗 Band 1 — בסיסי
+        <span id="band1-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
+      </div>
+      <div class="dropdown-item" id="src-band2" onclick="toggleSource('band2')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 📘 Band 2 — בינוני
+        <span id="band2-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
+      </div>
+      <div class="dropdown-item" id="src-band3" onclick="toggleSource('band3')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 📕 Band 3 — מתקדם
+        <span id="band3-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
+      </div>
+
+      <!-- Custom packs -->
+      <div id="srcCustomSection" style="display:none">
+        <div style="padding:10px 16px 6px;font-size:12px;font-weight:700;color:var(--text-muted)">
+          📦 חבילות אישיות
+        </div>
+        <div id="srcCustomList"></div>
+      </div>
+      <div id="srcEmptyMsg" style="padding:10px 16px;font-size:12px;color:var(--text-muted)">אין חבילות אישיות עדיין</div>
     </div>
   </div>
 
@@ -5000,6 +5032,17 @@ async function toggleSource(id) {
   }
 }
 
+function openSourcesSheet() {
+  document.getElementById('sourcesOverlay').style.display = 'block';
+  document.getElementById('sourcesSheet').style.display = 'block';
+  renderSourcesDropdown();
+}
+
+function closeSourcesSheet() {
+  document.getElementById('sourcesOverlay').style.display = 'none';
+  document.getElementById('sourcesSheet').style.display = 'none';
+}
+
 function renderSourcesDropdown() {
   const sources = state.activeSources || ['builtin'];
   const packs = state.customPacks || [];
@@ -5026,16 +5069,24 @@ function renderSourcesDropdown() {
   // custom packs
   const listEl = document.getElementById('srcCustomList');
   const emptyEl = document.getElementById('srcEmptyMsg');
+  const customSection = document.getElementById('srcCustomSection');
   listEl.innerHTML = '';
-  emptyEl.style.display = packs.length === 0 ? 'block' : 'none';
-  packs.forEach(pack => {
-    const checked = sources.includes(pack.id);
-    const div = document.createElement('div');
-    div.className = 'dropdown-item' + (checked ? ' checked' : '');
-    div.innerHTML = `<span class="chk">${checked ? '✓' : ''}</span> ${pack.name}`;
-    div.onclick = () => toggleSource(pack.id);
-    listEl.appendChild(div);
-  });
+  if (packs.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (customSection) customSection.style.display = 'none';
+  } else {
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (customSection) customSection.style.display = 'block';
+    packs.forEach(pack => {
+      const checked = sources.includes(pack.id);
+      const div = document.createElement('div');
+      div.className = 'dropdown-item' + (checked ? ' checked' : '');
+      div.style.cssText = 'border-radius:12px;padding:14px 16px;font-size:15px';
+      div.innerHTML = `<span class="chk">${checked ? '✓' : ''}</span> ${pack.name}`;
+      div.onclick = () => toggleSource(pack.id);
+      listEl.appendChild(div);
+    });
+  }
 }
 
 function updateSourcesUI() {
