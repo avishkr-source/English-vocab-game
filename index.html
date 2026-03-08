@@ -2965,22 +2965,22 @@ function selectLevel(lvl, btn) {
 }
 
 function updateUI() {
-  document.getElementById('totalScore').textContent = state.totalScore;
-  document.getElementById('streakVal').textContent = state.currentStreak;
-  document.getElementById('home-mc-best').textContent = state.bestScores.mc || 0;
-  document.getElementById('home-flash-best').textContent = state.bestScores.flash || 0;
-  document.getElementById('home-fill-best').textContent = state.bestScores.fill || 0;
-  document.getElementById('home-match-best').textContent = state.bestScores.match || 0;
-  document.getElementById('home-run-best').textContent = state.bestScores.run || 0;
-  document.getElementById('home-listen-best').textContent = state.bestScores.listen || 0;
-  document.getElementById('home-colors-best').textContent = state.bestScores.colors || 0;
-  document.getElementById('home-emoji-best').textContent = state.bestScores.emoji || 0;
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  s('totalScore', state.totalScore);
+  s('streakVal', state.currentStreak);
+  s('home-mc-best', state.bestScores.mc || 0);
+  s('home-flash-best', state.bestScores.flash || 0);
+  s('home-fill-best', state.bestScores.fill || 0);
+  s('home-match-best', state.bestScores.match || 0);
+  s('home-run-best', state.bestScores.run || 0);
+  s('home-listen-best', state.bestScores.listen || 0);
+  s('home-colors-best', state.bestScores.colors || 0);
+  s('home-emoji-best', state.bestScores.emoji || 0);
   const memBest = Object.keys(state.bestScores).filter(k => k.startsWith('memory_'))
     .map(k => ({ cards: k.split('_')[1], moves: state.bestScores[k] }))
     .sort((a,b) => a.moves - b.moves)[0];
-  document.getElementById('home-memory-best').textContent = memBest ? `${memBest.moves} מהלכים` : '—';
+  s('home-memory-best', memBest ? `${memBest.moves} מהלכים` : '—');
 
-  // Disable fill game card if no builtin words available
   const fillDisabled = getFillWords(state.currentLevel).length < 4;
   const fillCard = document.querySelector('[onclick="startGame(\'fill\')"]');
   if (fillCard) {
@@ -5133,11 +5133,14 @@ function updateSourcesUI() {
   ['band1','band2','band3'].forEach(b => { if (sources.includes(b)) parts.push(b.replace('band','Band ')); });
   packs.forEach(p => { if (sources.includes(p.id)) parts.push(p.name); });
   const label = parts.length === 0 ? 'מקורות' : parts.length === 1 ? parts[0] : `${parts.length}<br>מקורות`;
-  document.getElementById('sourcesBtnLabel').innerHTML = label;
+  const labelEl = document.getElementById('sourcesBtnLabel');
+  if (labelEl) labelEl.innerHTML = label;
   const btn = document.getElementById('sourcesBtn');
-  const hasExtra = sources.some(s => s !== 'builtin');
-  btn.style.borderColor = hasExtra ? 'var(--accent)' : '';
-  btn.style.color = hasExtra ? 'var(--accent)' : '';
+  if (btn) {
+    const hasExtra = sources.some(s => s !== 'builtin');
+    btn.style.borderColor = hasExtra ? 'var(--accent)' : '';
+    btn.style.color = hasExtra ? 'var(--accent)' : '';
+  }
   updateUI();
 }
 
