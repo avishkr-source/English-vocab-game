@@ -5380,13 +5380,21 @@ function adminGetWords(src) {
   return [];
 }
 
-function adminSelectSource(src) {
+async function adminSelectSource(src) {
   adminSrc = src;
-  adminWords = adminGetWords(src);
   document.querySelectorAll('.admin-src-btn').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('admsrc-' + src);
   if (btn) btn.classList.add('active');
   document.getElementById('adminSearch').value = '';
+  document.getElementById('adminCount').textContent = '⏳ טוען...';
+  document.getElementById('adminWordList').innerHTML = '';
+
+  // If band and not cached — load from Firebase first
+  if (src.startsWith('band') && (!bandCache[src] || bandCache[src].length === 0)) {
+    await loadBandFromFirebase(src);
+  }
+
+  adminWords = adminGetWords(src);
   adminRender(adminWords);
 }
 
