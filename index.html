@@ -1571,27 +1571,10 @@
 
   <!-- Controls row: Pack button + Level dropdown + Sources dropdown -->
   <div class="home-controls">
-    <button class="ctrl-btn packs-btn" onclick="showTab2('custom')" style="">📦 חבילות<br>מילים<br>אישיות</button>
-
-    <!-- Level picker -->
-    <div style="position:relative; flex:1">
-      <button class="ctrl-btn" id="levelBtn" onclick="toggleDropdown('levelDrop',this)" style="width:100%">
-        📚 <span id="levelBtnLabel">רמה 1<br>מתחיל</span> ▾
-      </button>
-      <div class="dropdown-panel" id="levelDrop">
-        <div class="dropdown-item selected" id="lvlOpt1" onclick="selectLevelDrop(1)">1 — מתחיל</div>
-        <div class="dropdown-item" id="lvlOpt2" onclick="selectLevelDrop(2)">2 — יסודי</div>
-        <div class="dropdown-item" id="lvlOpt3" onclick="selectLevelDrop(3)">3 — בינוני</div>
-        <div class="dropdown-item" id="lvlOpt4" onclick="selectLevelDrop(4)">4 — מתקדם</div>
-      </div>
-    </div>
-
-    <!-- Sources picker -->
-    <div style="position:relative; flex:1">
-      <button class="ctrl-btn" id="sourcesBtn" onclick="openSourcesSheet()" style="width:100%">
-        🎮 <span id="sourcesBtnLabel">מילים<br>אקראיות</span> ▾
-      </button>
-    </div>
+    <button class="ctrl-btn" onclick="showTab2('custom')">📦 חבילות<br>מילים<br>אישיות</button>
+    <button class="ctrl-btn" id="sourcesBtn" onclick="openSourcesSheet()">
+      📚 <span id="sourcesBtnLabel">בחר<br>מילים</span> ▾
+    </button>
   </div>
 
   <!-- Sources Bottom Sheet -->
@@ -1610,28 +1593,43 @@
       🎮 בחר מקורות מילים
     </div>
 
-    <div style="padding:0 12px">
-      <!-- Builtin -->
-      <div class="dropdown-item" id="src-builtin" onclick="dbg('builtin clicked!');toggleSource('builtin')"
+    <div style="padding:0 12px 8px">
+      <!-- Built-in levels -->
+      <div style="padding:8px 16px 6px;font-size:12px;font-weight:700;color:var(--text-muted)">
+        📖 מילים מובנות
+      </div>
+      <div class="dropdown-item" id="src-level1" onclick="toggleSource('level1')"
         style="border-radius:12px;padding:14px 16px;font-size:15px">
-        <span class="chk">✓</span> 🎲 מילים אקראיות
+        <span class="chk"></span> 🟢 רמה 1 — מתחיל <span style="font-size:11px;color:var(--text-muted)">(196)</span>
+      </div>
+      <div class="dropdown-item" id="src-level2" onclick="toggleSource('level2')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 🔵 רמה 2 — יסודי <span style="font-size:11px;color:var(--text-muted)">(190)</span>
+      </div>
+      <div class="dropdown-item" id="src-level3" onclick="toggleSource('level3')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 🟠 רמה 3 — בינוני <span style="font-size:11px;color:var(--text-muted)">(135)</span>
+      </div>
+      <div class="dropdown-item" id="src-level4" onclick="toggleSource('level4')"
+        style="border-radius:12px;padding:14px 16px;font-size:15px">
+        <span class="chk"></span> 🔴 רמה 4 — מתקדם <span style="font-size:11px;color:var(--text-muted)">(138)</span>
       </div>
 
       <!-- Bands -->
       <div style="padding:10px 16px 6px;font-size:12px;font-weight:700;color:var(--text-muted)">
         📚 מילון משרד החינוך
       </div>
-      <div class="dropdown-item" id="src-band1" onclick="dbg('band1 clicked!');toggleSource('band1')"
+      <div class="dropdown-item" id="src-band1" onclick="toggleSource('band1')"
         style="border-radius:12px;padding:14px 16px;font-size:15px">
         <span class="chk"></span> 📗 Band 1 — בסיסי
         <span id="band1-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
       </div>
-      <div class="dropdown-item" id="src-band2" onclick="dbg('band2 clicked!');toggleSource('band2')"
+      <div class="dropdown-item" id="src-band2" onclick="toggleSource('band2')"
         style="border-radius:12px;padding:14px 16px;font-size:15px">
         <span class="chk"></span> 📘 Band 2 — בינוני
         <span id="band2-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
       </div>
-      <div class="dropdown-item" id="src-band3" onclick="dbg('band3 clicked!');toggleSource('band3')"
+      <div class="dropdown-item" id="src-band3" onclick="toggleSource('band3')"
         style="border-radius:12px;padding:14px 16px;font-size:15px">
         <span class="chk"></span> 📕 Band 3 — מתקדם
         <span id="band3-status" style="font-size:11px;color:var(--text-muted);margin-right:6px"></span>
@@ -1644,7 +1642,6 @@
         </div>
         <div id="srcCustomList"></div>
       </div>
-      <div id="srcEmptyMsg" style="padding:10px 16px;font-size:12px;color:var(--text-muted)">אין חבילות אישיות עדיין</div>
     </div>
   </div>
 
@@ -1712,13 +1709,9 @@
     </div>
   </div>
 
-  <div id="addWordsSection" style="margin-top:8px;">
-    <button class="btn-secondary" onclick="addWordPack()" id="addWordsBtn">
-      ➕ הוסף מילים נוספות לרמה <span id="addLevelLabel">1</span>
-    </button>
-    <p class="words-remaining" id="wordsRemaining"></p>
-  </div>
+
 </div>
+
 
 <!-- ═══════════════ MULTIPLE CHOICE ═══════════════ -->
 <div id="screen-mc" class="screen">
@@ -2423,338 +2416,674 @@
 //  WORD DATABASE
 // ═══════════════════════════════════════════
 const WORDS = {
-  1: {
-    packs: [
-      // Pack 1 - basics
-      [
-        {en:"friend",he:"חבר",ex:"She is my best friend."},
-        {en:"school",he:"בית ספר",ex:"I go to school every day."},
-        {en:"food",he:"אוכל",ex:"I love Italian food."},
-        {en:"water",he:"מים",ex:"Drink more water!"},
-        {en:"happy",he:"שמח",ex:"I'm so happy today!"},
-        {en:"tired",he:"עייף",ex:"I'm really tired after school."},
-        {en:"phone",he:"טלפון",ex:"My phone needs charging."},
-        {en:"music",he:"מוזיקה",ex:"I listen to music every day."},
-        {en:"sport",he:"ספורט",ex:"Do you play any sport?"},
-        {en:"book",he:"ספר",ex:"This book is amazing."},
-        {en:"money",he:"כסף",ex:"I need money for the bus."},
-        {en:"family",he:"משפחה",ex:"My family is everything."},
-        {en:"home",he:"בית",ex:"I want to go home."},
-        {en:"time",he:"זמן",ex:"We don't have time!"},
-        {en:"night",he:"לילה",ex:"Good night everyone!"},
-        {en:"day",he:"יום",ex:"It was a great day."},
-        {en:"love",he:"אהבה",ex:"Love is powerful."},
-        {en:"angry",he:"כועס",ex:"Why are you angry?"},
-        {en:"funny",he:"מצחיק",ex:"He is so funny!"},
-        {en:"cool",he:"מגניב",ex:"That's really cool."},
-        {en:"ugly",he:"מכוער",ex:"That's an ugly hat."},
-        {en:"pretty",he:"יפה",ex:"What a pretty view!"},
-        {en:"fast",he:"מהיר",ex:"Run as fast as you can!"},
-        {en:"slow",he:"איטי",ex:"The turtle is very slow."},
-        {en:"big",he:"גדול",ex:"It's a big problem."},
-        {en:"small",he:"קטן",ex:"My room is small."},
-        {en:"hard",he:"קשה",ex:"Math is really hard."},
-        {en:"easy",he:"קל",ex:"This test was easy."},
-        {en:"late",he:"מאוחר",ex:"I'm always late."},
-        {en:"early",he:"מוקדם",ex:"Wake up early tomorrow."},
-        {en:"hot",he:"חם",ex:"The weather is so hot."},
-        {en:"cold",he:"קר",ex:"It's freezing cold outside."},
-        {en:"good",he:"טוב",ex:"Have a good day!"},
-        {en:"bad",he:"רע",ex:"That was a bad idea."},
-        {en:"new",he:"חדש",ex:"I got a new phone."},
-        {en:"old",he:"ישן",ex:"This is an old song."},
-        {en:"right",he:"נכון",ex:"You're absolutely right."},
-        {en:"wrong",he:"לא נכון",ex:"That's the wrong answer."},
-        {en:"loud",he:"רועש",ex:"The music is too loud."},
-        {en:"quiet",he:"שקט",ex:"Please be quiet."},
-        {en:"free",he:"חינם / חופשי",ex:"Is this app free?"},
-        {en:"busy",he:"עסוק",ex:"Sorry, I'm really busy."},
-        {en:"bored",he:"משועמם",ex:"I'm so bored!"},
-        {en:"scared",he:"מפוחד",ex:"Are you scared?"},
-        {en:"hungry",he:"רעב",ex:"I'm so hungry right now."},
-        {en:"thirsty",he:"צמא",ex:"I'm really thirsty."},
-        {en:"sick",he:"חולה",ex:"I feel sick today."},
-        {en:"strong",he:"חזק",ex:"Be strong!"},
-        {en:"weak",he:"חלש",ex:"I feel weak today."},
-        {en:"lost",he:"אבוד",ex:"I'm completely lost."},
-      ],
-      // Pack 2 - school & social
-      [
-        {en:"class",he:"כיתה",ex:"What class are you in?"},
-        {en:"teacher",he:"מורה",ex:"My teacher is great."},
-        {en:"test",he:"מבחן",ex:"I have a test tomorrow."},
-        {en:"homework",he:"שיעורי בית",ex:"Did you do your homework?"},
-        {en:"break",he:"הפסקה",ex:"I can't wait for the break."},
-        {en:"grade",he:"ציון",ex:"I got a great grade!"},
-        {en:"subject",he:"מקצוע",ex:"What's your favorite subject?"},
-        {en:"answer",he:"תשובה",ex:"I don't know the answer."},
-        {en:"question",he:"שאלה",ex:"Good question!"},
-        {en:"explain",he:"להסביר",ex:"Can you explain this?"},
-        {en:"understand",he:"להבין",ex:"I don't understand."},
-        {en:"forget",he:"לשכוח",ex:"Don't forget your bag!"},
-        {en:"remember",he:"לזכור",ex:"Do you remember me?"},
-        {en:"follow",he:"לעקוב",ex:"Follow me on Instagram."},
-        {en:"share",he:"לשתף",ex:"Share this post!"},
-        {en:"like",he:"לאהוב / לחבב",ex:"I like this song."},
-        {en:"comment",he:"תגובה",ex:"Leave a comment below."},
-        {en:"message",he:"הודעה",ex:"I got your message."},
-        {en:"chat",he:"שיחה / צ'אט",ex:"Let's chat later."},
-        {en:"call",he:"להתקשר",ex:"I'll call you later."},
-        {en:"meet",he:"להיפגש",ex:"Let's meet at the mall."},
-        {en:"party",he:"מסיבה",ex:"Are you coming to the party?"},
-        {en:"invite",he:"להזמין",ex:"Can you invite everyone?"},
-        {en:"laugh",he:"לצחוק",ex:"That made me laugh."},
-        {en:"cry",he:"לבכות",ex:"Don't cry."},
-        {en:"smile",he:"לחייך",ex:"Just smile!"},
-        {en:"argue",he:"להתווכח",ex:"We always argue."},
-        {en:"agree",he:"להסכים",ex:"I totally agree."},
-        {en:"honest",he:"כן / ישר",ex:"Be honest with me."},
-        {en:"trust",he:"אמון / לסמוך",ex:"I trust you."},
-        {en:"secret",he:"סוד",ex:"Can you keep a secret?"},
-        {en:"popular",he:"פופולרי",ex:"She's very popular."},
-        {en:"boring",he:"משעמם",ex:"This class is boring."},
-        {en:"nervous",he:"עצבני",ex:"I'm so nervous!"},
-        {en:"excited",he:"מתרגש",ex:"I'm excited about the trip."},
-        {en:"proud",he:"גאה",ex:"I'm proud of you."},
-        {en:"jealous",he:"מקנא",ex:"Are you jealous?"},
-        {en:"kind",he:"אדיב / נחמד",ex:"That's so kind of you."},
-        {en:"rude",he:"גס רוח",ex:"Don't be rude."},
-        {en:"weird",he:"מוזר",ex:"That's really weird."},
-        {en:"serious",he:"רציני",ex:"Are you serious?"},
-        {en:"hate",he:"לשנוא",ex:"I hate Mondays."},
-        {en:"miss",he:"לגעגע",ex:"I miss my friends."},
-        {en:"alone",he:"לבד",ex:"I feel so alone."},
-        {en:"together",he:"ביחד",ex:"We're better together."},
-        {en:"support",he:"תמיכה",ex:"Thank you for your support."},
-        {en:"help",he:"עזרה",ex:"I need your help."},
-        {en:"ignore",he:"להתעלם",ex:"Stop ignoring me!"},
-        {en:"blame",he:"להאשים",ex:"Don't blame me."},
-        {en:"apologize",he:"להתנצל",ex:"You should apologize."},
-      ],
-      // Pack 3 - entertainment & tech
-      [
-        {en:"game",he:"משחק",ex:"Let's play a game."},
-        {en:"video",he:"וידאו",ex:"Watch this video!"},
-        {en:"stream",he:"לשדר / סטרים",ex:"I stream every night."},
-        {en:"channel",he:"ערוץ",ex:"Subscribe to my channel."},
-        {en:"upload",he:"להעלות",ex:"I'll upload the photo later."},
-        {en:"download",he:"להוריד",ex:"Download this app now."},
-        {en:"battery",he:"סוללה",ex:"My battery is dead."},
-        {en:"screen",he:"מסך",ex:"My screen cracked."},
-        {en:"password",he:"סיסמה",ex:"I forgot my password."},
-        {en:"username",he:"שם משתמש",ex:"What's your username?"},
-        {en:"profile",he:"פרופיל",ex:"Update your profile."},
-        {en:"story",he:"סטורי",ex:"Did you see my story?"},
-        {en:"reel",he:"ריל",ex:"I made a reel yesterday."},
-        {en:"trend",he:"טרנד",ex:"This is the new trend."},
-        {en:"viral",he:"ויראלי",ex:"This video went viral!"},
-        {en:"famous",he:"מפורסם",ex:"She's so famous now."},
-        {en:"talent",he:"כישרון",ex:"She has real talent."},
-        {en:"concert",he:"קונצרט",ex:"I'm going to a concert."},
-        {en:"movie",he:"סרט",ex:"Let's watch a movie."},
-        {en:"episode",he:"פרק",ex:"The new episode is out!"},
-        {en:"series",he:"סדרה",ex:"What series are you watching?"},
-        {en:"season",he:"עונה",ex:"When does the new season start?"},
-        {en:"ticket",he:"כרטיס",ex:"I bought two tickets."},
-        {en:"stage",he:"במה",ex:"She walked on stage."},
-        {en:"band",he:"להקה",ex:"That band is amazing."},
-        {en:"artist",he:"אמן",ex:"He's a real artist."},
-        {en:"fan",he:"מעריץ",ex:"I'm a huge fan."},
-        {en:"review",he:"ביקורת",ex:"The review was great."},
-        {en:"recommend",he:"להמליץ",ex:"I recommend this show."},
-        {en:"rating",he:"דירוג",ex:"What's the rating?"},
-        {en:"competition",he:"תחרות",ex:"I joined the competition."},
-        {en:"win",he:"לנצח",ex:"I want to win."},
-        {en:"lose",he:"להפסיד",ex:"Nobody likes to lose."},
-        {en:"score",he:"תוצאה / ניקוד",ex:"What's the score?"},
-        {en:"team",he:"קבוצה",ex:"Which team do you support?"},
-        {en:"player",he:"שחקן",ex:"He's the best player."},
-        {en:"coach",he:"מאמן",ex:"The coach is strict."},
-        {en:"match",he:"משחק / תחרות",ex:"The match starts at 8."},
-        {en:"goal",he:"שער / מטרה",ex:"What a great goal!"},
-        {en:"champion",he:"אלוף",ex:"He is the champion."},
-        {en:"energy",he:"אנרגיה",ex:"I have no energy."},
-        {en:"creative",he:"יצירתי",ex:"She's very creative."},
-        {en:"original",he:"מקורי",ex:"That's an original idea."},
-        {en:"boring",he:"משעמם",ex:"This game is boring."},
-        {en:"challenge",he:"אתגר",ex:"I love a good challenge."},
-        {en:"practice",he:"תרגול",ex:"Practice makes perfect."},
-        {en:"improve",he:"להשתפר",ex:"I want to improve."},
-        {en:"mistake",he:"טעות",ex:"Learn from your mistakes."},
-        {en:"lucky",he:"בר-מזל",ex:"You're so lucky!"},
-        {en:"chance",he:"סיכוי / הזדמנות",ex:"Give me a chance."},
-      ]
-    ]
-  },
-  2: {
-    packs: [
-      [
-        {en:"ambition",he:"שאפתנות",ex:"She has great ambition."},
-        {en:"confident",he:"בטוח בעצמו",ex:"Be more confident!"},
-        {en:"determined",he:"נחוש",ex:"She's determined to succeed."},
-        {en:"responsible",he:"אחראי",ex:"Be responsible for your actions."},
-        {en:"independent",he:"עצמאי",ex:"I want to be independent."},
-        {en:"generous",he:"נדיב",ex:"He's so generous."},
-        {en:"patient",he:"סבלני",ex:"Please be patient."},
-        {en:"creative",he:"יצירתי",ex:"Think creative!"},
-        {en:"flexible",he:"גמיש",ex:"You need to be flexible."},
-        {en:"organized",he:"מסודר",ex:"She's very organized."},
-        {en:"deadline",he:"דדליין",ex:"The deadline is tomorrow."},
-        {en:"priority",he:"עדיפות",ex:"Make it a priority."},
-        {en:"opportunity",he:"הזדמנות",ex:"Don't miss this opportunity."},
-        {en:"experience",he:"ניסיון",ex:"I have no experience."},
-        {en:"achieve",he:"להשיג",ex:"What do you want to achieve?"},
-        {en:"succeed",he:"להצליח",ex:"Work hard to succeed."},
-        {en:"fail",he:"להיכשל",ex:"It's okay to fail."},
-        {en:"effort",he:"מאמץ",ex:"Put in the effort."},
-        {en:"prepare",he:"להתכונן",ex:"Prepare for the exam."},
-        {en:"schedule",he:"לוח זמנים",ex:"Check the schedule."},
-        {en:"solution",he:"פתרון",ex:"Find a solution."},
-        {en:"problem",he:"בעיה",ex:"We have a problem."},
-        {en:"decision",he:"החלטה",ex:"Make the right decision."},
-        {en:"choice",he:"בחירה",ex:"It's your choice."},
-        {en:"situation",he:"מצב",ex:"This is a tough situation."},
-        {en:"opinion",he:"דעה",ex:"What's your opinion?"},
-        {en:"discuss",he:"לדון",ex:"Let's discuss this later."},
-        {en:"debate",he:"ויכוח",ex:"We had a debate."},
-        {en:"suggest",he:"להציע",ex:"Can I suggest something?"},
-        {en:"consider",he:"לשקול",ex:"Please consider this."},
-        {en:"avoid",he:"להימנע",ex:"Avoid junk food."},
-        {en:"replace",he:"להחליף",ex:"Replace bad habits."},
-        {en:"create",he:"ליצור",ex:"Create something new."},
-        {en:"design",he:"לעצב",ex:"I want to design apps."},
-        {en:"develop",he:"לפתח",ex:"Develop your skills."},
-        {en:"manage",he:"לנהל",ex:"Can you manage this?"},
-        {en:"handle",he:"להתמודד",ex:"I can handle it."},
-        {en:"focus",he:"להתמקד",ex:"Focus on your goals."},
-        {en:"distract",he:"להסיח דעת",ex:"Stop distracting me!"},
-        {en:"attitude",he:"גישה",ex:"Your attitude matters."},
-        {en:"behavior",he:"התנהגות",ex:"Watch your behavior."},
-        {en:"influence",he:"השפעה",ex:"Music has a big influence."},
-        {en:"inspire",he:"להשפיל",ex:"She inspires everyone."},
-        {en:"motivate",he:"לעודד",ex:"What motivates you?"},
-        {en:"encourage",he:"לעודד",ex:"I encourage you to try."},
-        {en:"reward",he:"פרס",ex:"Hard work has rewards."},
-        {en:"punish",he:"להעניש",ex:"Don't punish yourself."},
-        {en:"balance",he:"איזון",ex:"Find a healthy balance."},
-        {en:"routine",he:"שגרה",ex:"Build a healthy routine."},
-        {en:"habit",he:"הרגל",ex:"Good habits change your life."},
-      ]
-    ]
-  },
-  3: {
-    packs: [
-      [
-        {en:"acknowledge",he:"להכיר בכך",ex:"Acknowledge your mistakes."},
-        {en:"anticipate",he:"לצפות",ex:"Anticipate what comes next."},
-        {en:"collaborate",he:"לשתף פעולה",ex:"We need to collaborate."},
-        {en:"commit",he:"להתחייב",ex:"Commit to your goals."},
-        {en:"communicate",he:"לתקשר",ex:"Communicate clearly."},
-        {en:"consequence",he:"תוצאה",ex:"Think about the consequences."},
-        {en:"controversial",he:"שנוי במחלוקת",ex:"That's a controversial topic."},
-        {en:"criticism",he:"ביקורת",ex:"Accept criticism gracefully."},
-        {en:"diversity",he:"גיוון",ex:"We celebrate diversity."},
-        {en:"empathy",he:"אמפתיה",ex:"Show more empathy."},
-        {en:"essential",he:"חיוני",ex:"Sleep is essential."},
-        {en:"evaluate",he:"להעריך",ex:"Evaluate your progress."},
-        {en:"evidence",he:"עדות / ראיה",ex:"Show me the evidence."},
-        {en:"exception",he:"יוצא דופן",ex:"You're the exception."},
-        {en:"expectation",he:"ציפייה",ex:"Manage your expectations."},
-        {en:"fundamental",he:"בסיסי",ex:"That's a fundamental rule."},
-        {en:"generation",he:"דור",ex:"Our generation is unique."},
-        {en:"impact",he:"השפעה",ex:"Make a real impact."},
-        {en:"improve",he:"לשפר",ex:"Always try to improve."},
-        {en:"interpret",he:"לפרש",ex:"How do you interpret this?"},
-        {en:"investigate",he:"לחקור",ex:"Let's investigate."},
-        {en:"maintain",he:"לשמור",ex:"Maintain a healthy diet."},
-        {en:"negotiate",he:"לנהל משא ומתן",ex:"Learn to negotiate."},
-        {en:"objective",he:"מטרה",ex:"What's your objective?"},
-        {en:"obstacle",he:"מכשול",ex:"Face every obstacle."},
-        {en:"perceive",he:"לתפוס",ex:"How do you perceive this?"},
-        {en:"perspective",he:"נקודת מבט",ex:"See it from my perspective."},
-        {en:"phenomenon",he:"תופעה",ex:"It's a global phenomenon."},
-        {en:"potential",he:"פוטנציאל",ex:"You have so much potential."},
-        {en:"prejudice",he:"דעה קדומה",ex:"Fight prejudice."},
-        {en:"rational",he:"רציונלי",ex:"Be rational."},
-        {en:"recognize",he:"לזהות",ex:"I didn't recognize you!"},
-        {en:"resilience",he:"חוסן",ex:"Build your resilience."},
-        {en:"significant",he:"משמעותי",ex:"A significant change."},
-        {en:"strategy",he:"אסטרטגיה",ex:"What's your strategy?"},
-        {en:"sustainable",he:"בר-קיימא",ex:"Sustainable living matters."},
-        {en:"tolerate",he:"לסבול",ex:"I can't tolerate this."},
-        {en:"vulnerable",he:"פגיע",ex:"It's okay to be vulnerable."},
-        {en:"analyze",he:"לנתח",ex:"Analyze the data."},
-        {en:"contrast",he:"ניגוד",ex:"In contrast, I think..."},
-        {en:"convince",he:"לשכנע",ex:"Try to convince me."},
-        {en:"ethical",he:"אתי",ex:"Is it ethical?"},
-        {en:"imply",he:"לרמוז",ex:"What are you implying?"},
-        {en:"relevant",he:"רלוונטי",ex:"Is this relevant?"},
-        {en:"valid",he:"תקף",ex:"That's a valid point."},
-        {en:"complex",he:"מורכב",ex:"It's more complex than that."},
-        {en:"ambiguous",he:"דו-משמעי",ex:"That answer is ambiguous."},
-        {en:"bias",he:"הטיה",ex:"Avoid confirmation bias."},
-        {en:"insight",he:"תובנה",ex:"She shared a great insight."},
-        {en:"assumption",he:"הנחה",ex:"Don't make assumptions."},
-      ]
-    ]
-  },
-  4: {
-    packs: [
-      [
-        {en:"accountability",he:"אחריותיות",ex:"Take accountability."},
-        {en:"adversity",he:"מצוקה",ex:"Overcome adversity."},
-        {en:"articulate",he:"לבטא בבירור",ex:"Articulate your thoughts."},
-        {en:"authenticity",he:"אותנטיות",ex:"Be true to your authenticity."},
-        {en:"breadth",he:"רוחב",ex:"The breadth of knowledge."},
-        {en:"catalyst",he:"זרז",ex:"She was the catalyst for change."},
-        {en:"coherent",he:"קוהרנטי",ex:"Give a coherent argument."},
-        {en:"concise",he:"תמציתי",ex:"Be concise in your writing."},
-        {en:"connotation",he:"קונוטציה",ex:"Words carry connotations."},
-        {en:"cumulative",he:"מצטבר",ex:"The cumulative effect is huge."},
-        {en:"discern",he:"להבחין",ex:"Discern fact from fiction."},
-        {en:"eloquent",he:"רהוט",ex:"An eloquent speaker."},
-        {en:"encompass",he:"לכלול",ex:"The course encompasses many topics."},
-        {en:"hierarchy",he:"היררכיה",ex:"The social hierarchy matters."},
-        {en:"hypothetical",he:"היפותטי",ex:"A hypothetical scenario."},
-        {en:"implicit",he:"מרומז",ex:"The implicit meaning."},
-        {en:"integrity",he:"יושרה",ex:"Act with integrity."},
-        {en:"intrinsic",he:"פנימי/מהותי",ex:"Intrinsic motivation."},
-        {en:"leverage",he:"מינוף",ex:"Leverage your strengths."},
-        {en:"mitigate",he:"להפחית",ex:"Mitigate the risks."},
-        {en:"nuance",he:"ניואנס",ex:"Understand the nuance."},
-        {en:"paradigm",he:"פרדיגמה",ex:"A paradigm shift."},
-        {en:"precedent",he:"תקדים",ex:"Set a precedent."},
-        {en:"profound",he:"עמוק",ex:"A profound statement."},
-        {en:"reinforce",he:"לחזק",ex:"Reinforce good habits."},
-        {en:"rhetoric",he:"רטוריקה",ex:"Political rhetoric."},
-        {en:"scrutinize",he:"לבחון לעומק",ex:"Scrutinize every detail."},
-        {en:"subjective",he:"סובייקטיבי",ex:"Beauty is subjective."},
-        {en:"synthesize",he:"לסנתז",ex:"Synthesize the information."},
-        {en:"tangible",he:"מוחשי",ex:"Tangible results."},
-        {en:"tenacious",he:"עקשן/עיקש",ex:"She is tenacious."},
-        {en:"threshold",he:"סף",ex:"At the threshold of change."},
-        {en:"transcend",he:"לעלות מעל",ex:"Transcend your limits."},
-        {en:"unprecedented",he:"חסר תקדים",ex:"An unprecedented event."},
-        {en:"versatile",he:"רב-תכליתי",ex:"A versatile tool."},
-        {en:"advocate",he:"לתמוך/סנגור",ex:"Advocate for change."},
-        {en:"alienate",he:"להרחיק",ex:"Don't alienate your friends."},
-        {en:"captivate",he:"לרתק",ex:"The story captivated me."},
-        {en:"contradict",he:"לסתור",ex:"You contradict yourself."},
-        {en:"elaborate",he:"לפרט",ex:"Can you elaborate?"},
-        {en:"empower",he:"להעצים",ex:"Empower others."},
-        {en:"exaggerate",he:"להגזים",ex:"Don't exaggerate."},
-        {en:"facilitate",he:"לאפשר",ex:"Facilitate better learning."},
-        {en:"illuminate",he:"להאיר",ex:"Illuminate the problem."},
-        {en:"infer",he:"להסיק",ex:"What can you infer?"},
-        {en:"manifest",he:"להתבטא/לממש",ex:"Manifest your destiny."},
-        {en:"stimulate",he:"לגרות",ex:"Stimulate your mind."},
-        {en:"suppress",he:"לדכא",ex:"Don't suppress emotions."},
-        {en:"undermine",he:"לערער",ex:"Don't undermine others."},
-        {en:"assert",he:"לקבוע/לטעון",ex:"Assert your rights."},
-      ]
-    ]
-  }
-};
+  1: [
+    {en:"friend",he:"חבר",ex:"She is my best friend."},
+    {en:"school",he:"בית ספר",ex:"I go to school every day."},
+    {en:"food",he:"אוכל",ex:"I love Italian food."},
+    {en:"water",he:"מים",ex:"Drink more water!"},
+    {en:"happy",he:"שמח",ex:"I'm so happy today!"},
+    {en:"tired",he:"עייף",ex:"I'm really tired after school."},
+    {en:"phone",he:"טלפון",ex:"My phone needs charging."},
+    {en:"music",he:"מוזיקה",ex:"I listen to music every day."},
+    {en:"sport",he:"ספורט",ex:"Do you play any sport?"},
+    {en:"book",he:"ספר",ex:"This book is amazing."},
+    {en:"money",he:"כסף",ex:"I need money for the bus."},
+    {en:"family",he:"משפחה",ex:"My family is everything."},
+    {en:"home",he:"בית",ex:"I want to go home."},
+    {en:"time",he:"זמן",ex:"We don't have time!"},
+    {en:"night",he:"לילה",ex:"Good night everyone!"},
+    {en:"day",he:"יום",ex:"It was a great day."},
+    {en:"love",he:"אהבה",ex:"Love is powerful."},
+    {en:"angry",he:"כועס",ex:"Why are you angry?"},
+    {en:"funny",he:"מצחיק",ex:"He is so funny!"},
+    {en:"cool",he:"מגניב",ex:"That's really cool."},
+    {en:"ugly",he:"מכוער",ex:"That's an ugly hat."},
+    {en:"pretty",he:"יפה",ex:"What a pretty view!"},
+    {en:"fast",he:"מהיר",ex:"Run as fast as you can!"},
+    {en:"slow",he:"איטי",ex:"The turtle is very slow."},
+    {en:"big",he:"גדול",ex:"It's a big problem."},
+    {en:"small",he:"קטן",ex:"My room is small."},
+    {en:"hard",he:"קשה",ex:"Math is really hard."},
+    {en:"easy",he:"קל",ex:"This test was easy."},
+    {en:"late",he:"מאוחר",ex:"I'm always late."},
+    {en:"early",he:"מוקדם",ex:"Wake up early tomorrow."},
+    {en:"hot",he:"חם",ex:"The weather is so hot."},
+    {en:"cold",he:"קר",ex:"It's freezing cold outside."},
+    {en:"good",he:"טוב",ex:"Have a good day!"},
+    {en:"bad",he:"רע",ex:"That was a bad idea."},
+    {en:"new",he:"חדש",ex:"I got a new phone."},
+    {en:"old",he:"ישן",ex:"This is an old song."},
+    {en:"right",he:"נכון",ex:"You're absolutely right."},
+    {en:"wrong",he:"לא נכון",ex:"That's the wrong answer."},
+    {en:"loud",he:"רועש",ex:"The music is too loud."},
+    {en:"quiet",he:"שקט",ex:"Please be quiet."},
+    {en:"free",he:"חינם / חופשי",ex:"Is this app free?"},
+    {en:"busy",he:"עסוק",ex:"Sorry, I'm really busy."},
+    {en:"bored",he:"משועמם",ex:"I'm so bored!"},
+    {en:"scared",he:"מפוחד",ex:"Are you scared?"},
+    {en:"hungry",he:"רעב",ex:"I'm so hungry right now."},
+    {en:"thirsty",he:"צמא",ex:"I'm really thirsty."},
+    {en:"sick",he:"חולה",ex:"I feel sick today."},
+    {en:"strong",he:"חזק",ex:"Be strong!"},
+    {en:"weak",he:"חלש",ex:"I feel weak today."},
+    {en:"lost",he:"אבוד",ex:"I'm completely lost."},
+    {en:"class",he:"כיתה",ex:"What class are you in?"},
+    {en:"teacher",he:"מורה",ex:"My teacher is great."},
+    {en:"test",he:"מבחן",ex:"I have a test tomorrow."},
+    {en:"homework",he:"שיעורי בית",ex:"Did you do your homework?"},
+    {en:"break",he:"הפסקה",ex:"I can't wait for the break."},
+    {en:"grade",he:"ציון",ex:"I got a great grade!"},
+    {en:"subject",he:"מקצוע",ex:"What's your favorite subject?"},
+    {en:"answer",he:"תשובה",ex:"I don't know the answer."},
+    {en:"question",he:"שאלה",ex:"Good question!"},
+    {en:"explain",he:"להסביר",ex:"Can you explain this?"},
+    {en:"understand",he:"להבין",ex:"I don't understand."},
+    {en:"forget",he:"לשכוח",ex:"Don't forget your bag!"},
+    {en:"remember",he:"לזכור",ex:"Do you remember me?"},
+    {en:"follow",he:"לעקוב",ex:"Follow me on Instagram."},
+    {en:"share",he:"לשתף",ex:"Share this post!"},
+    {en:"like",he:"לאהוב / לחבב",ex:"I like this song."},
+    {en:"comment",he:"תגובה",ex:"Leave a comment below."},
+    {en:"message",he:"הודעה",ex:"I got your message."},
+    {en:"chat",he:"שיחה / צ'אט",ex:"Let's chat later."},
+    {en:"call",he:"להתקשר",ex:"I'll call you later."},
+    {en:"meet",he:"להיפגש",ex:"Let's meet at the mall."},
+    {en:"party",he:"מסיבה",ex:"Are you coming to the party?"},
+    {en:"invite",he:"להזמין",ex:"Can you invite everyone?"},
+    {en:"laugh",he:"לצחוק",ex:"That made me laugh."},
+    {en:"cry",he:"לבכות",ex:"Don't cry."},
+    {en:"smile",he:"לחייך",ex:"Just smile!"},
+    {en:"argue",he:"להתווכח",ex:"We always argue."},
+    {en:"agree",he:"להסכים",ex:"I totally agree."},
+    {en:"honest",he:"כן / ישר",ex:"Be honest with me."},
+    {en:"trust",he:"אמון / לסמוך",ex:"I trust you."},
+    {en:"secret",he:"סוד",ex:"Can you keep a secret?"},
+    {en:"popular",he:"פופולרי",ex:"She's very popular."},
+    {en:"boring",he:"משעמם",ex:"This class is boring."},
+    {en:"nervous",he:"עצבני",ex:"I'm so nervous!"},
+    {en:"excited",he:"מתרגש",ex:"I'm excited about the trip."},
+    {en:"proud",he:"גאה",ex:"I'm proud of you."},
+    {en:"jealous",he:"מקנא",ex:"Are you jealous?"},
+    {en:"kind",he:"אדיב / נחמד",ex:"That's so kind of you."},
+    {en:"rude",he:"גס רוח",ex:"Don't be rude."},
+    {en:"weird",he:"מוזר",ex:"That's really weird."},
+    {en:"serious",he:"רציני",ex:"Are you serious?"},
+    {en:"hate",he:"לשנוא",ex:"I hate Mondays."},
+    {en:"miss",he:"לגעגע",ex:"I miss my friends."},
+    {en:"alone",he:"לבד",ex:"I feel so alone."},
+    {en:"together",he:"ביחד",ex:"We're better together."},
+    {en:"support",he:"תמיכה",ex:"Thank you for your support."},
+    {en:"help",he:"עזרה",ex:"I need your help."},
+    {en:"ignore",he:"להתעלם",ex:"Stop ignoring me!"},
+    {en:"blame",he:"להאשים",ex:"Don't blame me."},
+    {en:"apologize",he:"להתנצל",ex:"You should apologize."},
+    {en:"game",he:"משחק",ex:"Let's play a game."},
+    {en:"video",he:"וידאו",ex:"Watch this video!"},
+    {en:"stream",he:"לשדר / סטרים",ex:"I stream every night."},
+    {en:"channel",he:"ערוץ",ex:"Subscribe to my channel."},
+    {en:"upload",he:"להעלות",ex:"I'll upload the photo later."},
+    {en:"download",he:"להוריד",ex:"Download this app now."},
+    {en:"battery",he:"סוללה",ex:"My battery is dead."},
+    {en:"screen",he:"מסך",ex:"My screen cracked."},
+    {en:"password",he:"סיסמה",ex:"I forgot my password."},
+    {en:"username",he:"שם משתמש",ex:"What's your username?"},
+    {en:"profile",he:"פרופיל",ex:"Update your profile."},
+    {en:"story",he:"סטורי",ex:"Did you see my story?"},
+    {en:"reel",he:"ריל",ex:"I made a reel yesterday."},
+    {en:"trend",he:"טרנד",ex:"This is the new trend."},
+    {en:"viral",he:"ויראלי",ex:"This video went viral!"},
+    {en:"famous",he:"מפורסם",ex:"She's so famous now."},
+    {en:"talent",he:"כישרון",ex:"She has real talent."},
+    {en:"concert",he:"קונצרט",ex:"I'm going to a concert."},
+    {en:"movie",he:"סרט",ex:"Let's watch a movie."},
+    {en:"episode",he:"פרק",ex:"The new episode is out!"},
+    {en:"series",he:"סדרה",ex:"What series are you watching?"},
+    {en:"season",he:"עונה",ex:"When does the new season start?"},
+    {en:"ticket",he:"כרטיס",ex:"I bought two tickets."},
+    {en:"stage",he:"במה",ex:"She walked on stage."},
+    {en:"band",he:"להקה",ex:"That band is amazing."},
+    {en:"artist",he:"אמן",ex:"He's a real artist."},
+    {en:"fan",he:"מעריץ",ex:"I'm a huge fan."},
+    {en:"review",he:"ביקורת",ex:"The review was great."},
+    {en:"recommend",he:"להמליץ",ex:"I recommend this show."},
+    {en:"rating",he:"דירוג",ex:"What's the rating?"},
+    {en:"competition",he:"תחרות",ex:"I joined the competition."},
+    {en:"win",he:"לנצח",ex:"I want to win."},
+    {en:"lose",he:"להפסיד",ex:"Nobody likes to lose."},
+    {en:"score",he:"תוצאה / ניקוד",ex:"What's the score?"},
+    {en:"team",he:"קבוצה",ex:"Which team do you support?"},
+    {en:"player",he:"שחקן",ex:"He's the best player."},
+    {en:"coach",he:"מאמן",ex:"The coach is strict."},
+    {en:"match",he:"משחק / תחרות",ex:"The match starts at 8."},
+    {en:"goal",he:"שער / מטרה",ex:"What a great goal!"},
+    {en:"champion",he:"אלוף",ex:"He is the champion."},
+    {en:"energy",he:"אנרגיה",ex:"I have no energy."},
+    {en:"creative",he:"יצירתי",ex:"She's very creative."},
+    {en:"original",he:"מקורי",ex:"That's an original idea."},
+    {en:"challenge",he:"אתגר",ex:"I love a good challenge."},
+    {en:"practice",he:"תרגול",ex:"Practice makes perfect."},
+    {en:"improve",he:"להשתפר",ex:"I want to improve."},
+    {en:"mistake",he:"טעות",ex:"Learn from your mistakes."},
+    {en:"lucky",he:"בר-מזל",ex:"You're so lucky!"},
+    {en:"chance",he:"סיכוי / הזדמנות",ex:"Give me a chance."},
+    {en:"newspaper",he:"עיתון",ex:"My dad reads the newspaper every morning."},
+    {en:"umbrella",he:"מטרייה",ex:"Don't forget your umbrella, it might rain."},
+    {en:"glasses",he:"משקפיים",ex:"I need glasses to read."},
+    {en:"keyboard",he:"מקלדת",ex:"I type fast on the keyboard."},
+    {en:"ceiling",he:"תקרה",ex:"The ceiling is very high in this room."},
+    {en:"envelope",he:"מעטפה",ex:"Put the letter in the envelope."},
+    {en:"curtain",he:"וילון",ex:"Please close the curtain, it's too bright."},
+    {en:"carpet",he:"שטיח",ex:"The carpet in the living room is red."},
+    {en:"drawer",he:"מגירה",ex:"The scissors are in the top drawer."},
+    {en:"mirror",he:"מראה",ex:"She looked at herself in the mirror."},
+    {en:"blanket",he:"שמיכה",ex:"I wrapped myself in a warm blanket."},
+    {en:"pillow",he:"כרית",ex:"I need a soft pillow to sleep."},
+    {en:"closet",he:"ארון",ex:"Hang your coat in the closet."},
+    {en:"shelf",he:"מדף",ex:"The books are on the shelf."},
+    {en:"ladder",he:"סולם",ex:"He climbed the ladder to fix the roof."},
+    {en:"bucket",he:"דלי",ex:"Fill the bucket with water."},
+    {en:"handle",he:"ידית",ex:"The door handle is broken."},
+    {en:"lock",he:"מנעול",ex:"Don't forget to lock the door."},
+    {en:"step",he:"מדרגה",ex:"Watch your step on the stairs."},
+    {en:"wooden",he:"עצי",ex:"We have a wooden table in the kitchen."},
+    {en:"plastic",he:"פלסטיק",ex:"The bottle is made of plastic."},
+    {en:"metal",he:"מתכת",ex:"The fence is made of metal."},
+    {en:"cotton",he:"כותנה",ex:"This shirt is made of cotton."},
+    {en:"leather",he:"עור",ex:"She bought a leather bag."},
+    {en:"clean",he:"נקי",ex:"Keep your room clean."},
+    {en:"dirty",he:"מלוכלך",ex:"My shoes got dirty in the mud."},
+    {en:"empty",he:"ריק",ex:"The bottle is empty."},
+    {en:"full",he:"מלא",ex:"My stomach is full."},
+    {en:"sharp",he:"חד",ex:"Be careful, the knife is sharp."},
+    {en:"smooth",he:"חלק",ex:"The surface is very smooth."},
+    {en:"rough",he:"מחוספס",ex:"The road is rough and bumpy."},
+    {en:"narrow",he:"צר",ex:"The road is too narrow for two cars."},
+    {en:"wide",he:"רחב",ex:"The river is very wide here."},
+    {en:"deep",he:"עמוק",ex:"The lake is very deep."},
+    {en:"shallow",he:"רדוד",ex:"The water here is shallow."},
+    {en:"soft",he:"רך",ex:"The cat has very soft fur."},
+    {en:"sweet",he:"מתוק",ex:"This cake is very sweet."},
+    {en:"sour",he:"חמוץ",ex:"Lemons are very sour."},
+    {en:"bitter",he:"מר",ex:"Coffee can taste bitter."},
+    {en:"salty",he:"מלוח",ex:"The soup is too salty."},
+    {en:"spicy",he:"חריף",ex:"I can't eat spicy food."},
+    {en:"burnt",he:"שרוף",ex:"The toast is burnt."},
+    {en:"frozen",he:"קפוא",ex:"The pipes are frozen in winter."},
+    {en:"boiling",he:"רותח",ex:"The water is boiling."},
+    {en:"melted",he:"מומס",ex:"The ice cream has melted."},
+    {en:"broken",he:"שבור",ex:"The window is broken."},
+    {en:"missing",he:"חסר",ex:"A button is missing from my shirt."}
+  ],
+  2: [
+    {en:"ambition",he:"שאפתנות",ex:"She has great ambition."},
+    {en:"confident",he:"בטוח בעצמו",ex:"Be more confident!"},
+    {en:"determined",he:"נחוש",ex:"She's determined to succeed."},
+    {en:"responsible",he:"אחראי",ex:"Be responsible for your actions."},
+    {en:"independent",he:"עצמאי",ex:"I want to be independent."},
+    {en:"generous",he:"נדיב",ex:"He's so generous."},
+    {en:"patient",he:"סבלני",ex:"Please be patient."},
+    {en:"creative",he:"יצירתי",ex:"Think creative!"},
+    {en:"flexible",he:"גמיש",ex:"You need to be flexible."},
+    {en:"organized",he:"מסודר",ex:"She's very organized."},
+    {en:"deadline",he:"דדליין",ex:"The deadline is tomorrow."},
+    {en:"priority",he:"עדיפות",ex:"Make it a priority."},
+    {en:"opportunity",he:"הזדמנות",ex:"Don't miss this opportunity."},
+    {en:"experience",he:"ניסיון",ex:"I have no experience."},
+    {en:"achieve",he:"להשיג",ex:"What do you want to achieve?"},
+    {en:"succeed",he:"להצליח",ex:"Work hard to succeed."},
+    {en:"fail",he:"להיכשל",ex:"It's okay to fail."},
+    {en:"effort",he:"מאמץ",ex:"Put in the effort."},
+    {en:"prepare",he:"להתכונן",ex:"Prepare for the exam."},
+    {en:"schedule",he:"לוח זמנים",ex:"Check the schedule."},
+    {en:"solution",he:"פתרון",ex:"Find a solution."},
+    {en:"problem",he:"בעיה",ex:"We have a problem."},
+    {en:"decision",he:"החלטה",ex:"Make the right decision."},
+    {en:"choice",he:"בחירה",ex:"It's your choice."},
+    {en:"situation",he:"מצב",ex:"This is a tough situation."},
+    {en:"opinion",he:"דעה",ex:"What's your opinion?"},
+    {en:"discuss",he:"לדון",ex:"Let's discuss this later."},
+    {en:"debate",he:"ויכוח",ex:"We had a debate."},
+    {en:"suggest",he:"להציע",ex:"Can I suggest something?"},
+    {en:"consider",he:"לשקול",ex:"Please consider this."},
+    {en:"avoid",he:"להימנע",ex:"Avoid junk food."},
+    {en:"replace",he:"להחליף",ex:"Replace bad habits."},
+    {en:"create",he:"ליצור",ex:"Create something new."},
+    {en:"design",he:"לעצב",ex:"I want to design apps."},
+    {en:"develop",he:"לפתח",ex:"Develop your skills."},
+    {en:"manage",he:"לנהל",ex:"Can you manage this?"},
+    {en:"handle",he:"להתמודד",ex:"I can handle it."},
+    {en:"focus",he:"להתמקד",ex:"Focus on your goals."},
+    {en:"distract",he:"להסיח דעת",ex:"Stop distracting me!"},
+    {en:"attitude",he:"גישה",ex:"Your attitude matters."},
+    {en:"behavior",he:"התנהגות",ex:"Watch your behavior."},
+    {en:"influence",he:"השפעה",ex:"Music has a big influence."},
+    {en:"inspire",he:"להשפיל",ex:"She inspires everyone."},
+    {en:"motivate",he:"לעודד",ex:"What motivates you?"},
+    {en:"encourage",he:"לעודד",ex:"I encourage you to try."},
+    {en:"reward",he:"פרס",ex:"Hard work has rewards."},
+    {en:"punish",he:"להעניש",ex:"Don't punish yourself."},
+    {en:"balance",he:"איזון",ex:"Find a healthy balance."},
+    {en:"routine",he:"שגרה",ex:"Build a healthy routine."},
+    {en:"habit",he:"הרגל",ex:"Good habits change your life."},
+    {en:"advantage",he:"יתרון",ex:"Knowing English is a great advantage."},
+    {en:"afford",he:"להרשות לעצמי",ex:"I can't afford a new phone right now."},
+    {en:"agree",he:"להסכים",ex:"I totally agree with you."},
+    {en:"allow",he:"לאפשר",ex:"They don't allow phones in class."},
+    {en:"announce",he:"להכריז",ex:"The teacher announced the test date."},
+    {en:"apologize",he:"להתנצל",ex:"He apologized for being late."},
+    {en:"appear",he:"להופיע",ex:"She appeared on stage."},
+    {en:"apply",he:"להגיש מועמדות",ex:"I want to apply for this job."},
+    {en:"appreciate",he:"להעריך",ex:"I really appreciate your help."},
+    {en:"argue",he:"להתווכח",ex:"They always argue about money."},
+    {en:"arrange",he:"לסדר",ex:"Can you arrange a meeting for tomorrow?"},
+    {en:"arrest",he:"לעצור",ex:"The police arrested the suspect."},
+    {en:"attract",he:"למשוך",ex:"The flowers attract bees."},
+    {en:"average",he:"ממוצע",ex:"The average temperature in summer is 30 degrees."},
+    {en:"benefit",he:"יתרון",ex:"Exercise has many health benefits."},
+    {en:"blame",he:"להאשים",ex:"Don't blame others for your mistakes."},
+    {en:"borrow",he:"ללוות",ex:"Can I borrow your pen for a minute?"},
+    {en:"breathe",he:"לנשום",ex:"Take a deep breath and relax."},
+    {en:"calculate",he:"לחשב",ex:"Can you calculate the total price?"},
+    {en:"cause",he:"לגרום",ex:"Smoking can cause serious illness."},
+    {en:"challenge",he:"אתגר",ex:"Learning a new language is a big challenge."},
+    {en:"collect",he:"לאסוף",ex:"He collects old coins."},
+    {en:"compare",he:"להשוות",ex:"Compare the two prices before you buy."},
+    {en:"concentrate",he:"להתרכז",ex:"It's hard to concentrate with all this noise."},
+    {en:"connect",he:"לחבר",ex:"Connect the cable to the computer."},
+    {en:"contain",he:"להכיל",ex:"This box contains fragile items."},
+    {en:"continue",he:"להמשיך",ex:"Please continue with what you were saying."},
+    {en:"control",he:"שליטה",ex:"She has good control of the situation."},
+    {en:"convince",he:"לשכנע",ex:"I tried to convince him to join us."},
+    {en:"curious",he:"סקרן",ex:"Children are naturally curious."},
+    {en:"damage",he:"נזק",ex:"The storm caused a lot of damage."},
+    {en:"deal",he:"להתמודד",ex:"How do you deal with stress?"},
+    {en:"decrease",he:"לרדת",ex:"The temperature will decrease at night."},
+    {en:"defend",he:"להגן",ex:"He defended his opinion strongly."},
+    {en:"deliver",he:"לספק",ex:"The pizza will be delivered in 30 minutes."},
+    {en:"demand",he:"לדרוש",ex:"The workers demanded higher wages."},
+    {en:"describe",he:"לתאר",ex:"Can you describe what you saw?"},
+    {en:"disappear",he:"להיעלם",ex:"The magician made the coin disappear."},
+    {en:"discover",he:"לגלות",ex:"Scientists discovered a new planet."},
+    {en:"distribute",he:"לחלק",ex:"The teacher distributed the worksheets."},
+    {en:"divide",he:"לחלק",ex:"Divide the cake into eight pieces."},
+    {en:"doubt",he:"ספק",ex:"I have no doubt that you'll succeed."},
+    {en:"drop",he:"להפיל",ex:"Don't drop the glass!"},
+    {en:"earn",he:"להרוויח",ex:"She earns a good salary."},
+    {en:"effect",he:"השפעה",ex:"Exercise has a positive effect on mood."},
+    {en:"emotion",he:"רגש",ex:"He had trouble controlling his emotions."},
+    {en:"environment",he:"סביבה",ex:"We must protect the environment."},
+    {en:"escape",he:"לברוח",ex:"The prisoner tried to escape."},
+    {en:"examine",he:"לבחון",ex:"The doctor examined the patient."},
+    {en:"exist",he:"להתקיים",ex:"Does life exist on other planets?"},
+    {en:"expand",he:"להרחיב",ex:"The company plans to expand to Europe."},
+    {en:"expect",he:"לצפות",ex:"I expect good results from you."},
+    {en:"explain",he:"להסביר",ex:"Can you explain this concept again?"},
+    {en:"express",he:"להביע",ex:"It's important to express your feelings."},
+    {en:"familiar",he:"מוכר",ex:"This song sounds familiar."},
+    {en:"force",he:"לכפות",ex:"You can't force someone to like you."},
+    {en:"forget",he:"לשכוח",ex:"Don't forget to do your homework."},
+    {en:"freedom",he:"חופש",ex:"Freedom of speech is important."},
+    {en:"friendship",he:"חברות",ex:"Our friendship has lasted many years."},
+    {en:"gather",he:"להתכנס",ex:"The family gathered for dinner."},
+    {en:"generation",he:"דור",ex:"Each generation faces new challenges."},
+    {en:"global",he:"גלובלי",ex:"Climate change is a global problem."},
+    {en:"goal",he:"מטרה",ex:"Set a clear goal and work towards it."},
+    {en:"growth",he:"צמיחה",ex:"Personal growth takes time and effort."},
+    {en:"honest",he:"כנה",ex:"Always be honest with your friends."},
+    {en:"identify",he:"לזהות",ex:"Can you identify this bird?"},
+    {en:"imagine",he:"לדמיין",ex:"Imagine a world without pollution."},
+    {en:"immediately",he:"מיד",ex:"Call me immediately if there's a problem."},
+    {en:"improve",he:"לשפר",ex:"I want to improve my English."},
+    {en:"include",he:"לכלול",ex:"The price includes breakfast."},
+    {en:"increase",he:"לעלות",ex:"The population continues to increase."},
+    {en:"join",he:"להצטרף",ex:"Would you like to join our team?"},
+    {en:"judge",he:"לשפוט",ex:"Don't judge a book by its cover."},
+    {en:"knowledge",he:"ידע",ex:"Knowledge is power."},
+    {en:"leadership",he:"מנהיגות",ex:"She showed great leadership skills."},
+    {en:"memory",he:"זיכרון",ex:"She has an excellent memory."},
+    {en:"mention",he:"להזכיר",ex:"Did you mention the meeting?"},
+    {en:"mistake",he:"טעות",ex:"Everyone makes mistakes."},
+    {en:"movement",he:"תנועה",ex:"There is a strong environmental movement."},
+    {en:"necessary",he:"הכרחי",ex:"Is it really necessary to come early?"},
+    {en:"nervous",he:"עצבני",ex:"I was very nervous before the exam."},
+    {en:"notice",he:"להבחין",ex:"Did you notice anything strange?"},
+    {en:"offer",he:"להציע",ex:"She offered to help me."},
+    {en:"organize",he:"לארגן",ex:"Can you organize the files by date?"},
+    {en:"participate",he:"להשתתף",ex:"Everyone should participate in the discussion."},
+    {en:"personal",he:"אישי",ex:"This is a very personal matter."},
+    {en:"persuade",he:"לשכנע",ex:"She persuaded him to change his mind."},
+    {en:"plan",he:"לתכנן",ex:"Let's plan the trip together."},
+    {en:"popular",he:"פופולרי",ex:"This song is very popular right now."},
+    {en:"predict",he:"לחזות",ex:"It's hard to predict the weather."},
+    {en:"prevent",he:"למנוע",ex:"Wash your hands to prevent illness."},
+    {en:"process",he:"תהליך",ex:"Learning is a slow process."},
+    {en:"produce",he:"לייצר",ex:"This factory produces cars."},
+    {en:"progress",he:"התקדמות",ex:"I can see real progress in your work."},
+    {en:"protect",he:"להגן",ex:"Protect the environment for future generations."},
+    {en:"prove",he:"להוכיח",ex:"You need to prove your point."},
+    {en:"publish",he:"לפרסם",ex:"She published her first book."},
+    {en:"purpose",he:"מטרה",ex:"What is the purpose of this meeting?"},
+    {en:"raise",he:"לגדל",ex:"They raised three children."},
+    {en:"realize",he:"להבין",ex:"I didn't realize how late it was."},
+    {en:"receive",he:"לקבל",ex:"Did you receive my message?"},
+    {en:"recognize",he:"לזהות",ex:"I recognized her voice immediately."},
+    {en:"reduce",he:"להפחית",ex:"We need to reduce our carbon footprint."},
+    {en:"reflect",he:"להשתקף",ex:"The lake reflects the sky."},
+    {en:"relationship",he:"מערכת יחסים",ex:"They have a strong relationship."},
+    {en:"remain",he:"להישאר",ex:"Please remain seated until the end."},
+    {en:"remind",he:"להזכיר",ex:"Remind me to call her later."},
+    {en:"research",he:"מחקר",ex:"Scientists are doing research on this disease."},
+    {en:"respect",he:"כבוד",ex:"Show respect for older people."},
+    {en:"result",he:"תוצאה",ex:"The result of the test was excellent."},
+    {en:"review",he:"לסקור",ex:"Review your notes before the exam."},
+    {en:"role",he:"תפקיד",ex:"What is your role in the project?"},
+    {en:"satisfy",he:"לספק",ex:"The food didn't satisfy my hunger."},
+    {en:"search",he:"לחפש",ex:"I searched for my keys everywhere."},
+    {en:"serious",he:"רציני",ex:"This is a very serious situation."},
+    {en:"similar",he:"דומה",ex:"The two houses look very similar."},
+    {en:"skill",he:"מיומנות",ex:"Communication is an important skill."},
+    {en:"society",he:"חברה",ex:"Technology has changed our society."},
+    {en:"solve",he:"לפתור",ex:"Can you solve this problem?"},
+    {en:"source",he:"מקור",ex:"What is the source of this information?"},
+    {en:"specific",he:"ספציפי",ex:"Can you be more specific?"},
+    {en:"spread",he:"להפיץ",ex:"The news spread quickly online."},
+    {en:"strength",he:"חוזק",ex:"Physical strength is important for this job."},
+    {en:"structure",he:"מבנה",ex:"The structure of the building is solid."},
+    {en:"struggle",he:"מאבק",ex:"She struggled to finish the homework."},
+    {en:"support",he:"לתמוך",ex:"Thank you for your support."},
+    {en:"survive",he:"לשרוד",ex:"How did they survive in the desert?"},
+    {en:"task",he:"משימה",ex:"Complete the task before Friday."},
+    {en:"technique",he:"טכניקה",ex:"She uses a special technique in painting."},
+    {en:"theory",he:"תיאוריה",ex:"Einstein's theory of relativity."},
+    {en:"threat",he:"איום",ex:"Climate change is a major threat."},
+    {en:"tradition",he:"מסורת",ex:"It's a family tradition."},
+    {en:"trust",he:"אמון",ex:"Trust is the basis of every relationship."},
+    {en:"unique",he:"ייחודי",ex:"Every person is unique."},
+    {en:"value",he:"ערך",ex:"What are your core values?"},
+    {en:"various",he:"שונים",ex:"There are various ways to solve this."},
+    {en:"vision",he:"חזון",ex:"She has a clear vision for the future."},
+    {en:"warn",he:"להזהיר",ex:"I warned you this would happen."},
+    {en:"wealth",he:"עושר",ex:"Wealth doesn't always bring happiness."},
+    {en:"wonder",he:"לתהות",ex:"I often wonder what the future holds."}
+  ],
+  3: [
+    {en:"acknowledge",he:"להכיר בכך",ex:"Acknowledge your mistakes."},
+    {en:"anticipate",he:"לצפות",ex:"Anticipate what comes next."},
+    {en:"collaborate",he:"לשתף פעולה",ex:"We need to collaborate."},
+    {en:"commit",he:"להתחייב",ex:"Commit to your goals."},
+    {en:"communicate",he:"לתקשר",ex:"Communicate clearly."},
+    {en:"consequence",he:"תוצאה",ex:"Think about the consequences."},
+    {en:"controversial",he:"שנוי במחלוקת",ex:"That's a controversial topic."},
+    {en:"criticism",he:"ביקורת",ex:"Accept criticism gracefully."},
+    {en:"diversity",he:"גיוון",ex:"We celebrate diversity."},
+    {en:"empathy",he:"אמפתיה",ex:"Show more empathy."},
+    {en:"essential",he:"חיוני",ex:"Sleep is essential."},
+    {en:"evaluate",he:"להעריך",ex:"Evaluate your progress."},
+    {en:"evidence",he:"עדות / ראיה",ex:"Show me the evidence."},
+    {en:"exception",he:"יוצא דופן",ex:"You're the exception."},
+    {en:"expectation",he:"ציפייה",ex:"Manage your expectations."},
+    {en:"fundamental",he:"בסיסי",ex:"That's a fundamental rule."},
+    {en:"generation",he:"דור",ex:"Our generation is unique."},
+    {en:"impact",he:"השפעה",ex:"Make a real impact."},
+    {en:"improve",he:"לשפר",ex:"Always try to improve."},
+    {en:"interpret",he:"לפרש",ex:"How do you interpret this?"},
+    {en:"investigate",he:"לחקור",ex:"Let's investigate."},
+    {en:"maintain",he:"לשמור",ex:"Maintain a healthy diet."},
+    {en:"negotiate",he:"לנהל משא ומתן",ex:"Learn to negotiate."},
+    {en:"objective",he:"מטרה",ex:"What's your objective?"},
+    {en:"obstacle",he:"מכשול",ex:"Face every obstacle."},
+    {en:"perceive",he:"לתפוס",ex:"How do you perceive this?"},
+    {en:"perspective",he:"נקודת מבט",ex:"See it from my perspective."},
+    {en:"phenomenon",he:"תופעה",ex:"It's a global phenomenon."},
+    {en:"potential",he:"פוטנציאל",ex:"You have so much potential."},
+    {en:"prejudice",he:"דעה קדומה",ex:"Fight prejudice."},
+    {en:"rational",he:"רציונלי",ex:"Be rational."},
+    {en:"recognize",he:"לזהות",ex:"I didn't recognize you!"},
+    {en:"resilience",he:"חוסן",ex:"Build your resilience."},
+    {en:"significant",he:"משמעותי",ex:"A significant change."},
+    {en:"strategy",he:"אסטרטגיה",ex:"What's your strategy?"},
+    {en:"sustainable",he:"בר-קיימא",ex:"Sustainable living matters."},
+    {en:"tolerate",he:"לסבול",ex:"I can't tolerate this."},
+    {en:"vulnerable",he:"פגיע",ex:"It's okay to be vulnerable."},
+    {en:"analyze",he:"לנתח",ex:"Analyze the data."},
+    {en:"contrast",he:"ניגוד",ex:"In contrast, I think..."},
+    {en:"convince",he:"לשכנע",ex:"Try to convince me."},
+    {en:"ethical",he:"אתי",ex:"Is it ethical?"},
+    {en:"imply",he:"לרמוז",ex:"What are you implying?"},
+    {en:"relevant",he:"רלוונטי",ex:"Is this relevant?"},
+    {en:"valid",he:"תקף",ex:"That's a valid point."},
+    {en:"complex",he:"מורכב",ex:"It's more complex than that."},
+    {en:"ambiguous",he:"דו-משמעי",ex:"That answer is ambiguous."},
+    {en:"bias",he:"הטיה",ex:"Avoid confirmation bias."},
+    {en:"insight",he:"תובנה",ex:"She shared a great insight."},
+    {en:"assumption",he:"הנחה",ex:"Don't make assumptions."},
+    {en:"abstract",he:"מופשט",ex:"Modern art can be very abstract."},
+    {en:"accurate",he:"מדויק",ex:"The data needs to be accurate."},
+    {en:"adapt",he:"להסתגל",ex:"Animals adapt to their environment."},
+    {en:"adequate",he:"מספיק",ex:"The food supply is not adequate."},
+    {en:"aspect",he:"היבט",ex:"Consider every aspect of the problem."},
+    {en:"assert",he:"לטעון",ex:"She asserted her right to speak."},
+    {en:"assess",he:"להעריך",ex:"The teacher will assess your progress."},
+    {en:"assume",he:"להניח",ex:"Don't assume anything without proof."},
+    {en:"attitude",he:"גישה",ex:"A positive attitude makes a big difference."},
+    {en:"authority",he:"סמכות",ex:"The government has the authority to decide."},
+    {en:"aware",he:"מודע",ex:"Are you aware of the risks?"},
+    {en:"capacity",he:"קיבולת",ex:"The stadium has a capacity of 50,000."},
+    {en:"circumstance",he:"נסיבה",ex:"Under the circumstances, it was the right choice."},
+    {en:"classify",he:"לסווג",ex:"Classify the animals by species."},
+    {en:"conclude",he:"להסיק",ex:"What can we conclude from this data?"},
+    {en:"conflict",he:"קונפליקט",ex:"There is a conflict between the two parties."},
+    {en:"conscious",he:"מודע",ex:"She was conscious of everyone watching her."},
+    {en:"context",he:"הקשר",ex:"Read the word in context to understand it."},
+    {en:"contribute",he:"לתרום",ex:"How can I contribute to the project?"},
+    {en:"controversy",he:"מחלוקת",ex:"The new law sparked controversy."},
+    {en:"criterion",he:"קריטריון",ex:"What is the main criterion for selection?"},
+    {en:"crucial",he:"קריטי",ex:"This is a crucial moment in the negotiation."},
+    {en:"decline",he:"לרדת",ex:"The birth rate is declining."},
+    {en:"deduce",he:"להסיק",ex:"From the clues, we can deduce the answer."},
+    {en:"define",he:"להגדיר",ex:"Define the term in your own words."},
+    {en:"demonstrate",he:"להדגים",ex:"She demonstrated the experiment to the class."},
+    {en:"derive",he:"לגזור",ex:"Many English words are derived from Latin."},
+    {en:"distinct",he:"מובחן",ex:"The two groups have distinct characteristics."},
+    {en:"dominate",he:"לשלוט",ex:"He tends to dominate every conversation."},
+    {en:"emerge",he:"לצוץ",ex:"A new trend is emerging in technology."},
+    {en:"emphasize",he:"להדגיש",ex:"The teacher emphasized the main points."},
+    {en:"enforce",he:"לאכוף",ex:"The police enforce the law."},
+    {en:"enhance",he:"לשפר",ex:"This app enhances your learning experience."},
+    {en:"enormous",he:"עצום",ex:"She made an enormous effort."},
+    {en:"establish",he:"להקים",ex:"The company was established in 1990."},
+    {en:"evident",he:"ברור",ex:"It was evident that she was nervous."},
+    {en:"evolve",he:"להתפתח",ex:"Languages evolve over time."},
+    {en:"exclude",he:"לא לכלול",ex:"Why was I excluded from the meeting?"},
+    {en:"explicit",he:"מפורש",ex:"Please be explicit about your expectations."},
+    {en:"factor",he:"גורם",ex:"Diet is an important factor in health."},
+    {en:"flexible",he:"גמיש",ex:"You need to be flexible in your approach."},
+    {en:"generate",he:"לייצר",ex:"Solar panels generate electricity."},
+    {en:"hypothesis",he:"השערה",ex:"The scientist formed a hypothesis."},
+    {en:"illustrate",he:"להמחיש",ex:"Can you illustrate your point with an example?"},
+    {en:"implement",he:"ליישם",ex:"It's time to implement the plan."},
+    {en:"indicate",he:"לציין",ex:"The arrow indicates the direction."},
+    {en:"inevitable",he:"בלתי נמנע",ex:"Change is inevitable."},
+    {en:"isolate",he:"לבודד",ex:"Scientists isolated the virus."},
+    {en:"justify",he:"להצדיק",ex:"How do you justify this decision?"},
+    {en:"lecture",he:"הרצאה",ex:"The professor gave an interesting lecture."},
+    {en:"methodology",he:"מתודולוגיה",ex:"What methodology did you use for the research?"},
+    {en:"minimize",he:"למזער",ex:"Try to minimize the risks."},
+    {en:"modify",he:"לשנות",ex:"You may need to modify your approach."},
+    {en:"monitor",he:"לעקוב",ex:"Monitor your progress weekly."},
+    {en:"motivate",he:"להניע",ex:"She knows how to motivate her students."},
+    {en:"neglect",he:"להזניח",ex:"Don't neglect your health."},
+    {en:"observe",he:"לצפות",ex:"Scientists observe animal behavior."},
+    {en:"obtain",he:"להשיג",ex:"How did you obtain this information?"},
+    {en:"obvious",he:"ברור",ex:"It's obvious that he's lying."},
+    {en:"occur",he:"להתרחש",ex:"When did the accident occur?"},
+    {en:"outcome",he:"תוצאה",ex:"What was the outcome of the meeting?"},
+    {en:"overlap",he:"לחפוף",ex:"The two topics overlap in many areas."},
+    {en:"persistent",he:"עקשני",ex:"Be persistent and you will succeed."},
+    {en:"policy",he:"מדיניות",ex:"The school has a strict phone policy."},
+    {en:"precise",he:"מדויק",ex:"Be precise in your measurements."},
+    {en:"principle",he:"עיקרון",ex:"He acted according to his principles."},
+    {en:"priority",he:"עדיפות",ex:"Education should be a top priority."},
+    {en:"promote",he:"לקדם",ex:"This campaign promotes healthy living."},
+    {en:"propose",he:"להציע",ex:"She proposed a new solution."},
+    {en:"rely",he:"להסתמך",ex:"You can rely on me."},
+    {en:"resolution",he:"החלטה",ex:"She made a New Year's resolution."},
+    {en:"resource",he:"משאב",ex:"Water is our most precious resource."},
+    {en:"restrict",he:"להגביל",ex:"The new law restricts screen time for children."},
+    {en:"reveal",he:"לחשוף",ex:"The investigation revealed the truth."},
+    {en:"revolution",he:"מהפכה",ex:"The industrial revolution changed the world."},
+    {en:"scope",he:"היקף",ex:"The scope of the project is very large."},
+    {en:"substitute",he:"תחליף",ex:"Honey is a good substitute for sugar."},
+    {en:"symbol",he:"סמל",ex:"The dove is a symbol of peace."},
+    {en:"synthesis",he:"סינתזה",ex:"The essay requires synthesis of many sources."},
+    {en:"tendency",he:"נטייה",ex:"There's a tendency to underestimate risks."},
+    {en:"transform",he:"לשנות",ex:"Technology has transformed communication."},
+    {en:"transition",he:"מעבר",ex:"The transition to high school can be difficult."},
+    {en:"undermine",he:"לערער",ex:"This decision undermines our trust."},
+    {en:"variable",he:"משתנה",ex:"There are many variables to consider."},
+    {en:"whereas",he:"בעוד ש",ex:"He likes sports, whereas she prefers art."}
+  ],
+  4: [
+    {en:"accountability",he:"אחריותיות",ex:"Take accountability."},
+    {en:"adversity",he:"מצוקה",ex:"Overcome adversity."},
+    {en:"articulate",he:"לבטא בבירור",ex:"Articulate your thoughts."},
+    {en:"authenticity",he:"אותנטיות",ex:"Be true to your authenticity."},
+    {en:"breadth",he:"רוחב",ex:"The breadth of knowledge."},
+    {en:"catalyst",he:"זרז",ex:"She was the catalyst for change."},
+    {en:"coherent",he:"קוהרנטי",ex:"Give a coherent argument."},
+    {en:"concise",he:"תמציתי",ex:"Be concise in your writing."},
+    {en:"connotation",he:"קונוטציה",ex:"Words carry connotations."},
+    {en:"cumulative",he:"מצטבר",ex:"The cumulative effect is huge."},
+    {en:"discern",he:"להבחין",ex:"Discern fact from fiction."},
+    {en:"eloquent",he:"רהוט",ex:"An eloquent speaker."},
+    {en:"encompass",he:"לכלול",ex:"The course encompasses many topics."},
+    {en:"hierarchy",he:"היררכיה",ex:"The social hierarchy matters."},
+    {en:"hypothetical",he:"היפותטי",ex:"A hypothetical scenario."},
+    {en:"implicit",he:"מרומז",ex:"The implicit meaning."},
+    {en:"integrity",he:"יושרה",ex:"Act with integrity."},
+    {en:"intrinsic",he:"פנימי/מהותי",ex:"Intrinsic motivation."},
+    {en:"leverage",he:"מינוף",ex:"Leverage your strengths."},
+    {en:"mitigate",he:"להפחית",ex:"Mitigate the risks."},
+    {en:"nuance",he:"ניואנס",ex:"Understand the nuance."},
+    {en:"paradigm",he:"פרדיגמה",ex:"A paradigm shift."},
+    {en:"precedent",he:"תקדים",ex:"Set a precedent."},
+    {en:"profound",he:"עמוק",ex:"A profound statement."},
+    {en:"reinforce",he:"לחזק",ex:"Reinforce good habits."},
+    {en:"rhetoric",he:"רטוריקה",ex:"Political rhetoric."},
+    {en:"scrutinize",he:"לבחון לעומק",ex:"Scrutinize every detail."},
+    {en:"subjective",he:"סובייקטיבי",ex:"Beauty is subjective."},
+    {en:"synthesize",he:"לסנתז",ex:"Synthesize the information."},
+    {en:"tangible",he:"מוחשי",ex:"Tangible results."},
+    {en:"tenacious",he:"עקשן/עיקש",ex:"She is tenacious."},
+    {en:"threshold",he:"סף",ex:"At the threshold of change."},
+    {en:"transcend",he:"לעלות מעל",ex:"Transcend your limits."},
+    {en:"unprecedented",he:"חסר תקדים",ex:"An unprecedented event."},
+    {en:"versatile",he:"רב-תכליתי",ex:"A versatile tool."},
+    {en:"advocate",he:"לתמוך/סנגור",ex:"Advocate for change."},
+    {en:"alienate",he:"להרחיק",ex:"Don't alienate your friends."},
+    {en:"captivate",he:"לרתק",ex:"The story captivated me."},
+    {en:"contradict",he:"לסתור",ex:"You contradict yourself."},
+    {en:"elaborate",he:"לפרט",ex:"Can you elaborate?"},
+    {en:"empower",he:"להעצים",ex:"Empower others."},
+    {en:"exaggerate",he:"להגזים",ex:"Don't exaggerate."},
+    {en:"facilitate",he:"לאפשר",ex:"Facilitate better learning."},
+    {en:"illuminate",he:"להאיר",ex:"Illuminate the problem."},
+    {en:"infer",he:"להסיק",ex:"What can you infer?"},
+    {en:"manifest",he:"להתבטא/לממש",ex:"Manifest your destiny."},
+    {en:"stimulate",he:"לגרות",ex:"Stimulate your mind."},
+    {en:"suppress",he:"לדכא",ex:"Don't suppress emotions."},
+    {en:"undermine",he:"לערער",ex:"Don't undermine others."},
+    {en:"assert",he:"לקבוע/לטעון",ex:"Assert your rights."},
+    {en:"abolish",he:"לבטל",ex:"The law was abolished in 1965."},
+    {en:"accumulate",he:"לצבור",ex:"He has accumulated a lot of knowledge."},
+    {en:"acknowledge",he:"להכיר",ex:"She acknowledged her mistake."},
+    {en:"albeit",he:"אף על פי",ex:"It was a success, albeit a small one."},
+    {en:"allegation",he:"טענה",ex:"The allegations were never proven."},
+    {en:"alleviate",he:"להקל",ex:"The medicine helped alleviate the pain."},
+    {en:"ambivalent",he:"אמביוולנטי",ex:"I feel ambivalent about the decision."},
+    {en:"analogous",he:"אנלוגי",ex:"The two situations are analogous."},
+    {en:"anticipate",he:"לצפות מראש",ex:"We didn't anticipate this problem."},
+    {en:"arbitrary",he:"שרירותי",ex:"The decision seemed completely arbitrary."},
+    {en:"attribute",he:"לייחס",ex:"The success can be attributed to teamwork."},
+    {en:"autonomy",he:"אוטונומיה",ex:"Students need some degree of autonomy."},
+    {en:"bias",he:"הטיה",ex:"Every news source has some bias."},
+    {en:"bureaucracy",he:"ביורוקרטיה",ex:"The bureaucracy slows everything down."},
+    {en:"cognitive",he:"קוגניטיבי",ex:"Language learning improves cognitive skills."},
+    {en:"comprehensive",he:"מקיף",ex:"A comprehensive review of the literature."},
+    {en:"conceptual",he:"מושגי",ex:"There is a conceptual difference here."},
+    {en:"contradiction",he:"סתירה",ex:"There is a contradiction in your argument."},
+    {en:"correlate",he:"להתאים",ex:"Income doesn't always correlate with happiness."},
+    {en:"credibility",he:"אמינות",ex:"The study lacks credibility."},
+    {en:"critique",he:"ביקורת",ex:"Write a critique of the novel."},
+    {en:"dedicate",he:"להקדיש",ex:"She dedicated her life to science."},
+    {en:"degrade",he:"לשחק",ex:"Pollution degrades the environment."},
+    {en:"deliberate",he:"מכוון",ex:"It was a deliberate choice."},
+    {en:"democracy",he:"דמוקרטיה",ex:"Democracy requires active citizen participation."},
+    {en:"deteriorate",he:"להידרדר",ex:"His health began to deteriorate."},
+    {en:"differentiate",he:"להבחין",ex:"Can you differentiate between these two concepts?"},
+    {en:"dilemma",he:"דילמה",ex:"She faced a difficult ethical dilemma."},
+    {en:"discourse",he:"שיח",ex:"Public discourse on this topic is essential."},
+    {en:"discriminate",he:"להפלות",ex:"It is illegal to discriminate based on religion."},
+    {en:"disparate",he:"שונה בתכלית",ex:"The two groups have disparate views."},
+    {en:"diversity",he:"גיוון",ex:"Diversity enriches our culture."},
+    {en:"dominant",he:"דומיננטי",ex:"English is the dominant language in business."},
+    {en:"empirical",he:"אמפירי",ex:"The theory is supported by empirical evidence."},
+    {en:"entity",he:"ישות",ex:"A corporation is a legal entity."},
+    {en:"ethical",he:"אתי",ex:"Was it ethical to conduct such an experiment?"},
+    {en:"evident",he:"מוחשי",ex:"The improvement was clearly evident."},
+    {en:"exploit",he:"לנצל",ex:"Companies exploit cheap labor."},
+    {en:"fallacy",he:"כשל לוגי",ex:"That's a logical fallacy."},
+    {en:"fluctuate",he:"להשתנות",ex:"Prices fluctuate with supply and demand."},
+    {en:"framework",he:"מסגרת",ex:"The researcher developed a theoretical framework."},
+    {en:"ideology",he:"אידיאולוגיה",ex:"Political ideology affects policy."},
+    {en:"incentive",he:"תמריץ",ex:"The bonus is an incentive to work harder."},
+    {en:"incorporate",he:"לשלב",ex:"Incorporate feedback into your revision."},
+    {en:"indigenous",he:"ילידי",ex:"The indigenous people of Australia are the Aborigines."},
+    {en:"inequality",he:"אי-שוויון",ex:"Income inequality is growing worldwide."},
+    {en:"infrastructure",he:"תשתית",ex:"Investing in infrastructure is essential."},
+    {en:"inherent",he:"טבוע",ex:"There are inherent risks in every business."},
+    {en:"innovation",he:"חדשנות",ex:"Innovation drives economic growth."},
+    {en:"integration",he:"אינטגרציה",ex:"Social integration is a key challenge."},
+    {en:"intervention",he:"התערבות",ex:"Military intervention was considered."},
+    {en:"legitimacy",he:"לגיטימיות",ex:"The government's legitimacy was questioned."},
+    {en:"liable",he:"אחראי",ex:"You are liable for damages."},
+    {en:"linear",he:"לינארי",ex:"Not all progress is linear."},
+    {en:"magnitude",he:"גודל",ex:"The magnitude of the problem is enormous."},
+    {en:"marginalize",he:"לדחוק לשוליים",ex:"Minority groups are often marginalized."},
+    {en:"mechanism",he:"מנגנון",ex:"What is the mechanism behind this reaction?"},
+    {en:"mediate",he:"לתווך",ex:"She mediated between the two parties."},
+    {en:"merit",he:"יתרון",ex:"The idea has its merits."},
+    {en:"mutual",he:"הדדי",ex:"There is a mutual benefit to this agreement."},
+    {en:"normative",he:"נורמטיבי",ex:"This is a normative claim."},
+    {en:"notion",he:"מושג",ex:"The notion of freedom varies across cultures."},
+    {en:"obsolete",he:"מיושן",ex:"This technology is now obsolete."},
+    {en:"paradox",he:"פרדוקס",ex:"It's a paradox that more choice leads to less happiness."},
+    {en:"parameter",he:"פרמטר",ex:"Define the parameters of your study."},
+    {en:"partial",he:"חלקי",ex:"This is only a partial solution."},
+    {en:"perceive",he:"לתפוס",ex:"How we perceive risk affects our decisions."},
+    {en:"persist",he:"להתמיד",ex:"Persist in your efforts despite failure."},
+    {en:"plausible",he:"סביר",ex:"That's a plausible explanation."},
+    {en:"predominantly",he:"בעיקר",ex:"The population is predominantly young."},
+    {en:"regulate",he:"לווסת",ex:"The government regulates food safety."},
+    {en:"rigorous",he:"קפדני",ex:"The research uses rigorous methodology."},
+    {en:"scrutiny",he:"בדיקה קפדנית",ex:"The proposal is under scrutiny."},
+    {en:"sequential",he:"רציף",ex:"Follow the steps in a sequential order."},
+    {en:"skeptical",he:"סקפטי",ex:"I'm skeptical about this claim."},
+    {en:"sovereign",he:"ריבוני",ex:"Each state is a sovereign nation."},
+    {en:"speculation",he:"ספקולציה",ex:"There is a lot of speculation about the outcome."},
+    {en:"subordinate",he:"כפוף",ex:"She is subordinate to the manager."},
+    {en:"supplement",he:"להשלים",ex:"Take vitamins to supplement your diet."},
+    {en:"systematic",he:"שיטתי",ex:"Use a systematic approach to problem-solving."},
+    {en:"tentative",he:"זמני",ex:"We have a tentative agreement."},
+    {en:"terminology",he:"טרמינולוגיה",ex:"Learn the key terminology in each subject."},
+    {en:"transparent",he:"שקוף",ex:"The process must be transparent."},
+    {en:"trivial",he:"טריוויאלי",ex:"Don't waste time on trivial matters."},
+    {en:"unanimous",he:"פה אחד",ex:"The vote was unanimous."},
+    {en:"underlying",he:"בסיסי",ex:"What is the underlying cause?"},
+    {en:"virtually",he:"כמעט",ex:"The project is virtually complete."},
+    {en:"yield",he:"להניב",ex:"The investment yielded good returns."}
+  ]
+};;
 
 // ═══════════════════════════════════════════
 //  STATE
@@ -2769,7 +3098,7 @@ let state = {
   bestScores: { mc: 0, flash: 0 },
   history: [],
   customPacks: [],        // [{id, name, words:[{en,he,ex}]}]
-  activeSources: ['builtin'] // 'builtin' | 'custom_xxx'
+  activeSources: ['level1'] // 'builtin' | 'custom_xxx'
 };
 
 function loadState() {
@@ -2782,7 +3111,13 @@ function loadState() {
     }
     state = { ...state, ...parsed };
   }
-  if (!state.activeSources || !state.activeSources.length) state.activeSources = ['builtin'];
+  if (!state.activeSources || !state.activeSources.length) state.activeSources = ['level1'];
+  // Migrate old 'builtin' source to 'level1'
+  if (state.activeSources) {
+    state.activeSources = state.activeSources.map(s => s === 'builtin' ? 'level1' : s);
+    // Remove old 'builtin' duplicates
+    state.activeSources = [...new Set(state.activeSources)];
+  }
   updateUI();
   updateNicknameUI();
   updateSourcesUI();
@@ -2798,24 +3133,23 @@ function saveState() {
 //  WORD HELPERS
 // ═══════════════════════════════════════════
 function getAvailableWords(level) {
-  const sources = state.activeSources || ['builtin'];
+  return getLevelWords();
+}
+
+function getLevelWords() {
+  const sources = state.activeSources || ['level1'];
   let words = [];
-  if (sources.includes('builtin')) {
-    for (let l = 1; l <= level; l++) {
-      if (!WORDS[l]) continue;
-      const packs = WORDS[l].packs;
-      const unlocked = state.unlockedPacks[l] || 1;
-      for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
-        words = words.concat(packs[p]);
-      }
-    }
-  }
+  [1,2,3,4].forEach(l => {
+    if (sources.includes('level'+l) && WORDS[l]) words = words.concat(WORDS[l]);
+  });
   ['band1','band2','band3'].forEach(bandId => {
     if (sources.includes(bandId)) words = words.concat(getBandWords(bandId));
   });
   (state.customPacks || []).forEach(pack => {
-    if (sources.includes(pack.id)) words = words.concat(pack.words);
+    if (sources.includes(pack.id)) words = words.concat(pack.words || []);
   });
+  // fallback
+  if (!words.length) words = WORDS[1] || [];
   return words;
 }
 
@@ -2897,41 +3231,28 @@ function confirmResetHistory() {
 
 // Words helpers
 function getBuiltinWords(level) {
+  // Legacy: return all words up to level
   let words = [];
   for (let l = 1; l <= level; l++) {
-    if (!WORDS[l]) continue;
-    const packs = WORDS[l].packs;
-    const unlocked = state.unlockedPacks[l] || 1;
-    for (let p = 0; p < Math.min(unlocked, packs.length); p++) {
-      words = words.concat(packs[p]);
-    }
+    if (WORDS[l]) words = words.concat(WORDS[l]);
   }
   return words;
 }
 
 function getActiveWords(level) {
-  const sources = state.activeSources || ['builtin'];
-  let words = [];
-  if (sources.includes('builtin')) words = words.concat(getBuiltinWords(level));
-  // Band words — not level-filtered (they're standalone)
-  ['band1','band2','band3'].forEach(bandId => {
-    if (sources.includes(bandId)) words = words.concat(getBandWords(bandId));
-  });
-  (state.customPacks || []).forEach(pack => {
-    if (sources.includes(pack.id)) words = words.concat(pack.words || []);
-  });
-  return words.length ? words : getBuiltinWords(level);
+  return getLevelWords();
 }
 
 function hasOnlyCustomSources() {
-  const sources = state.activeSources || ['builtin'];
-  return !sources.includes('builtin') && sources.some(s => s !== 'builtin');
+  const sources = state.activeSources || ['level1'];
+  const hasLevel = ['level1','level2','level3','level4'].some(l => sources.includes(l));
+  return !hasLevel && sources.some(s => s.length > 0);
 }
 
 function getFillWords(level) {
-  // Always use only builtin words for fill game (they have sentences)
-  const builtinWords = getBuiltinWords(level);
-  return builtinWords.filter(w => w.ex && w.ex.includes(w.en));
+  // Fill game needs words with example sentences
+  const allWords = getLevelWords();
+  return allWords.filter(w => w.ex && w.ex.includes(w.en));
 }
 
 function showTab(name) {
@@ -2991,40 +3312,10 @@ function updateUI() {
   updateAddWordsUI();
 }
 
-function updateAddWordsUI() {
-  const lvl = state.currentLevel;
-  const level = WORDS[lvl];
-  if (!level) return;
-  const totalPacks = level.packs.length;
-  const unlocked = state.unlockedPacks[lvl] || 1;
-  document.getElementById('addLevelLabel').textContent = lvl;
+function updateAddWordsUI() { /* removed - no longer needed */ }
 
-  const wordsTotal = getAvailableWords(lvl).length;
-  document.getElementById('wordsRemaining').textContent = `סה"כ ${wordsTotal} מילים זמינות ברמה ${lvl} ומטה`;
+function addWordPack() { /* removed */ }
 
-  const btn = document.getElementById('addWordsBtn');
-  if (unlocked >= totalPacks) {
-    btn.textContent = `✅ כל המילים של רמה ${lvl} פתוחות!`;
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-  } else {
-    btn.textContent = `➕ הוסף 50 מילים נוספות לרמה ${lvl}`;
-    btn.disabled = false;
-    btn.style.opacity = '1';
-  }
-}
-
-function addWordPack() {
-  const lvl = state.currentLevel;
-  const totalPacks = WORDS[lvl].packs.length;
-  const current = state.unlockedPacks[lvl] || 1;
-  if (current < totalPacks) {
-    state.unlockedPacks[lvl] = current + 1;
-    saveState();
-    updateAddWordsUI();
-    alert(`🎉 50 מילים חדשות נוספו לרמה ${lvl}!`);
-  }
-}
 
 // ═══════════════════════════════════════════
 //  GAME ROUTER
@@ -4924,8 +5215,8 @@ function deletePack(id, e) {
   if (e) e.stopPropagation();
   if (!confirm('למחוק את החבילה?')) return;
   state.customPacks = (state.customPacks || []).filter(p => p.id !== id);
-  state.activeSources = (state.activeSources || ['builtin']).filter(s => s !== id);
-  if (!state.activeSources.length) state.activeSources = ['builtin'];
+  state.activeSources = (state.activeSources || ['level1']).filter(s => s !== id);
+  if (!state.activeSources.length) state.activeSources = ['level1'];
   saveState();
   renderPacksScreen();
   updateSourcesUI();
@@ -5037,10 +5328,10 @@ async function loadBandFromFirebase(bandId) {
 async function toggleSource(id) {
   try {
     dbg('toggleSource start: ' + id);
-    let sources = [...(state.activeSources || ['builtin'])];
+    let sources = [...(state.activeSources || ['level1'])];
     if (sources.includes(id)) {
       sources = sources.filter(s => s !== id);
-      if (sources.length === 0) sources = ['builtin'];
+      if (sources.length === 0) sources = ['level1'];
       state.activeSources = sources;
       saveState();
       dbg('removed: ' + id);
@@ -5080,7 +5371,7 @@ function closeSourcesSheet() {
 }
 
 function renderSourcesDropdown() {
-  const sources = state.activeSources || ['builtin'];
+  const sources = state.activeSources || ['level1'];
   const packs = state.customPacks || [];
 
   // builtin
@@ -5088,6 +5379,15 @@ function renderSourcesDropdown() {
   const builtinChecked = sources.includes('builtin');
   builtinEl.className = 'dropdown-item' + (builtinChecked ? ' checked' : '');
   builtinEl.querySelector('.chk').textContent = builtinChecked ? '✓' : '';
+
+  // levels
+  ['level1','level2','level3','level4'].forEach(src => {
+    const el = document.getElementById('src-' + src);
+    if (!el) return;
+    const checked = sources.includes(src);
+    el.className = 'dropdown-item' + (checked ? ' checked' : '');
+    el.querySelector('.chk').textContent = checked ? '✓' : '';
+  });
 
   // bands
   ['band1','band2','band3'].forEach(bandId => {
@@ -5126,10 +5426,11 @@ function renderSourcesDropdown() {
 }
 
 function updateSourcesUI() {
-  const sources = state.activeSources || ['builtin'];
+  const sources = state.activeSources || ['level1'];
   const packs = state.customPacks || [];
   const parts = [];
-  if (sources.includes('builtin')) parts.push('מילים<br>אקראיות');
+  const levelNames = {level1:'רמה 1',level2:'רמה 2',level3:'רמה 3',level4:'רמה 4'};
+  ['level1','level2','level3','level4'].forEach(l => { if (sources.includes(l)) parts.push(levelNames[l]); });
   ['band1','band2','band3'].forEach(b => { if (sources.includes(b)) parts.push(b.replace('band','Band ')); });
   packs.forEach(p => { if (sources.includes(p.id)) parts.push(p.name); });
   const label = parts.length === 0 ? 'מקורות' : parts.length === 1 ? parts[0] : `${parts.length}<br>מקורות`;
