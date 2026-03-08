@@ -5374,12 +5374,6 @@ function renderSourcesDropdown() {
   const sources = state.activeSources || ['level1'];
   const packs = state.customPacks || [];
 
-  // builtin
-  const builtinEl = document.getElementById('src-builtin');
-  const builtinChecked = sources.includes('builtin');
-  builtinEl.className = 'dropdown-item' + (builtinChecked ? ' checked' : '');
-  builtinEl.querySelector('.chk').textContent = builtinChecked ? '✓' : '';
-
   // levels
   ['level1','level2','level3','level4'].forEach(src => {
     const el = document.getElementById('src-' + src);
