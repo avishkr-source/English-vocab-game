@@ -2411,6 +2411,76 @@
   </button>
 </div>
 
+<!-- ═══════════════ ADMIN PANEL ═══════════════ -->
+<div id="screen-admin" class="screen" style="padding:16px;direction:rtl;max-width:600px;margin:0 auto">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <button onclick="goHome()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text)">←</button>
+    <h2 style="margin:0;font-family:'Nunito',sans-serif;font-weight:900;font-size:22px">⚙️ ניהול מילים</h2>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <div style="font-weight:700;font-size:13px;color:var(--text-muted);margin-bottom:6px">מקור:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      <button onclick="adminSelectSource('level1')" class="admin-src-btn" id="admsrc-level1">🟢 רמה 1</button>
+      <button onclick="adminSelectSource('level2')" class="admin-src-btn" id="admsrc-level2">🔵 רמה 2</button>
+      <button onclick="adminSelectSource('level3')" class="admin-src-btn" id="admsrc-level3">🟠 רמה 3</button>
+      <button onclick="adminSelectSource('level4')" class="admin-src-btn" id="admsrc-level4">🔴 רמה 4</button>
+      <button onclick="adminSelectSource('band1')"  class="admin-src-btn" id="admsrc-band1">📗 Band 1</button>
+      <button onclick="adminSelectSource('band2')"  class="admin-src-btn" id="admsrc-band2">📘 Band 2</button>
+      <button onclick="adminSelectSource('band3')"  class="admin-src-btn" id="admsrc-band3">📕 Band 3</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input id="adminSearch" type="text" placeholder="🔍 חפש מילה..." oninput="adminFilter()" dir="ltr"
+      style="flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);
+             font-family:'Rubik',sans-serif;font-size:15px;background:var(--card);color:var(--text)">
+    <button onclick="adminShowAdd()"
+      style="padding:10px 18px;background:var(--primary);color:white;border:none;
+             border-radius:var(--radius-sm);font-family:'Rubik',sans-serif;font-weight:700;font-size:15px;cursor:pointer">+ הוסף</button>
+  </div>
+  <div id="adminCount" style="font-size:12px;color:var(--text-muted);margin-bottom:12px"></div>
+  <div id="adminWordList" style="display:flex;flex-direction:column;gap:8px;padding-bottom:80px"></div>
+
+  <!-- Edit/Add form overlay -->
+  <div id="adminFormOverlay" onclick="adminCloseForm()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000"></div>
+  <div id="adminEditForm"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:2001;
+           background:var(--card);border-radius:20px 20px 0 0;padding:24px;direction:rtl">
+    <h3 id="adminFormTitle" style="margin:0 0 16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:18px">✏️ עריכה</h3>
+    <input id="adminFormEn" type="text" placeholder="מילה באנגלית" dir="ltr"
+      style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;
+             font-size:16px;font-family:'Rubik',sans-serif;box-sizing:border-box;background:var(--card);color:var(--text)">
+    <input id="adminFormHe" type="text" placeholder="תרגום בעברית" dir="rtl"
+      style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;
+             font-size:16px;font-family:'Rubik',sans-serif;box-sizing:border-box;background:var(--card);color:var(--text)">
+    <input id="adminFormEx" type="text" placeholder="משפט לדוגמה (אנגלית, רשות)" dir="ltr"
+      style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;
+             font-size:16px;font-family:'Rubik',sans-serif;box-sizing:border-box;background:var(--card);color:var(--text)">
+    <div style="display:flex;gap:10px">
+      <button onclick="adminSaveWord()"
+        style="flex:1;padding:14px;background:var(--primary);color:white;border:none;
+               border-radius:var(--radius-sm);font-family:'Rubik',sans-serif;font-weight:700;font-size:16px;cursor:pointer">💾 שמור</button>
+      <button onclick="adminCloseForm()"
+        style="padding:14px 20px;background:none;border:2px solid var(--border);border-radius:var(--radius-sm);
+               font-family:'Rubik',sans-serif;font-weight:700;font-size:16px;cursor:pointer;color:var(--text)">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.admin-src-btn {
+  padding:8px 14px;border:2px solid var(--border);border-radius:20px;background:var(--card);
+  font-family:'Rubik',sans-serif;font-weight:600;font-size:13px;cursor:pointer;color:var(--text);transition:all 0.2s;
+}
+.admin-src-btn.active { border-color:var(--primary);background:var(--primary);color:white; }
+.admin-word-row {
+  display:flex;align-items:center;gap:8px;padding:12px 14px;
+  background:var(--card);border-radius:12px;border:1.5px solid var(--border);
+}
+</style>
+
 <script>
 // ═══════════════════════════════════════════
 //  WORD DATABASE
@@ -5275,7 +5345,8 @@ function getBandWords(bandId) {
   return bandCache[bandId] || [];
 }
 
-// ── Secret debug mode — 7 taps on logo ──
+// ── Admin panel — 7 taps on logo → PIN ──
+const ADMIN_PIN = '353535';
 let _secretTaps = 0, _secretTimer = null;
 function secretTap() {
   _secretTaps++;
@@ -5283,10 +5354,144 @@ function secretTap() {
   _secretTimer = setTimeout(() => { _secretTaps = 0; }, 2000);
   if (_secretTaps >= 7) {
     _secretTaps = 0;
-    const btns = document.getElementById('debugButtons');
-    const active = btns.style.display === 'flex';
-    btns.style.display = active ? 'none' : 'flex';
-    showToast(active ? '🔒 מצב debug כובה' : '🐛 מצב debug פעיל');
+    const pin = prompt('🔐 קוד גישה:');
+    if (pin === ADMIN_PIN) {
+      openAdmin();
+    } else if (pin !== null) {
+      showToast('❌ קוד שגוי');
+    }
+  }
+}
+
+function openAdmin() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-admin').classList.add('active');
+  adminSelectSource('level1');
+}
+
+// ── Admin state ──
+let adminSrc = 'level1';
+let adminWords = [];       // current working copy
+let adminEditIdx = -1;     // -1 = new word
+
+function adminGetWords(src) {
+  if (src.startsWith('level')) return [...(WORDS[parseInt(src[5])] || [])];
+  if (src.startsWith('band')) return [...(bandCache[src] || [])];
+  return [];
+}
+
+function adminSelectSource(src) {
+  adminSrc = src;
+  adminWords = adminGetWords(src);
+  document.querySelectorAll('.admin-src-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('admsrc-' + src);
+  if (btn) btn.classList.add('active');
+  document.getElementById('adminSearch').value = '';
+  adminRender(adminWords);
+}
+
+function adminFilter() {
+  const q = document.getElementById('adminSearch').value.trim().toLowerCase();
+  const filtered = q ? adminWords.filter(w => w.en.toLowerCase().includes(q) || w.he.includes(q)) : adminWords;
+  adminRender(filtered);
+}
+
+function adminRender(words) {
+  const list = document.getElementById('adminWordList');
+  document.getElementById('adminCount').textContent = `${words.length} מילים`;
+  list.innerHTML = '';
+  words.forEach((w, i) => {
+    // find real index in adminWords
+    const realIdx = adminWords.findIndex(x => x.en === w.en);
+    const row = document.createElement('div');
+    row.className = 'admin-word-row';
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:15px;direction:ltr">${w.en}</div>
+        <div style="color:var(--text-muted);font-size:13px">${w.he}${w.ex ? ' — <span style="font-size:11px;color:var(--text-muted)">' + w.ex + '</span>' : ''}</div>
+      </div>
+      <button onclick="adminShowEdit(${realIdx})" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px">✏️</button>
+      <button onclick="adminDelete(${realIdx})" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px">🗑️</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function adminShowAdd() {
+  adminEditIdx = -1;
+  document.getElementById('adminFormTitle').textContent = '➕ הוסף מילה';
+  document.getElementById('adminFormEn').value = '';
+  document.getElementById('adminFormHe').value = '';
+  document.getElementById('adminFormEx').value = '';
+  document.getElementById('adminFormOverlay').style.display = 'block';
+  document.getElementById('adminEditForm').style.display = 'block';
+  document.getElementById('adminFormEn').focus();
+}
+
+function adminShowEdit(idx) {
+  adminEditIdx = idx;
+  const w = adminWords[idx];
+  document.getElementById('adminFormTitle').textContent = '✏️ עריכת מילה';
+  document.getElementById('adminFormEn').value = w.en;
+  document.getElementById('adminFormHe').value = w.he;
+  document.getElementById('adminFormEx').value = w.ex || '';
+  document.getElementById('adminFormOverlay').style.display = 'block';
+  document.getElementById('adminEditForm').style.display = 'block';
+}
+
+function adminCloseForm() {
+  document.getElementById('adminFormOverlay').style.display = 'none';
+  document.getElementById('adminEditForm').style.display = 'none';
+}
+
+function adminSaveWord() {
+  const en = document.getElementById('adminFormEn').value.trim();
+  const he = document.getElementById('adminFormHe').value.trim();
+  const ex = document.getElementById('adminFormEx').value.trim();
+  if (!en || !he) { showToast('נא למלא לפחות מילה ותרגום'); return; }
+  const word = { en, he, ex: ex || en + '.' };
+
+  if (adminEditIdx === -1) {
+    adminWords.unshift(word);
+  } else {
+    adminWords[adminEditIdx] = word;
+  }
+  adminSaveSource();
+  adminCloseForm();
+  adminFilter();
+  showToast(adminEditIdx === -1 ? `✅ "${en}" נוסף` : `✅ "${en}" עודכן`);
+}
+
+function adminDelete(idx) {
+  const w = adminWords[idx];
+  if (!confirm(`למחוק "${w.en}" (${w.he})?`)) return;
+  adminWords.splice(idx, 1);
+  adminSaveSource();
+  adminFilter();
+  showToast(`🗑️ "${w.en}" נמחק`);
+}
+
+function adminSaveSource() {
+  if (adminSrc.startsWith('level')) {
+    const lvl = parseInt(adminSrc[5]);
+    WORDS[lvl] = [...adminWords];
+  } else if (adminSrc.startsWith('band')) {
+    bandCache[adminSrc] = [...adminWords];
+    saveBandCache();
+    // Also push to Firebase
+    adminSaveToFirebase(adminSrc);
+  }
+}
+
+async function adminSaveToFirebase(bandId) {
+  if (!fbDb) return;
+  try {
+    const data = {};
+    adminWords.forEach((w, i) => { data[i] = w; });
+    await fbDb.ref('wordlists/' + bandId).set(data);
+    showToast('☁️ נשמר ב-Firebase');
+  } catch(e) {
+    showToast('❌ שגיאה בשמירה ל-Firebase: ' + e.message);
   }
 }
 
