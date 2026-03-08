@@ -1548,7 +1548,7 @@
 </div>
 
 <nav>
-  <div class="logo">Word<span>Up</span> 🚀</div>
+  <div class="logo" id="logoTitle" onclick="secretTap()">Word<span>Up</span> 🚀</div>
   <div class="nav-score">
     <span class="nav-username" id="navUsername" onclick="openNicknameModal()" title="שנה כינוי">👤</span>
     <button id="sfx-btn" onclick="toggleSfx()" title="כבה צלילים" style="background:none;border:none;font-size:20px;cursor:pointer;padding:4px;">🔊</button>
@@ -5275,6 +5275,21 @@ function getBandWords(bandId) {
   return bandCache[bandId] || [];
 }
 
+// ── Secret debug mode — 7 taps on logo ──
+let _secretTaps = 0, _secretTimer = null;
+function secretTap() {
+  _secretTaps++;
+  clearTimeout(_secretTimer);
+  _secretTimer = setTimeout(() => { _secretTaps = 0; }, 2000);
+  if (_secretTaps >= 7) {
+    _secretTaps = 0;
+    const btns = document.getElementById('debugButtons');
+    const active = btns.style.display === 'flex';
+    btns.style.display = active ? 'none' : 'flex';
+    showToast(active ? '🔒 מצב debug כובה' : '🐛 מצב debug פעיל');
+  }
+}
+
 // ── Debug panel for mobile ──
 function dbg(msg) {
   console.log(msg);
@@ -6457,20 +6472,20 @@ async function initApp() {
 
 initApp();
 </script>
-<!-- DEBUG PANEL — remove after testing -->
+<!-- DEBUG PANEL — hidden, activated by 7 taps on logo -->
 <div id="debugPanel" onclick="this.innerHTML=''"
   style="position:fixed;bottom:60px;left:0;right:0;max-height:160px;overflow-y:auto;
          background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;font-family:monospace;
          padding:8px;z-index:9999;direction:ltr;display:none">
   טפ לנקות
 </div>
-<div style="position:fixed;bottom:62px;right:8px;z-index:10000;display:flex;gap:4px">
+<div id="debugButtons" style="position:fixed;bottom:62px;right:8px;z-index:10000;display:none;gap:4px">
   <div onclick="localStorage.removeItem('wordup_bands');bandCache={};dbg('cache cleared!');showToast('Cache נוקה — בחר Band מחדש')"
-    style="background:#e11d48;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer">
+    style="background:#e11d48;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer;display:inline-block">
     🗑 Cache
   </div>
   <div onclick="document.getElementById('debugPanel').style.display = document.getElementById('debugPanel').style.display==='none'?'block':'none'"
-    style="background:#6c63ff;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer">
+    style="background:#6c63ff;color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer;display:inline-block">
     🐛 DEBUG
   </div>
 </div>
